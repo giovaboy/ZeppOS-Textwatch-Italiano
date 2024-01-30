@@ -4,7 +4,7 @@ import { px, log } from '@zos/utils'
 import { Time, Battery, HeartRate, Step } from '@zos/sensor'
 import { launchApp, SYSTEM_APP_CALENDAR, SYSTEM_APP_STATUS, SYSTEM_APP_HR } from '@zos/router'
 import NumberToText from './numberToText.js'
-import themes from './themes.js'
+import { themes } from './themes.js'
 
 try {
   (() => {
@@ -69,14 +69,16 @@ const hourTextSize = px(64);
 const animDuration = 1000;
 const animFps = 25;
 
-const bgColor = 0x000000;
-const dateColor = 0xe4fa3c;
-const hourColor = 0x3182de;
-const minuteColor = 0xffcc33;
-const hourAODColor = 0xffffff;
-const minuteAODColor = 0xffffff;
-const healthColor = 0xffffff;
-const stepArcProgressColor = 0xffffff;
+let currentIdTheme = '';
+
+const aodBgColor = 0x000000;
+let dateColor = '';
+let hourColor = '';
+let minuteColor = '';
+let hourAODColor = '';
+let minuteAODColor = '';
+let healthColor = '';
+let stepArcProgressColor = '';
 
 const dummyCharset = 'acdegimnopqrstuvz';
 const dummyCharsetDate = 'abcdefgilmnoprstuvzì0123456789';
@@ -128,25 +130,34 @@ WatchFace({
   //https://github.com/zepp-health/zeppos-samples/blob/main/application/3.0/3.0-feature/app-service/time_service.js
 
   giova_build() {
+
     const aodBg = createWidget(widget.FILL_RECT, {
       x: px(0), y: px(0),
       w: px(480), h: px(480),
-      color: bgColor, show_level: show_level.ONAL_AOD,
+      color: aodBgColor, show_level: show_level.ONAL_AOD,
     })
 
     const editBg = createWidget(widget.WATCHFACE_EDIT_BG, {
       edit_id: 101,
       x: px(0), y: px(0),show_level: show_level.ONLY_NORMAL | show_level.ONLY_EDIT,
-      bg_config: [
-        { id: 1, preview: 'bg/prev_BG1.png', path: 'bg/BG1.png' },
-        { id: 2, preview: 'bg/prev_BG2.png', path: 'bg/BG2.png' }
-      ],
-      count: 2,
-      default_id: 1,
+      bg_config: themes,
+      count: themes.length,
+      default_id: 0,
       fg: 'edit/mask.png',
       tips_x: px(178), tips_y: px(428),
       tips_bg: 'edit/tips.png'
     })
+
+    currentIdTheme = editBg.getProperty(prop.CURRENT_TYPE);
+    if ( DEBUG ) logger.log(currentIdTheme);
+
+    hourColor = themes[currentIdTheme].values.hourColor;
+    minuteColor = themes[currentIdTheme].values.minuteColor;
+    hourAODColor = themes[currentIdTheme].values.hourAODColor;
+    minuteAODColor = themes[currentIdTheme].values.minuteAODColor;
+    healthColor = themes[currentIdTheme].values.healthColor;
+    stepArcProgressColor = themes[currentIdTheme].values.stepArcProgressColor;
+    dateColor = themes[currentIdTheme].values.dateColor;
 
     let screenType = getScene()
 
@@ -203,7 +214,7 @@ WatchFace({
         anim_auto_destroy: 0,
         anim_repeat: 0,
         anim_complete_func: () => {
-          //logger.log('animation complete animIdHourA');
+          if ( DEBUG ) logger.log('animation complete animIdHourA');
           hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourNormalFont, x: HaX });
         }
       })
@@ -215,7 +226,7 @@ WatchFace({
         anim_auto_destroy: 0,
         anim_repeat: 0,
         anim_complete_func: () => {
-          //logger.log('animation complete animIdHourB');
+          if ( DEBUG ) logger.log('animation complete animIdHourB');
           hourTextWidgetB.setProperty(prop.MORE, {text:'', x: HbX});
         }
       })
@@ -239,7 +250,7 @@ WatchFace({
         anim_auto_destroy: 0,
         anim_repeat: 0,
         anim_complete_func: () => {
-          //logger.log('animation complete animIdMinuteA');
+          if ( DEBUG ) logger.log('animation complete animIdMinuteA');
           minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteNormalFont, x: MaX });
         }
       })
@@ -251,7 +262,7 @@ WatchFace({
         anim_auto_destroy: 0,
         anim_repeat: 0,
         anim_complete_func: () => {
-          //logger.log('animation complete animIdMinuteB');
+          if ( DEBUG ) logger.log('animation complete animIdMinuteB');
           minuteTextWidgetB.setProperty(prop.MORE, {text: '', x: MbX });
         }
       })
@@ -358,7 +369,7 @@ WatchFace({
 
     const delegate = createWidget(widget.WIDGET_DELEGATE, {
       resume_call: function () {
-        //logger.log('resume_call');
+        if ( DEBUG ) logger.log('resume_call');
 
         if (screenType == SCENE_AOD) {
           batterySensor.offChange(updateBatteryWidget());
@@ -383,7 +394,7 @@ WatchFace({
         }
       },
       pause_call: function () {
-        //logger.log('ui pause');
+        if ( DEBUG ) logger.log('ui pause');
         batterySensor.offChange(updateBatteryWidget());
         stepSensor.offChange(updateStepWidget());
       },
@@ -391,7 +402,6 @@ WatchFace({
 
     if ( DEBUG ) {
       setInterval(() => {
-        //logger.log('interval 1000 ms');
         secondTextWidget.setProperty(prop.MORE, {text : timeSensor.getSeconds() });
       }, 1000)
     }
@@ -449,8 +459,8 @@ WatchFace({
     }
 
     function updateBatteryWidget(){
-      if(DEBUG) logger.log('battery onChange: ' + batterySensor.getCurrent())
-      if ( batterySensor.getCurrent() < 21) {
+      if ( DEBUG ) logger.log('battery onChange: ' + batterySensor.getCurrent())
+      if ( batterySensor.getCurrent() < 21 ) {
         batteryIconWidget.setProperty(prop.VISIBLE, true)
         batteryWidget.setProperty(prop.VISIBLE, true)
       } else {
@@ -460,7 +470,7 @@ WatchFace({
     }
 
     function updateStepWidget(){
-      if(DEBUG)logger.log('step onChange')
+      if ( DEBUG ) logger.log('step onChange')
       let currentStep = stepSensor.getCurrent()
       let targetStep = stepSensor.getTarget()
       stepArcProgressWidget.setProperty(prop.MORE, { show_level: show_level.ONLY_NORMAL,
