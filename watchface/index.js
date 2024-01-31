@@ -3,6 +3,7 @@ import { getScene, SCENE_AOD } from '@zos/app'
 import { px, log } from '@zos/utils'
 import { Time, Battery, HeartRate, Step } from '@zos/sensor'
 import { launchApp, SYSTEM_APP_CALENDAR, SYSTEM_APP_STATUS, SYSTEM_APP_HR } from '@zos/router'
+import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
 
@@ -17,14 +18,12 @@ try {
     *                            |
     * MIN     ##############     |     ############### +1
     *                            |
-    *
     *                            |
-    *
-    *
     */
 
 const DEBUG = false;
 const logger = log.getLogger("textwatch-italiano");
+const localStorage = new LocalStorage()
 
 const timeSensor = new Time()
 const batterySensor = new Battery()
@@ -69,16 +68,17 @@ const hourTextSize = px(64);
 const animDuration = 1000;
 const animFps = 25;
 
-let currentIdTheme = '';
+let currentIdTheme = 0;
 
 const aodBgColor = 0x000000;
-let dateColor = '';
-let hourColor = '';
-let minuteColor = '';
-let hourAODColor = '';
-let minuteAODColor = '';
-let healthColor = '';
-let stepArcProgressColor = '';
+
+let dateColor;
+let hourColor;
+let minuteColor;
+let hourAODColor = 0xffffff;
+let minuteAODColor = 0xffffff;
+let healthColor;
+let stepArcProgressColor;
 
 const dummyCharset = 'acdegimnopqrstuvz';
 const dummyCharsetDate = 'abcdefgilmnoprstuvzì0123456789';
@@ -149,7 +149,14 @@ WatchFace({
     })
 
     currentIdTheme = editBg.getProperty(prop.CURRENT_TYPE);
-    if ( DEBUG ) logger.log(currentIdTheme);
+
+    if ( currentIdTheme === undefined ) {//in AOD this will be undefined
+      currentIdTheme = localStorage.getItem( 'currentIdTheme', 0 )
+    } else {
+      localStorage.setItem( 'currentIdTheme', currentIdTheme )
+    }
+
+    if ( DEBUG ) logger.log( 'currentThemeId: ' + currentIdTheme );
 
     hourColor = themes[currentIdTheme].values.hourColor;
     minuteColor = themes[currentIdTheme].values.minuteColor;
