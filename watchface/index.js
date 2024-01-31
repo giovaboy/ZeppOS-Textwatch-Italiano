@@ -136,7 +136,7 @@ WatchFace({
 
     const editBg = createWidget(widget.WATCHFACE_EDIT_BG, {
       edit_id: 101,
-      x: px(0), y: px(0),show_level: show_level.ONLY_NORMAL,
+      x: px(0), y: px(0),show_level: show_level.ONLY_NORMAL | show_level.ONLY_EDIT,
       bg_config: [
         { id: 1, preview: 'bg/prev_BG1.png', path: 'bg/BG1.png' },
         { id: 2, preview: 'bg/prev_BG2.png', path: 'bg/BG2.png' }
@@ -168,13 +168,15 @@ WatchFace({
 
     dateTextWidget = createWidget(widget.TEXT,{font: dateFont,text: dummyCharsetDate,
       x: dateX, y: dateY, w: dateW, h: dateH,
-      text_size: dateTextSize, color: dateColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS });
+      text_size: dateTextSize, color: dateColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS
+    });
 
-    dateTextWidget.setProperty(prop.MORE, { font: dateFont,
-      //text: 'mercoledì 29 settembre' // test long value
-      //text: 'giovedì 30 aprile'//test height, g and  p
-      text: `${NumberToText.getDayOfWeek(timeSensor.getDay())} ${timeSensor.getDate()} ${NumberToText.getMonth(timeSensor.getMonth()-1)}`
-    })
+    updateDateWidget();
+    // dateTextWidget.setProperty(prop.MORE, { font: dateFont,
+    //   //text: 'mercoledì 29 settembre' // test long value
+    //   //text: 'giovedì 30 aprile'//test height, g and  p
+    //   text: `${NumberToText.getDayOfWeek(timeSensor.getDay())} ${timeSensor.getDate()} ${NumberToText.getMonth(timeSensor.getMonth()-1)}`
+    // })
 
     dateTextWidget.addEventListener(event.CLICK_DOWN, (info) => {
       launchApp({ appId: SYSTEM_APP_CALENDAR, native: true })
@@ -183,12 +185,12 @@ WatchFace({
     //dateTextWidget.setAlpha(0);
 
     /* HOURS */
-    hourTextWidgetA = createWidget(widget.TEXT, { font: hourNormalFont,
-      text: dummyCharset, x: HaX, y: HaY, w: HaW, h: HaH, text_size: hourTextSize, color: hourColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
-    hourTextWidgetB = createWidget(widget.TEXT, { font: hourNormalFont,
-      text: dummyCharset, x: HbX, y: HbY, w: HbW, h: HbH, text_size: hourTextSize, color: hourColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
-    hourAODWidget = createWidget(widget.TEXT, { font: hourAODFont,
-      text: dummyCharset, x: HaX, y: HaY, w: HaW, h: HaH, text_size: hourTextSize, color: hourAODColor, show_level: show_level.ONAL_AOD, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
+    hourTextWidgetA = createWidget(widget.TEXT, { font: hourNormalFont, text: dummyCharset,
+      x: HaX, y: HaY, w: HaW, h: HaH, text_size: hourTextSize, color: hourColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
+    hourTextWidgetB = createWidget(widget.TEXT, { font: hourNormalFont, text: dummyCharset,
+      x: HbX, y: HbY, w: HbW, h: HbH, text_size: hourTextSize, color: hourColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
+    hourAODWidget = createWidget(widget.TEXT, { font: hourAODFont, text: dummyCharset,
+      x: HaX, y: HaY, w: HaW, h: HaH, text_size: hourTextSize, color: hourAODColor, show_level: show_level.ONAL_AOD, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
 
       hourAODWidget.setProperty(prop.MORE, { font: hourAODFont, text: `${NumberToText.getHours(timeSensor.getHours())}` });
       hourTextWidgetA.setProperty(prop.MORE, { font: hourNormalFont, text: `${NumberToText.getHours(timeSensor.getHours())}` })
@@ -328,26 +330,27 @@ WatchFace({
     //   { text: '3' },
     //   { text: '4' }
     // ];
-    
+
     // let cycleImageTextList = createWidget(widget.CYCLE_IMAGE_TEXT_LIST, {
-    //   x: 300,
-    //   y: 50,
-    //   w: 50,
-    //   h: 50,
+    //   x: px(300),
+    //   y: px(50),
+    //   w: px(50),
+    //   h: px(50),
     //   data_array: dataArray,
     //   data_size: 5,
-    //   item_height: 10,
+    //   item_height: px(10),
     //   item_text_color: 0x000000,
     //   item_text_size: 8,
-    //   item_text_x: 0,
-    //   item_text_y: 0,
-    //   item_bg_color: 0xffffff
+    //   //item_text_x: 0,
+    //   //item_text_y: 0,
+    //   item_image_x: px(0),
+    //   //item_bg_color: 0xffffff
     // })
-    
+
     // // Get the index at the top of the scrolling list
     // result = cycleImageTextList.getProperty(prop.MORE, {})
     // console.log(result.index)
-    
+
     // // Set the index at the top of the scrolling list
     // cycleImageTextList.setProperty(prop.LIST_TOP, { index: 3 })
 
@@ -356,8 +359,6 @@ WatchFace({
     const delegate = createWidget(widget.WIDGET_DELEGATE, {
       resume_call: function () {
         //logger.log('resume_call');
-
-        if ( DEBUG ) { secondTextWidget.setProperty(prop.MORE, {text : timeSensor.getSeconds() }) }
 
         if (screenType == SCENE_AOD) {
           batterySensor.offChange(updateBatteryWidget());
@@ -369,6 +370,7 @@ WatchFace({
           hourAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourAODFont });
           minuteAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteAODFont });
         } else {
+          if ( DEBUG ) { secondTextWidget.setProperty(prop.MORE, {text : timeSensor.getSeconds() }) }
           batterySensor.onChange(updateBatteryWidget());
           stepSensor.onChange(updateStepWidget());
           hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourNormalFont, x: HaX });
@@ -377,6 +379,7 @@ WatchFace({
           minuteTextWidgetB.setProperty(prop.MORE, {text : '', x: MbX});
           hourAODWidget.setProperty(prop.MORE, {text : ''});
           minuteAODWidget.setProperty(prop.MORE, {text : ''});
+          updateDateWidget();
         }
       },
       pause_call: function () {
@@ -395,13 +398,14 @@ WatchFace({
 
     /* SENSOR EVENTS */
     timeSensor.onPerDay(() => {
+      if ( DEBUG ) logger.log('onPerDay: ' + timeSensor.getDay + '-' + timeSensor.getMonth)
       updateDateWidget();
     })
 
     timeSensor.onPerMinute(() => {
       let hour = timeSensor.getHours()
       let min = timeSensor.getMinutes()
-      //logger.log('onPerMinute: ' + hour + ':' + min)
+      if ( DEBUG ) logger.log('onPerMinute: ' + hour + ':' + min)
 
       if (screenType == SCENE_AOD) {
         hourAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, font: hourAODFont });
@@ -445,7 +449,7 @@ WatchFace({
     }
 
     function updateBatteryWidget(){
-      logger.log('battery onChange: ' + batterySensor.getCurrent())
+      if(DEBUG) logger.log('battery onChange: ' + batterySensor.getCurrent())
       if ( batterySensor.getCurrent() < 21) {
         batteryIconWidget.setProperty(prop.VISIBLE, true)
         batteryWidget.setProperty(prop.VISIBLE, true)
@@ -456,7 +460,7 @@ WatchFace({
     }
 
     function updateStepWidget(){
-      logger.log('step onChange')
+      if(DEBUG)logger.log('step onChange')
       let currentStep = stepSensor.getCurrent()
       let targetStep = stepSensor.getTarget()
       stepArcProgressWidget.setProperty(prop.MORE, { show_level: show_level.ONLY_NORMAL,
