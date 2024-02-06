@@ -12,7 +12,7 @@
     "vender": "giova",
     "description": "TextWatch in Italiano"
   },
-  "permissions": ["data:user.hd.heart_rate","data:user.hd.step","device:os.local_storage"],
+  "permissions": ["data:user.hd.heart_rate","data:user.hd.step","device:os.local_storage","event:os.weather.sun_rise","event:os.weather.sun_set"],
   "runtime": {
     "apiVersion": {
       "compatible": "2.0.0",

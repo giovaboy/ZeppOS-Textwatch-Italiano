@@ -37,7 +37,7 @@ export default class NumberToText {
       30: 'trenta',
       31: 'trentuno',
       38: 'trentotto',
-      40: 'quaranta',      
+      40: 'quaranta',
       41: 'quarantuno',
       48: 'quarantotto',
       50: 'cinquanta',
@@ -45,7 +45,7 @@ export default class NumberToText {
       58: 'cinquantotto'
     };
   }
-  
+
   static days() {
     return {
       0: 'domenica',
@@ -57,7 +57,7 @@ export default class NumberToText {
       6: 'sabato'
     };
   }
-  
+
   static months() {
     return {
       0:  'gennaio',
@@ -72,6 +72,16 @@ export default class NumberToText {
       9:  'ottobre',
       10: 'novembre',
       11: 'dicembre'
+    };
+  }
+
+  static minutesTo() {
+    return {
+      0:  'adesso',
+      1:  'tra un minuto',
+      15: 'tra un quarto d\'ora',
+      45: 'tra tre quarti d\'ora',
+      60: 'tra un\'ora'
     };
   }
 
@@ -110,13 +120,32 @@ export default class NumberToText {
         }
       }
     }
-  
+
   static getDayOfWeek(input) {
     return this.days()[input];
   }
-  
+
   static getMonth(input) {
     return this.months()[input];
+  }
+
+  static getMinutesTo(input) {
+    switch (input){
+      case 0:
+      case 1:
+      case 15:
+      case 45:
+      case 60:
+        return this.minutesTo()[input];
+      default:
+        let modulo = input % 10;
+        if (input < 26 || modulo === 1 || modulo === 8 ) {
+          return `${'tra '}${this.map()[input]}${' minuti'}`;
+        } else {
+          let decine = this.map()[Math.floor(input / 10) * 10];
+          return modulo ? `${'tra '}${decine}${this.map()[modulo]}${' minuti'}` : `${'tra '}${decine}${' minuti'}`;
+        }
+    }
   }
 
 }
