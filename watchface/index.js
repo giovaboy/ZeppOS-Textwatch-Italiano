@@ -1,7 +1,7 @@
 import { createWidget, widget, align, text_style, prop, anim_status, show_level, data_type, event } from '@zos/ui'
 import { getScene, SCENE_AOD } from '@zos/app'
 import { px, log } from '@zos/utils'
-import { Time, Battery, Step, Weather } from '@zos/sensor'
+import { Time, Step, Weather } from '@zos/sensor'
 import { launchApp, SYSTEM_APP_CALENDAR, SYSTEM_APP_STATUS, SYSTEM_APP_HR, SYSTEM_APP_SUN_AND_MOON} from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
@@ -10,7 +10,7 @@ import { themes } from './themes.js'
 try {
   (() => {
 
-    /*            column a              column b
+    /*            column A              column B
     *           _|________|_
     *          |            |
     *         |              |
@@ -27,7 +27,7 @@ const logger = log.getLogger("textwatch-italiano");
 const localStorage = new LocalStorage()
 
 const timeSensor = new Time()
-const batterySensor = new Battery()
+//const batterySensor = new Battery()
 const stepSensor = new Step()
 const weatherSensor = new Weather()
 
@@ -88,9 +88,13 @@ let stepArcProgressColor;
 const dummyCharset = 'acdegimnopqrstuvz';
 const dummyCharsetDate = 'abcdefgilmnoprstuvzì0123456789';
 
-const hourNormalFont = undefined;//'fonts/Barlow-Medium.ttf';
-const minuteNormalFont = undefined;//'fonts/Barlow-Regular.ttf';
-const dateFont = undefined;//'fonts/Barlow-RegularDate.ttf';
+const hourNormalFontA = 'fonts/Barlow-MediumA.ttf';
+const minuteNormalFontA = 'fonts/Barlow-RegularA.ttf';
+
+const hourNormalFontB = 'fonts/Barlow-MediumB.ttf';
+const minuteNormalFontB = 'fonts/Barlow-RegularB.ttf';
+
+const dateFont = 'fonts/Barlow-RegularDate.ttf';
 
 const hourAODFont = 'fonts/Barlow-Light.ttf';
 const minuteAODFont = 'fonts/Barlow-Thin.ttf';
@@ -127,8 +131,8 @@ let animIdHourB = null;
 let animIdMinuteA = null;
 let animIdMinuteB = null;
 
-let batteryIconWidget = null;
-let batteryWidget = null;
+// let batteryIconWidget = null;
+// let batteryWidget = null;
 let stepArcProgressWidget = null;
 let sunIconWidget = null;
 let sunWidget = null;
@@ -198,16 +202,16 @@ WatchFace({
     });
 
     /* HOURS */
-    hourTextWidgetA = createWidget(widget.TEXT, { font: hourNormalFont, text: dummyCharset,
+    hourTextWidgetA = createWidget(widget.TEXT, { font: hourNormalFontA, text: dummyCharset,
       x: HaX, y: HaY, w: HaW, h: HaH, text_size: hourTextSize, color: hourColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
-    hourTextWidgetB = createWidget(widget.TEXT, { font: hourNormalFont, text: dummyCharset,
+    hourTextWidgetB = createWidget(widget.TEXT, { font: hourNormalFontB, text: dummyCharset,
       x: HbX, y: HbY, w: HbW, h: HbH, text_size: hourTextSize, color: hourColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
     hourAODWidget = createWidget(widget.TEXT, { font: hourAODFont, text: dummyCharset,
       x: HaX, y: HaY, w: HaW, h: HaH, text_size: hourTextSize, color: hourAODColor, show_level: show_level.ONAL_AOD, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
 
     hourAODWidget.setProperty(prop.MORE, { font: hourAODFont, text: `${NumberToText.getHours(timeSensor.getHours())}` });
-    hourTextWidgetA.setProperty(prop.MORE, { font: hourNormalFont, text: `${NumberToText.getHours(timeSensor.getHours())}` });
-    hourTextWidgetB.setProperty(prop.MORE, { font: hourNormalFont,  text: '' });
+    hourTextWidgetA.setProperty(prop.MORE, { font: hourNormalFontA, text: `${NumberToText.getHours(timeSensor.getHours())}` });
+    hourTextWidgetB.setProperty(prop.MORE, { font: hourNormalFontB,  text: '' });
 
     animIdHourA = hourTextWidgetA.setProperty(prop.ANIM, {
       anim_steps: [anim_step_out],
@@ -217,7 +221,7 @@ WatchFace({
       anim_repeat: 0,
       anim_complete_func: () => {
         if ( DEBUG ) logger.log('animation complete animIdHourA');
-        hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourNormalFont, x: HaX });
+        hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourNormalFontA, x: HaX });
       }
     });
 
@@ -234,16 +238,16 @@ WatchFace({
     });
 
     /* MINUTES */
-    minuteTextWidgetA = createWidget(widget.TEXT, {char_space: 0, padding: false, font: minuteNormalFont,
+    minuteTextWidgetA = createWidget(widget.TEXT, {char_space: 0, padding: false, font: minuteNormalFontA,
        text: dummyCharset, show_level: show_level.ONLY_NORMAL, x: MaX, y: MaY, w: MaW, h: MaH, color: minuteColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS });
-    minuteTextWidgetB = createWidget(widget.TEXT, { font: minuteNormalFont,
+    minuteTextWidgetB = createWidget(widget.TEXT, { font: minuteNormalFontB,
        text: dummyCharset, show_level: show_level.ONLY_NORMAL, x: MbX, y: MbY, w: MbW, h: MbH, color: minuteColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS });
     minuteAODWidget = createWidget(widget.TEXT, { font: minuteAODFont,
        text: dummyCharset, show_level: show_level.ONAL_AOD, x: MaX, y: MaY, w: MaW, h: MaH, color: minuteAODColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS, });
 
     minuteAODWidget.setProperty(prop.MORE, { font: minuteAODFont, text: `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
-    minuteTextWidgetA.setProperty(prop.MORE, { font: minuteNormalFont, text: `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
-    minuteTextWidgetB.setProperty(prop.MORE, { font: minuteNormalFont, text: '' });
+    minuteTextWidgetA.setProperty(prop.MORE, { font: minuteNormalFontA, text: `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
+    minuteTextWidgetB.setProperty(prop.MORE, { font: minuteNormalFontB, text: '' });
 
     animIdMinuteA = minuteTextWidgetA.setProperty(prop.ANIM, {
       anim_steps: [anim_step_out],
@@ -253,7 +257,7 @@ WatchFace({
       anim_repeat: 0,
       anim_complete_func: () => {
         if ( DEBUG ) logger.log('animation complete animIdMinuteA');
-        minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteNormalFont, x: MaX });
+        minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteNormalFontA, x: MaX });
       }
     });
 
@@ -270,17 +274,17 @@ WatchFace({
     });
 
     /* BATTERY */
-    batteryIconWidget = createWidget(widget.IMG, {
-      x: px(200), y: px(20), pos_y: px(2), align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
-      src: 'icons/bat.png'
-    });
-    batteryWidget = createWidget(widget.TEXT_FONT,{
-      x: px(210), y: px(20), w: px(60), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
-      type: data_type.BATTERY,
-      color: healthColor, char_space: 0, padding: false, show_level: show_level.ONLY_NORMAL,
-      unit_type: 1,
-    });
-    updateBatteryWidget();
+    // batteryIconWidget = createWidget(widget.IMG, {
+    //   x: px(200), y: px(20), pos_y: px(2), align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
+    //   src: 'icons/bat.png'
+    // });
+    // batteryWidget = createWidget(widget.TEXT_FONT,{
+    //   x: px(210), y: px(20), w: px(60), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
+    //   type: data_type.BATTERY,
+    //   color: healthColor, char_space: 0, padding: false, show_level: show_level.ONLY_NORMAL,
+    //   unit_type: 1,
+    // });
+    // updateBatteryWidget();
 
     /* HEART */
     let heartIcon = createWidget(widget.IMG, {
@@ -393,7 +397,7 @@ WatchFace({
         if ( DEBUG ) logger.log('resume_call');
 
         if (screenType == SCENE_AOD) {
-          batterySensor.offChange(updateBatteryWidget());
+          //batterySensor.offChange(updateBatteryWidget());
           stepSensor.offChange(updateStepWidget());
           hourTextWidgetA.setProperty(prop.MORE, {text : '', x: HaX});
           minuteTextWidgetA.setProperty(prop.MORE, {text : '', x: MaX});
@@ -403,10 +407,10 @@ WatchFace({
           minuteAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteAODFont });
         } else {
           if ( DEBUG ) { secondTextWidget.setProperty(prop.MORE, {text : timeSensor.getSeconds() }) }
-          batterySensor.onChange(updateBatteryWidget());
+          //batterySensor.onChange(updateBatteryWidget());
           stepSensor.onChange(updateStepWidget());
-          hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourNormalFont, x: HaX });
-          minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteNormalFont, x: MaX });
+          hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourNormalFontA, x: HaX });
+          minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteNormalFontA, x: MaX });
           hourTextWidgetB.setProperty(prop.MORE, {text : '', x: HbX});
           minuteTextWidgetB.setProperty(prop.MORE, {text : '', x: MbX});
           hourAODWidget.setProperty(prop.MORE, {text : ''});
@@ -417,7 +421,7 @@ WatchFace({
       },
       pause_call: function () {
         if ( DEBUG ) logger.log('ui pause');
-        batterySensor.offChange(updateBatteryWidget());
+        //batterySensor.offChange(updateBatteryWidget());
         stepSensor.offChange(updateStepWidget());
       },
     });
@@ -443,7 +447,7 @@ WatchFace({
         hourAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, font: hourAODFont });
         minuteAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(min)}`, font: minuteAODFont });
       } else {
-        minuteTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(min)}`, font: minuteNormalFont, x: MbX });
+        minuteTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(min)}`, font: minuteNormalFontB, x: MbX });
 
         minuteTextWidgetA.setProperty(prop.ANIM_STATUS, {
           anim_id: animIdMinuteA,
@@ -456,7 +460,7 @@ WatchFace({
         });
 
         if (min == 0) {
-          hourTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, font: hourNormalFont, x: HbX });
+          hourTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, font: hourNormalFontB, x: HbX });
 
           hourTextWidgetA.setProperty(prop.ANIM_STATUS, {
             anim_id: animIdHourA,
@@ -481,16 +485,16 @@ WatchFace({
       });
     }
 
-    function updateBatteryWidget(){
-      if ( DEBUG ) logger.log('battery onChange: ' + batterySensor.getCurrent())
-      if ( batterySensor.getCurrent() <= lowBatteryLevel ) {
-        batteryIconWidget.setProperty(prop.VISIBLE, true);
-        batteryWidget.setProperty(prop.VISIBLE, true);
-      } else {
-        batteryIconWidget.setProperty(prop.VISIBLE, false);
-        batteryWidget.setProperty(prop.VISIBLE, false);
-      }
-    }
+    // function updateBatteryWidget(){
+    //   if ( DEBUG ) logger.log('battery onChange: ' + batterySensor.getCurrent())
+    //   if ( batterySensor.getCurrent() <= lowBatteryLevel ) {
+    //     batteryIconWidget.setProperty(prop.VISIBLE, true);
+    //     batteryWidget.setProperty(prop.VISIBLE, true);
+    //   } else {
+    //     batteryIconWidget.setProperty(prop.VISIBLE, false);
+    //     batteryWidget.setProperty(prop.VISIBLE, false);
+    //   }
+    // }
 
     function updateSunWidget(){
 
@@ -505,7 +509,7 @@ WatchFace({
         if (diff <= showSunEventTimeTo) {
           let diffArr = diff.split(':');
           sunWidget.setProperty(prop.MORE, { text: `${NumberToText.getMinutesTo(diffArr[0]*60 + diffArr[1]*1)}` });
-          sunIconWidget.setProperty(prop.MORE, {src: 'icons/sunrise2.png'});
+          sunIconWidget.setProperty(prop.MORE, {src: 'icons/sunrise.png'});
           sunIconWidget.setProperty(prop.VISIBLE, true);
           sunWidget.setProperty(prop.VISIBLE, true);
         } else {
@@ -518,7 +522,7 @@ WatchFace({
         if (diff <= showSunEventTimeTo) {
           let diffArr = diff.split(':');
           sunWidget.setProperty(prop.MORE, { text: `${NumberToText.getMinutesTo(diffArr[0]*60 + diffArr[1]*1)}` });
-          sunIconWidget.setProperty(prop.MORE, {src: 'icons/sunset2.png'});
+          sunIconWidget.setProperty(prop.MORE, {src: 'icons/sunset.png'});
           sunIconWidget.setProperty(prop.VISIBLE, true);
           sunWidget.setProperty(prop.VISIBLE, true);
         } else {
