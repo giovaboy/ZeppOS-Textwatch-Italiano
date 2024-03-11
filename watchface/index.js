@@ -27,11 +27,9 @@ const logger = log.getLogger("textwatch-italiano");
 const localStorage = new LocalStorage()
 
 const timeSensor = new Time()
-//const batterySensor = new Battery()
 const stepSensor = new Step()
 const weatherSensor = new Weather()
 
-const lowBatteryLevel = 20;
 const showSunEventTimeTo = "01:00";//hh:mm
 
 const dateTextSize = px(28);
@@ -88,11 +86,11 @@ let stepArcProgressColor;
 const dummyCharset = 'acdegimnopqrstuvz';
 const dummyCharsetDate = 'abcdefgilmnoprstuvzì0123456789';
 
-const hourNormalFontA = 'fonts/Barlow-MediumA.ttf';
-const minuteNormalFontA = 'fonts/Barlow-RegularA.ttf';
+const hourNormalFontA = undefined//'fonts/Barlow-MediumA.ttf';
+const minuteNormalFontA = undefined//'fonts/Barlow-RegularA.ttf';
 
-const hourNormalFontB = 'fonts/Barlow-MediumB.ttf';
-const minuteNormalFontB = 'fonts/Barlow-RegularB.ttf';
+const hourNormalFontB = undefined//'fonts/Barlow-MediumB.ttf';
+const minuteNormalFontB = undefined//'fonts/Barlow-RegularB.ttf';
 
 const dateFont = 'fonts/Barlow-RegularDate.ttf';
 
@@ -273,19 +271,6 @@ WatchFace({
       }
     });
 
-    /* BATTERY */
-    // batteryIconWidget = createWidget(widget.IMG, {
-    //   x: px(200), y: px(20), pos_y: px(2), align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
-    //   src: 'icons/bat.png'
-    // });
-    // batteryWidget = createWidget(widget.TEXT_FONT,{
-    //   x: px(210), y: px(20), w: px(60), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
-    //   type: data_type.BATTERY,
-    //   color: healthColor, char_space: 0, padding: false, show_level: show_level.ONLY_NORMAL,
-    //   unit_type: 1,
-    // });
-    // updateBatteryWidget();
-
     /* HEART */
     let heartIcon = createWidget(widget.IMG, {
       x: px(72), y: healtLine2Y + px(28), pos_y: px(-2), align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
@@ -374,18 +359,18 @@ WatchFace({
     //   h: px(50),
     //   data_array: dataArray,
     //   data_size: 5,
-    //   item_height: px(10),
+    //   item_height: 10,
     //   item_text_color: 0x000000,
     //   item_text_size: 8,
     //   //item_text_x: 0,
     //   //item_text_y: 0,
-    //   item_image_x: px(0),
+    //   //item_image_x: px(0),
     //   //item_bg_color: 0xffffff
     // })
 
     // // Get the index at the top of the scrolling list
-    // result = cycleImageTextList.getProperty(prop.MORE, {})
-    // console.log(result.index)
+    // const result = cycleImageTextList.getProperty(prop.MORE, {})
+    // logger.log(result.index)
 
     // // Set the index at the top of the scrolling list
     // cycleImageTextList.setProperty(prop.LIST_TOP, { index: 3 })
@@ -481,20 +466,9 @@ WatchFace({
       dateTextWidget.setProperty(prop.MORE, {
         font: dateFont,
         //text: 'mercoledi 30 settembre',
-        text: `${NumberToText.getDayOfWeek(timeSensor.getDay())} ${timeSensor.getDate()} ${NumberToText.getMonth(timeSensor.getMonth()-1)}`
+        text: `${NumberToText.getDayOfWeek(timeSensor.getDay())} ${timeSensor.getDate()} ${NumberToText.getMonth(timeSensor.getMonth())}`
       });
     }
-
-    // function updateBatteryWidget(){
-    //   if ( DEBUG ) logger.log('battery onChange: ' + batterySensor.getCurrent())
-    //   if ( batterySensor.getCurrent() <= lowBatteryLevel ) {
-    //     batteryIconWidget.setProperty(prop.VISIBLE, true);
-    //     batteryWidget.setProperty(prop.VISIBLE, true);
-    //   } else {
-    //     batteryIconWidget.setProperty(prop.VISIBLE, false);
-    //     batteryWidget.setProperty(prop.VISIBLE, false);
-    //   }
-    // }
 
     function updateSunWidget(){
 
