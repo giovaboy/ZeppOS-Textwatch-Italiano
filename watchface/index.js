@@ -72,6 +72,7 @@ const animDuration = 1000;
 const animFps = 25;
 
 let currentIdTheme = 0;
+let tideDataToday = null;
 
 const aodBgColor = 0x000000;
 
@@ -86,13 +87,13 @@ let stepArcProgressColor;
 const dummyCharset = 'acdegimnopqrstuvz';
 const dummyCharsetDate = 'abcdefgilmnoprstuvzì0123456789';
 
-const hourNormalFontA = undefined//'fonts/Barlow-MediumA.ttf';
-const minuteNormalFontA = undefined//'fonts/Barlow-RegularA.ttf';
+const hourNormalFontA = undefined;//'fonts/Barlow-MediumA.ttf';
+const minuteNormalFontA = undefined;//'fonts/Barlow-RegularA.ttf';
 
-const hourNormalFontB = undefined//'fonts/Barlow-MediumB.ttf';
-const minuteNormalFontB = undefined//'fonts/Barlow-RegularB.ttf';
+const hourNormalFontB = undefined;//'fonts/Barlow-MediumB.ttf';
+const minuteNormalFontB = undefined;//'fonts/Barlow-RegularB.ttf';
 
-const dateFont = 'fonts/Barlow-RegularDate.ttf';
+const dateFont = undefined;//'fonts/Barlow-RegularDate.ttf';
 
 const hourAODFont = 'fonts/Barlow-Light.ttf';
 const minuteAODFont = 'fonts/Barlow-Thin.ttf';
@@ -158,6 +159,7 @@ WatchFace({
     });
 
     currentIdTheme = editBg.getProperty(prop.CURRENT_TYPE);
+    tideDataToday = weatherSensor.getForecast().tideData.data[0];
 
     if ( currentIdTheme === undefined ) {//in AOD this will be undefined
       currentIdTheme = localStorage.getItem( 'currentIdTheme', 0 )
@@ -418,9 +420,10 @@ WatchFace({
     };
 
     /* SENSOR EVENTS */
-    timeSensor.onPerDay(() => {
-      if ( DEBUG ) logger.log('onPerDay: ' + timeSensor.getDay + '-' + timeSensor.getMonth)
+    timeSensor.onPerDay(() => {//DOES THIS EXECUTE?
+      if ( DEBUG ) logger.log('onPerDay: ' + timeSensor.getDay() + '-' + timeSensor.getMonth())
       updateDateWidget();
+      tideDataToday = weatherSensor.getForecast().tideData.data[0];
     });
 
     timeSensor.onPerMinute(() => {
@@ -445,6 +448,9 @@ WatchFace({
         });
 
         if (min == 0) {
+
+          tideDataToday = weatherSensor.getForecast().tideData.data[0];
+
           hourTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, font: hourNormalFontB, x: HbX });
 
           hourTextWidgetA.setProperty(prop.ANIM_STATUS, {
@@ -471,8 +477,10 @@ WatchFace({
     }
 
     function updateSunWidget(){
+      if ( tideDataToday == null) {
+        tideDataToday = weatherSensor.getForecast().tideData.data[0];
+      }
 
-      let tideDataToday = weatherSensor.getForecast().tideData.data[0];
       let sunrise = tideDataToday.sunrise.hour.toString().padStart(2, '0') + ':' + tideDataToday.sunrise.minute.toString().padStart(2, '0');
       let sunset = tideDataToday.sunset.hour.toString().padStart(2, '0') + ':' + tideDataToday.sunset.minute.toString().padStart(2, '0');
       let now = timeSensor.getHours().toString().padStart(2, '0') + ':' +  timeSensor.getMinutes().toString().padStart(2, '0');
