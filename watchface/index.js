@@ -1,4 +1,4 @@
-import { createWidget, widget, align, text_style, prop, anim_status, show_level, data_type, event } from '@zos/ui'
+import { createWidget, deleteWidget, widget, align, text_style, prop, anim_status, show_level, data_type, event } from '@zos/ui'
 import { getScene, SCENE_AOD } from '@zos/app'
 import { px, log } from '@zos/utils'
 import { Time, Step, Weather } from '@zos/sensor'
@@ -63,7 +63,7 @@ const MbW = HaW;
 
 const dateX = px(0);
 const dateY = px(400);
-const dateH = (dateTextSize * 1.25);// (font size * 1.25).
+const dateH = (dateTextSize * 1.25);// (font size * 1.25);
 const dateW = px(480);
 
 const healtLine2Y = px(316);
@@ -79,21 +79,19 @@ const aodBgColor = 0x000000;
 let dateColor;
 let hourColor;
 let minuteColor;
-let hourAODColor = 0xffffff;
-let minuteAODColor = 0xffffff;
+let hourAODColor;
+let minuteAODColor;
 let healthColor;
 let stepArcProgressColor;
 
-const dummyCharset = 'acdegimnopqrstuvz';
+const dummyCharsetMinute = 'acdegimnopqrstuv';
+const dummyCharsetHour = 'acdegimnopqrstuvz';
 const dummyCharsetDate = 'abcdefgilmnoprstuvzì0123456789';
 
-const hourNormalFontA = undefined;//'fonts/Barlow-MediumA.ttf';
-const minuteNormalFontA = undefined;//'fonts/Barlow-RegularA.ttf';
+const hourNormalFont = 'fonts/Barlow-Medium.ttf';
+const minuteNormalFont = 'fonts/Barlow-Regular.ttf';
 
-const hourNormalFontB = undefined;//'fonts/Barlow-MediumB.ttf';
-const minuteNormalFontB = undefined;//'fonts/Barlow-RegularB.ttf';
-
-const dateFont = undefined;//'fonts/Barlow-RegularDate.ttf';
+const dateFont = 'fonts/Barlow-RegularDate.ttf';
 
 const hourAODFont = 'fonts/Barlow-Light.ttf';
 const minuteAODFont = 'fonts/Barlow-Thin.ttf';
@@ -109,7 +107,7 @@ const anim_step_in = {
 const anim_step_out = {
   anim_prop: prop.X,
   anim_from: HaX,
-  anim_to: px(-570),// - (W - start x)
+  anim_to: px(-570),// - (W - start x);
   anim_rate: 'easeinout',
   anim_duration: animDuration
 }
@@ -141,7 +139,7 @@ WatchFace({
 
   textWatchBuild() {
 
-    const aodBg = createWidget(widget.FILL_RECT, {
+    createWidget(widget.FILL_RECT, {
       x: px(0), y: px(0),
       w: px(480), h: px(480),
       color: aodBgColor, show_level: show_level.ONAL_AOD
@@ -153,7 +151,7 @@ WatchFace({
       bg_config: themes,
       count: themes.length,
       default_id: 0,
-      fg: 'edit/mask.png',
+      fg: 'edit/fg.png',
       tips_x: px(178), tips_y: px(428),
       tips_bg: 'edit/tips.png'
     });
@@ -190,7 +188,7 @@ WatchFace({
     };
 
     /* DATE */
-    dateTextWidget = createWidget(widget.TEXT,{font: dateFont,text: dummyCharsetDate,
+    dateTextWidget = createWidget(widget.TEXT,{ font: dateFont, text: dummyCharsetDate,
       x: dateX, y: dateY, w: dateW, h: dateH,
       text_size: dateTextSize, color: dateColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS
     });
@@ -202,16 +200,16 @@ WatchFace({
     });
 
     /* HOURS */
-    hourTextWidgetA = createWidget(widget.TEXT, { font: hourNormalFontA, text: dummyCharset,
+    hourTextWidgetA = createWidget(widget.TEXT, { font: hourNormalFont, text: dummyCharsetHour,
       x: HaX, y: HaY, w: HaW, h: HaH, text_size: hourTextSize, color: hourColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
-    hourTextWidgetB = createWidget(widget.TEXT, { font: hourNormalFontB, text: dummyCharset,
+    hourTextWidgetB = createWidget(widget.TEXT, { font: hourNormalFont, text: dummyCharsetHour,
       x: HbX, y: HbY, w: HbW, h: HbH, text_size: hourTextSize, color: hourColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
-    hourAODWidget = createWidget(widget.TEXT, { font: hourAODFont, text: dummyCharset,
+    hourAODWidget = createWidget(widget.TEXT, { font: hourAODFont, text: dummyCharsetHour,
       x: HaX, y: HaY, w: HaW, h: HaH, text_size: hourTextSize, color: hourAODColor, show_level: show_level.ONAL_AOD, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
 
-    hourAODWidget.setProperty(prop.MORE, { font: hourAODFont, text: `${NumberToText.getHours(timeSensor.getHours())}` });
-    hourTextWidgetA.setProperty(prop.MORE, { font: hourNormalFontA, text: `${NumberToText.getHours(timeSensor.getHours())}` });
-    hourTextWidgetB.setProperty(prop.MORE, { font: hourNormalFontB,  text: '' });
+    hourAODWidget.setProperty(prop.MORE, { text: `${NumberToText.getHours(timeSensor.getHours())}` });
+    hourTextWidgetA.setProperty(prop.MORE, { text: `${NumberToText.getHours(timeSensor.getHours())}` });
+    hourTextWidgetB.setProperty(prop.MORE, { text: '' });
 
     animIdHourA = hourTextWidgetA.setProperty(prop.ANIM, {
       anim_steps: [anim_step_out],
@@ -221,7 +219,7 @@ WatchFace({
       anim_repeat: 0,
       anim_complete_func: () => {
         if ( DEBUG ) logger.log('animation complete animIdHourA');
-        hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourNormalFontA, x: HaX });
+        hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, x: HaX });
       }
     });
 
@@ -233,21 +231,21 @@ WatchFace({
       anim_repeat: 0,
       anim_complete_func: () => {
         if ( DEBUG ) logger.log('animation complete animIdHourB');
-        hourTextWidgetB.setProperty(prop.MORE, {text:'', x: HbX});
+        hourTextWidgetB.setProperty(prop.MORE, {text: '', x: HbX});
       }
     });
 
     /* MINUTES */
-    minuteTextWidgetA = createWidget(widget.TEXT, {char_space: 0, padding: false, font: minuteNormalFontA,
-       text: dummyCharset, show_level: show_level.ONLY_NORMAL, x: MaX, y: MaY, w: MaW, h: MaH, color: minuteColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS });
-    minuteTextWidgetB = createWidget(widget.TEXT, { font: minuteNormalFontB,
-       text: dummyCharset, show_level: show_level.ONLY_NORMAL, x: MbX, y: MbY, w: MbW, h: MbH, color: minuteColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS });
-    minuteAODWidget = createWidget(widget.TEXT, { font: minuteAODFont,
-       text: dummyCharset, show_level: show_level.ONAL_AOD, x: MaX, y: MaY, w: MaW, h: MaH, color: minuteAODColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS, });
+    minuteTextWidgetA = createWidget(widget.TEXT, { font: minuteNormalFont, text: dummyCharsetMinute,
+      show_level: show_level.ONLY_NORMAL, x: MaX, y: MaY, w: MaW, h: MaH, color: minuteColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS });
+    minuteTextWidgetB = createWidget(widget.TEXT, { font: minuteNormalFont, text: dummyCharsetMinute,
+      show_level: show_level.ONLY_NORMAL, x: MbX, y: MbY, w: MbW, h: MbH, color: minuteColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS });
+    minuteAODWidget = createWidget(widget.TEXT, { font: minuteAODFont, text: dummyCharsetMinute,
+      show_level: show_level.ONAL_AOD, x: MaX, y: MaY, w: MaW, h: MaH, color: minuteAODColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS });
 
-    minuteAODWidget.setProperty(prop.MORE, { font: minuteAODFont, text: `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
-    minuteTextWidgetA.setProperty(prop.MORE, { font: minuteNormalFontA, text: `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
-    minuteTextWidgetB.setProperty(prop.MORE, { font: minuteNormalFontB, text: '' });
+    minuteAODWidget.setProperty(prop.MORE, { text: `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
+    minuteTextWidgetA.setProperty(prop.MORE, { text: `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
+    minuteTextWidgetB.setProperty(prop.MORE, { text: '' });
 
     animIdMinuteA = minuteTextWidgetA.setProperty(prop.ANIM, {
       anim_steps: [anim_step_out],
@@ -257,7 +255,7 @@ WatchFace({
       anim_repeat: 0,
       anim_complete_func: () => {
         if ( DEBUG ) logger.log('animation complete animIdMinuteA');
-        minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteNormalFontA, x: MaX });
+        minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, x: MaX });
       }
     });
 
@@ -313,7 +311,7 @@ WatchFace({
       x: px(376), y: healtLine2Y + px(28), align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
       src: 'icons/dis.png'
     });
-    distanceWidget = createWidget(widget.TEXT_FONT,{
+    let distanceWidget = createWidget(widget.TEXT_FONT,{
       x: px(362), y: healtLine2Y, w: px(60), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
       type: data_type.DISTANCE,
       color: healthColor, char_space: 0, padding: false, show_level: show_level.ONLY_NORMAL,
@@ -333,7 +331,7 @@ WatchFace({
     });
     sunWidget = createWidget(widget.TEXT,{
       x: px(110), y: px(52), w: px(260), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
-      text:'',
+      text:null,
       color: healthColor, char_space: 0, padding: false, show_level: show_level.ONLY_NORMAL,
       unit_type: 0,
     });
@@ -379,25 +377,25 @@ WatchFace({
 
 
 
-    const delegate = createWidget(widget.WIDGET_DELEGATE, {
+    createWidget(widget.WIDGET_DELEGATE, {
       resume_call: function () {
         if ( DEBUG ) logger.log('resume_call');
 
         if (screenType == SCENE_AOD) {
           //batterySensor.offChange(updateBatteryWidget());
-          stepSensor.offChange(updateStepWidget());
+          stepSensor.offChange(updateStepWidget);
           hourTextWidgetA.setProperty(prop.MORE, {text : '', x: HaX});
           minuteTextWidgetA.setProperty(prop.MORE, {text : '', x: MaX});
           hourTextWidgetB.setProperty(prop.MORE, {text : '', x: HbX});
           minuteTextWidgetB.setProperty(prop.MORE, {text : '', x: MbX});
-          hourAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourAODFont });
-          minuteAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteAODFont });
+          hourAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}` });
+          minuteAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
         } else {
           if ( DEBUG ) { secondTextWidget.setProperty(prop.MORE, {text : timeSensor.getSeconds() }) }
           //batterySensor.onChange(updateBatteryWidget());
-          stepSensor.onChange(updateStepWidget());
-          hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, font: hourNormalFontA, x: HaX });
-          minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, font: minuteNormalFontA, x: MaX });
+          stepSensor.onChange(updateStepWidget);
+          hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, x: HaX });
+          minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, x: MaX });
           hourTextWidgetB.setProperty(prop.MORE, {text : '', x: HbX});
           minuteTextWidgetB.setProperty(prop.MORE, {text : '', x: MbX});
           hourAODWidget.setProperty(prop.MORE, {text : ''});
@@ -409,7 +407,7 @@ WatchFace({
       pause_call: function () {
         if ( DEBUG ) logger.log('ui pause');
         //batterySensor.offChange(updateBatteryWidget());
-        stepSensor.offChange(updateStepWidget());
+        stepSensor.offChange(updateStepWidget);
       },
     });
 
@@ -432,10 +430,10 @@ WatchFace({
       if ( DEBUG ) logger.log('onPerMinute: ' + hour + ':' + min);
 
       if (screenType == SCENE_AOD) {
-        hourAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, font: hourAODFont });
-        minuteAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(min)}`, font: minuteAODFont });
+        hourAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}` });
+        minuteAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(min)}` });
       } else {
-        minuteTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(min)}`, font: minuteNormalFontB, x: MbX });
+        minuteTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(min)}`, x: MbX });
 
         minuteTextWidgetA.setProperty(prop.ANIM_STATUS, {
           anim_id: animIdMinuteA,
@@ -451,7 +449,7 @@ WatchFace({
 
           tideDataToday = weatherSensor.getForecast().tideData.data[0];
 
-          hourTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, font: hourNormalFontB, x: HbX });
+          hourTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, x: HbX });
 
           hourTextWidgetA.setProperty(prop.ANIM_STATUS, {
             anim_id: animIdHourA,
@@ -470,7 +468,6 @@ WatchFace({
 
     function updateDateWidget(){
       dateTextWidget.setProperty(prop.MORE, {
-        font: dateFont,
         //text: 'mercoledi 30 settembre',
         text: `${NumberToText.getDayOfWeek(timeSensor.getDay())} ${timeSensor.getDate()} ${NumberToText.getMonth(timeSensor.getMonth())}`
       });
@@ -559,6 +556,31 @@ WatchFace({
 
   onDestroy() {
     logger.log('onDestroy invoke');
+    deleteWidget(dateTextWidget);
+    deleteWidget(hourTextWidgetA);
+    deleteWidget(hourTextWidgetB);
+    deleteWidget(minuteTextWidgetA);
+    deleteWidget(minuteTextWidgetB);
+
+    deleteWidget(hourAODWidget);
+    deleteWidget(minuteAODWidget);
+
+    deleteWidget(stepArcProgressWidget);
+    deleteWidget(sunIconWidget);
+    deleteWidget(sunWidget);
+
+    dateTextWidget = null;
+    hourTextWidgetA = null;
+    hourTextWidgetB = null;
+    minuteTextWidgetA = null;
+    minuteTextWidgetB = null;
+
+    hourAODWidget = null;
+    minuteAODWidget = null;
+
+    stepArcProgressWidget = null;
+    sunIconWidget = null;
+    sunWidget = null;
   },
 })
 
