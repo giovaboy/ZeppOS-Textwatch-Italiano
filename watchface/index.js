@@ -1,11 +1,12 @@
-import { createWidget, deleteWidget, widget, align, text_style, prop, anim_status, show_level, data_type, event } from '@zos/ui'
+import { createWidget, deleteWidget, widget, align, text_style, prop, anim_status, show_level, event, edit_type } from '@zos/ui'
 import { getScene, SCENE_AOD } from '@zos/app'
 import { px, log } from '@zos/utils'
-import { Time, Step, Weather } from '@zos/sensor'
-import { launchApp, SYSTEM_APP_CALENDAR, SYSTEM_APP_STATUS, SYSTEM_APP_HR, SYSTEM_APP_SUN_AND_MOON} from '@zos/router'
+import { Time, Weather } from '@zos/sensor'
+import { launchApp, SYSTEM_APP_CALENDAR, SYSTEM_APP_SUN_AND_MOON} from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
+import EditTypesUtil, {widgetOptionalArray } from './editTypesUtil.js'
 
 try {
   (() => {
@@ -27,7 +28,6 @@ const logger = log.getLogger("textwatch-italiano");
 const localStorage = new LocalStorage()
 
 const timeSensor = new Time()
-const stepSensor = new Step()
 const weatherSensor = new Weather()
 
 const showSunEventTimeTo = "01:00";//hh:mm
@@ -66,7 +66,8 @@ const dateY = px(400);
 const dateH = (dateTextSize * 1.25);// (font size * 1.25);
 const dateW = px(480);
 
-const healtLine2Y = px(316);
+const editableWidgetsIds = [110,111,112];
+const editableWidgetsHW = px(92);
 
 const animDuration = 1000;
 const animFps = 25;
@@ -82,7 +83,6 @@ let minuteColor;
 let hourAODColor;
 let minuteAODColor;
 let healthColor;
-let stepArcProgressColor;
 
 const dummyCharsetMinute = 'acdegimnopqrstuv';
 const dummyCharsetHour = 'acdegimnopqrstuvz';
@@ -128,11 +128,12 @@ let animIdHourB = null;
 let animIdMinuteA = null;
 let animIdMinuteB = null;
 
-// let batteryIconWidget = null;
-// let batteryWidget = null;
-let stepArcProgressWidget = null;
 let sunIconWidget = null;
 let sunWidget = null;
+
+let editGroup1 = null;
+let editGroup2 = null;
+let editGroup3 = null;
 
 WatchFace({
   //https://github.com/zepp-health/zeppos-samples/blob/main/application/3.0/3.0-feature/app-service/time_service.js
@@ -151,9 +152,9 @@ WatchFace({
       bg_config: themes,
       count: themes.length,
       default_id: 0,
-      fg: 'edit/fg.png',
-      tips_x: px(178), tips_y: px(428),
-      tips_bg: 'edit/tips.png'
+      fg: 'mask/fg_x.png',
+      tips_x: px(178), tips_y: px(20),
+      tips_bg: 'mask/tips.png'
     });
 
     currentIdTheme = editBg.getProperty(prop.CURRENT_TYPE);
@@ -172,7 +173,6 @@ WatchFace({
     hourAODColor = themes[currentIdTheme].values.hourAODColor;
     minuteAODColor = themes[currentIdTheme].values.minuteAODColor;
     healthColor = themes[currentIdTheme].values.healthColor;
-    stepArcProgressColor = themes[currentIdTheme].values.stepArcProgressColor;
     dateColor = themes[currentIdTheme].values.dateColor;
 
     let screenType = getScene();
@@ -271,63 +271,10 @@ WatchFace({
       }
     });
 
-    /* HEART */
-    let heartIcon = createWidget(widget.IMG, {
-      x: px(72), y: healtLine2Y + px(28), pos_y: px(-2), align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
-      src: 'icons/heart.png'
-    });
-    const heartWidget = createWidget(widget.TEXT_FONT,{
-      x: px(58), y: healtLine2Y, w: px(60), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
-      type: data_type.HEART,
-      color: healthColor, char_space: 0, padding: false, show_level: show_level.ONLY_NORMAL,
-      unit_type: 0,  //  0: hide the unit     1:show the unit with lower case    2: show the unit with upper case.
-    });
-    heartIcon.addEventListener(event.CLICK_DOWN, () => {
-      launchApp({ appId: SYSTEM_APP_HR, native: true })
-    });
-    heartWidget.addEventListener(event.CLICK_DOWN, () => {
-      launchApp({ appId: SYSTEM_APP_HR, native: true })
-    });
-
-    /* STEP */
-    createWidget(widget.IMG, {
-      x: px(224), y: healtLine2Y + px(28), align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
-      src: 'icons/step.png'
-    });
-    createWidget(widget.TEXT_FONT,{
-      x: px(208), y: healtLine2Y, w: px(64), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
-      type: data_type.STEP,
-      color: healthColor, char_space: 0, padding: false, show_level: show_level.ONLY_NORMAL,
-      unit_type: 0,  //  0: hide the unit     1:show the unit with lower case    2: show the unit with upper case.
-    });
-    stepArcProgressWidget = createWidget(widget.ARC_PROGRESS, { show_level: show_level.ONLY_NORMAL })
-    stepArcProgressWidget.addEventListener(event.CLICK_DOWN, (info) => {
-      launchApp({ appId: SYSTEM_APP_STATUS, native: true })
-    });
-    updateStepWidget();
-
-    /* DISTANCE */
-    let distanceIcon = createWidget(widget.IMG, {
-      x: px(376), y: healtLine2Y + px(28), align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
-      src: 'icons/dis.png'
-    });
-    let distanceWidget = createWidget(widget.TEXT_FONT,{
-      x: px(362), y: healtLine2Y, w: px(60), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
-      type: data_type.DISTANCE,
-      color: healthColor, char_space: 0, padding: false, show_level: show_level.ONLY_NORMAL,
-      unit_type: 0,  //  0: hide the unit     1:show the unit with lower case    2: show the unit with upper case.
-    });
-    distanceIcon.addEventListener(event.CLICK_DOWN, (info) => {
-      launchApp({ appId: SYSTEM_APP_STATUS, native: true, params: { page: 3 } })
-    });
-    distanceWidget.addEventListener(event.CLICK_DOWN, (info) => {
-      launchApp({ appId: SYSTEM_APP_STATUS, native: true, params: { page: 3 } })
-    });
-
     /* SUN_RISE - SUN_SET */
     sunIconWidget = createWidget(widget.IMG, {
       x: px(224), y: px(80), w: 32, align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
-      src: 'icons/sunrise2.png'
+      src: 'xicon/sunrise.png'
     });
     sunWidget = createWidget(widget.TEXT,{
       x: px(110), y: px(52), w: px(260), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
@@ -343,38 +290,95 @@ WatchFace({
     });
     updateSunWidget();
 
+    /* 1 - HEART EDITABLE GROUP */
+    editGroup1 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
+      edit_id: editableWidgetsIds[0],
+      x: px(42), y: px(290),
+      w: editableWidgetsHW, h: editableWidgetsHW,
+      select_image: 'mask/select.png',
+      un_select_image:  'mask/select.png',
+      default_type: edit_type.HEART,
+      optional_types: widgetOptionalArray,
+      count: widgetOptionalArray.length,
+      tips_BG: 'mask/tips.png',
+      tips_x: - px((124-92)/2),
+      tips_y: - px(36+4),
+      tips_width: px(124),
+      //tips_margin: 10 // optional, default value: 0
+      select_list: {
+        title_font_size : 34 ,
+        title_align_h: align.CENTER_H ,
+        list_item_vspace: 8,
+        list_tips_text_font_size: 32,
+        list_tips_text_align_h : align.LEFT,
+      }
+    })
+    let item1 = editGroup1.getProperty(prop.CURRENT_TYPE);
+    EditTypesUtil.drawWidget(item1, editableWidgetsIds[0]);
 
-    // const dataArray = [
-    //   { text: '0' },
-    //   { text: '1' },
-    //   { text: '2' },
-    //   { text: '3' },
-    //   { text: '4' }
-    // ];
+    /* 2 - STEP EDITABLE GROUP */
+    editGroup2 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
+      edit_id: editableWidgetsIds[1],
+      x: px(194), y: px(290),
+      w: editableWidgetsHW, h: editableWidgetsHW,
+      select_image: 'mask/select.png',
+      un_select_image:  'mask/select.png',
+      default_type: edit_type.STEP,
+      optional_types: widgetOptionalArray,
+      count: widgetOptionalArray.length,
+      tips_BG: 'mask/tips.png',
+      tips_x: - px((124-92)/2),
+      tips_y: - px(36+4),
+      tips_width: px(124),
+      //tips_margin: 10 // optional, default value: 0
+      select_list: {
+        title_font_size: 34 ,
+        title_align_h: align.CENTER_H ,
+        list_item_vspace: 8,
+        list_tips_text_font_size: 32,
+        list_tips_text_align_h : align.LEFT,
+      }
+    })
+    let item2 = editGroup2.getProperty(prop.CURRENT_TYPE);
+    EditTypesUtil.drawWidget(item2, editableWidgetsIds[1]);
 
-    // let cycleImageTextList = createWidget(widget.CYCLE_IMAGE_TEXT_LIST, {
-    //   x: px(300),
-    //   y: px(50),
-    //   w: px(50),
-    //   h: px(50),
-    //   data_array: dataArray,
-    //   data_size: 5,
-    //   item_height: 10,
-    //   item_text_color: 0x000000,
-    //   item_text_size: 8,
-    //   //item_text_x: 0,
-    //   //item_text_y: 0,
-    //   //item_image_x: px(0),
-    //   //item_bg_color: 0xffffff
-    // })
+    /* 3 - DISTANCE EDITABLE GROUP */
+    editGroup3 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
+      edit_id: editableWidgetsIds[2],
+      x: px(346), y: px(290),
+      w: editableWidgetsHW, h: editableWidgetsHW,
+      select_image: 'mask/select.png',
+      un_select_image:  'mask/select.png',
+      default_type: edit_type.DISTANCE,
+      optional_types: widgetOptionalArray,
+      count: widgetOptionalArray.length,
+      tips_BG: 'mask/tips.png',
+      tips_x: - px((124-92)/2),
+      tips_y: - px(36+4),
+      tips_width: px(124),
+      //tips_margin: 10 // optional, default value: 0
+      select_list: {
+        title_font_size :34 ,
+        title_align_h: align.CENTER_H ,
+        list_item_vspace: 8,
+        list_tips_text_font_size: 32,
+        list_tips_text_align_h : align.LEFT,
+      }
+    })
+    let item3 = editGroup3.getProperty(prop.CURRENT_TYPE);
+    EditTypesUtil.drawWidget(item3, editableWidgetsIds[2]);
 
-    // // Get the index at the top of the scrolling list
-    // const result = cycleImageTextList.getProperty(prop.MORE, {})
-    // logger.log(result.index)
+    createWidget(widget.WATCHFACE_EDIT_MASK, {
+      x: 0, y: 0, w: px(480), h: px(480),
+      src: 'mask/mask0.png',
+      show_level: show_level.ONLY_EDIT
+    })
 
-    // // Set the index at the top of the scrolling list
-    // cycleImageTextList.setProperty(prop.LIST_TOP, { index: 3 })
-
+    createWidget(widget.WATCHFACE_EDIT_FG_MASK, {
+      x: 0, y: 0, w: px(480), h: px(480),
+      src: 'mask/mask70_y290.png',
+      show_level: show_level.ONLY_EDIT
+    })
 
 
     createWidget(widget.WIDGET_DELEGATE, {
@@ -382,8 +386,6 @@ WatchFace({
         if ( DEBUG ) logger.log('resume_call');
 
         if (screenType == SCENE_AOD) {
-          //batterySensor.offChange(updateBatteryWidget());
-          stepSensor.offChange(updateStepWidget);
           hourTextWidgetA.setProperty(prop.MORE, {text : '', x: HaX});
           minuteTextWidgetA.setProperty(prop.MORE, {text : '', x: MaX});
           hourTextWidgetB.setProperty(prop.MORE, {text : '', x: HbX});
@@ -392,8 +394,6 @@ WatchFace({
           minuteAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
         } else {
           if ( DEBUG ) { secondTextWidget.setProperty(prop.MORE, {text : timeSensor.getSeconds() }) }
-          //batterySensor.onChange(updateBatteryWidget());
-          stepSensor.onChange(updateStepWidget);
           hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, x: HaX });
           minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, x: MaX });
           hourTextWidgetB.setProperty(prop.MORE, {text : '', x: HbX});
@@ -406,8 +406,6 @@ WatchFace({
       },
       pause_call: function () {
         if ( DEBUG ) logger.log('ui pause');
-        //batterySensor.offChange(updateBatteryWidget());
-        stepSensor.offChange(updateStepWidget);
       },
     });
 
@@ -446,7 +444,6 @@ WatchFace({
         });
 
         if (min == 0) {
-
           tideDataToday = weatherSensor.getForecast().tideData.data[0];
 
           hourTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, x: HbX });
@@ -488,7 +485,7 @@ WatchFace({
         if (diff <= showSunEventTimeTo) {
           let diffArr = diff.split(':');
           sunWidget.setProperty(prop.MORE, { text: `${NumberToText.getMinutesTo(diffArr[0]*60 + diffArr[1]*1)}` });
-          sunIconWidget.setProperty(prop.MORE, {src: 'icons/sunrise.png'});
+          sunIconWidget.setProperty(prop.MORE, {src: 'xicon/sunrise.png'});
           sunIconWidget.setProperty(prop.VISIBLE, true);
           sunWidget.setProperty(prop.VISIBLE, true);
         } else {
@@ -501,7 +498,7 @@ WatchFace({
         if (diff <= showSunEventTimeTo) {
           let diffArr = diff.split(':');
           sunWidget.setProperty(prop.MORE, { text: `${NumberToText.getMinutesTo(diffArr[0]*60 + diffArr[1]*1)}` });
-          sunIconWidget.setProperty(prop.MORE, {src: 'icons/sunset.png'});
+          sunIconWidget.setProperty(prop.MORE, {src: 'xicon/sunset.png'});
           sunIconWidget.setProperty(prop.VISIBLE, true);
           sunWidget.setProperty(prop.VISIBLE, true);
         } else {
@@ -526,36 +523,19 @@ WatchFace({
       const mm = minutes.toString().padStart(2, '0');
       return `${hh}:${mm}`;
     }
-
-    function updateStepWidget(){
-      if ( DEBUG ) logger.log('step onChange');
-      let currentStep = stepSensor.getCurrent();
-      let targetStep = stepSensor.getTarget();
-      stepArcProgressWidget.setProperty(prop.MORE, { show_level: show_level.ONLY_NORMAL,
-        center_x: px(240),
-        center_y: healtLine2Y+px(15),
-        radius: px(36),
-        start_angle: -150,
-        end_angle: 150,
-        color: stepArcProgressColor,
-        line_width: 4,
-        level: Math.round(( 100 * currentStep) / targetStep )
-      });
-    }
-
   },
 
   onInit() {
-    logger.log('onInit invoke');
+    if ( DEBUG ) logger.log('onInit invoke');
   },
 
   build() {
-    logger.log('onBuild invoke');
+    if ( DEBUG ) logger.log('onBuild invoke');
     this.textWatchBuild();
   },
 
   onDestroy() {
-    logger.log('onDestroy invoke');
+    if ( DEBUG ) logger.log('onDestroy invoke');
     deleteWidget(dateTextWidget);
     deleteWidget(hourTextWidgetA);
     deleteWidget(hourTextWidgetB);
@@ -565,9 +545,12 @@ WatchFace({
     deleteWidget(hourAODWidget);
     deleteWidget(minuteAODWidget);
 
-    deleteWidget(stepArcProgressWidget);
     deleteWidget(sunIconWidget);
     deleteWidget(sunWidget);
+
+    deleteWidget(editGroup1);
+    deleteWidget(editGroup2);
+    deleteWidget(editGroup3);
 
     dateTextWidget = null;
     hourTextWidgetA = null;
@@ -578,9 +561,13 @@ WatchFace({
     hourAODWidget = null;
     minuteAODWidget = null;
 
-    stepArcProgressWidget = null;
     sunIconWidget = null;
     sunWidget = null;
+
+    editGroup1 = null;
+    editGroup2 = null;
+    editGroup3 = null;
+
   },
 })
 

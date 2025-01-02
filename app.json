@@ -1,18 +1,20 @@
 {
-  "configVersion": "v2",
+  "configVersion": "v3",
   "app": {
     "appId": 1043121,
     "appName": "TextWatch Italiano",
     "appType": "watchface",
     "version": {
       "code": 3,
-      "name": "1.3.0"
+      "name": "1.4.0"
     },
     "icon": "preview.png",
     "vender": "giova",
     "description": "TextWatch in Italiano"
   },
-  "permissions": ["data:user.hd.heart_rate","data:user.hd.step","device:os.local_storage"],
+  "permissions": [
+    "device:os.local_storage"
+  ],
   "runtime": {
     "apiVersion": {
       "compatible": "2.0.0",
@@ -33,16 +35,7 @@
       },
       "platforms": [
         {
-          "name": "Monaco",
-          "deviceSource": 8519936
-        },
-        {
-          "name": "MonacoWN",
-          "deviceSource": 8519937
-        },
-        {
-          "name": "MonacoW",
-          "deviceSource": 8519939
+          "st": "r"
         }
       ],
       "designWidth": 480
@@ -56,5 +49,6 @@
       "appName": "Textwatch Italiano"
     }
   },
-  "defaultLanguage": "it-IT"
+  "defaultLanguage": "it-IT",
+  "debug": false
 }
