@@ -1,6 +1,7 @@
-import { createWidget, widget, align, show_level, data_type, event, edit_type } from '@zos/ui'
+import { createWidget, widget, align, show_level, data_type, event, edit_type, prop } from '@zos/ui'
 import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR, SYSTEM_APP_BATTERY, SYSTEM_APP_SLEEP, SYSTEM_APP_SPO2, SYSTEM_APP_STATUS, SYSTEM_APP_PRESSURE, SYSTEM_APP_WEATHER, SYSTEM_APP_ALTIMETER, SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY, SPORTLIST, APPLIST, SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN, SYSTEM_APP_MENSTRUAL } from '@zos/router'
 import { log } from '@zos/utils'
+import { Pai, Weather, Time } from '@zos/sensor'
 
 const logger = log.getLogger('textwatch-italiano')
 
@@ -266,6 +267,14 @@ ui.edit_type.INVALID=11013
     {
       type: edit_type.MOON,
       preview: previewPath + 'moon.png',
+    },
+    {
+      type: edit_type.PAI_WEEKLY,
+      preview: previewPath + 'Pai.png',
+    },
+    {
+      type: edit_type.SUN,
+      preview: previewPath + 'sun.png',
     },
   ];
 
@@ -580,6 +589,16 @@ export default class EditTypesUtil {
         config.appId = SYSTEM_APP_COUNTDOWN
         break
 
+      case edit_type.PAI_WEEKLY:
+        config.id = 113
+        config.appId = SYSTEM_APP_PAI
+        break
+
+      case edit_type.SUN:
+        config.id = 114
+        config.appId = SYSTEM_APP_SUN_AND_MOON
+        break
+
       default:
         return config
     }
@@ -798,6 +817,232 @@ export default class EditTypesUtil {
     }
     if (config.id == 106) {
       iconText()
+    }
+
+    // PAI WEEKLY – grafico a 7 barre (una per giorno)
+    if (config.id == 113) {
+      const slotX = config.bgx - px(4)
+      const slotY = config.bgy - px(4)
+      const cx = slotX + px(46)
+      const cy = slotY + px(46)
+
+      const BAR_W = px(8)
+      const BAR_H = px(28)
+      const BAR_GAP = px(2)
+
+      // sfondo circolare riutilizzando la stessa immagine del PAI ad arco
+      createWidget(widget.IMG, {
+        x: config.bgx, y: config.bgy,
+        w: config.bgw, h: config.bgw,
+        src: iconBg + 'pai.png',
+        show_level: show_level.ONLY_NORMAL,
+      }).addEventListener(event.CLICK_DOWN, () => {
+        launchApp({ appId: config.appId, native: true })
+      })
+
+      // punteggio PAI settimanale in alto
+      createWidget(widget.TEXT_IMG, {
+        x: slotX, y: slotY + px(4),
+        w: px(92), h: px(22),
+        type: data_type.PAI_WEEKLY,
+        font_array: numArray,
+        h_space: 0,
+        align_h: align.CENTER_H,
+        show_level: show_level.ONLY_NORMAL,
+        invalid_image: numPath + 'none.png',
+      }).addEventListener(event.CLICK_DOWN, () => {
+        launchApp({ appId: config.appId, native: true })
+      })
+
+      // etichetta "PAI" in basso
+      createWidget(widget.TEXT, {
+        x: slotX, y: cy + px(16),
+        w: px(92), h: px(18),
+        text: 'PAI',
+        text_size: px(14),
+        color: 0xd612c0,
+        align_h: align.CENTER_H,
+        align_v: align.CENTER_V,
+        show_level: show_level.ONLY_NORMAL,
+      }).addEventListener(event.CLICK_DOWN, () => {
+        launchApp({ appId: config.appId, native: true })
+      })
+
+      // coordinate x delle 7 barre, centrate nel widget
+      const barXCoords = new Array(7).fill(null).map(
+        (_, i) => Math.round(cx - 3.5 * BAR_W - 3 * BAR_GAP + i * (BAR_W + BAR_GAP))
+      )
+      const barBaseY = cy - Math.round(BAR_H / 2)
+
+      // barre di sfondo (dimmed)
+      barXCoords.forEach(bx => createWidget(widget.FILL_RECT, {
+        x: bx, y: barBaseY,
+        w: BAR_W, h: BAR_H,
+        radius: Math.round(BAR_W / 2),
+        color: 0x4a1048,
+        show_level: show_level.ONLY_NORMAL,
+      }))
+
+      // barre attive (aggiornate dinamicamente)
+      const paiSensor = new Pai()
+      const barWidgets = barXCoords.map(bx => createWidget(widget.FILL_RECT, {
+        x: bx, y: barBaseY,
+        w: BAR_W, h: BAR_H,
+        radius: Math.round(BAR_W / 2),
+        color: 0xd612c0,
+        show_level: show_level.ONLY_NORMAL,
+      }))
+
+      createWidget(widget.WIDGET_DELEGATE, {
+        resume_call: () => {
+          barWidgets.forEach((barWidget, i) => {
+            const value = paiSensor[`prepai${i}`]
+            const level = (value || 0) / 100
+            const height = Math.max(1, Math.min(level * BAR_H, BAR_H))
+            barWidget.setProperty(prop.MORE, {
+              x: barXCoords[i],
+              y: barBaseY + BAR_H - height,
+              w: BAR_W,
+              h: height,
+              radius: Math.round(BAR_W / 2),
+              color: 0xd612c0,
+            })
+          })
+        }
+      })
+    }
+
+    // SUN – arco giorno con punto sole e prossimo evento alba/tramonto
+    if (config.id == 114) {
+      const slotX = config.bgx - px(4)
+      const slotY = config.bgy - px(4)
+      const cx = slotX + px(46)
+      const cy = slotY + px(46)
+
+      const ARC_RADIUS = 35
+      const ARC_LINE_W = 8
+      const DOT_SIZE = px(14)
+      const DOT_OVER = px(1)
+      const dotArea = px(92) + 2 * DOT_OVER
+
+      // arco sfondo (cerchio completo, dimmed)
+      createWidget(widget.ARC_PROGRESS, {
+        center_x: cx, center_y: cy,
+        radius: ARC_RADIUS,
+        start_angle: 0, end_angle: 360,
+        color: 0x333344,
+        line_width: ARC_LINE_W,
+        level: 100, corner_flag: 0,
+        show_level: show_level.ONLY_NORMAL,
+      })
+
+      // arco attivo (durata del giorno: alba → tramonto)
+      const dayArc = createWidget(widget.ARC_PROGRESS, {
+        center_x: cx, center_y: cy,
+        radius: ARC_RADIUS,
+        start_angle: 0, end_angle: 0,
+        color: 0xffaa00,
+        line_width: ARC_LINE_W,
+        level: 100, corner_flag: 0,
+        show_level: show_level.ONLY_NORMAL,
+      })
+
+      // punto rotante sulla posizione del sole
+      const dotWidget = createWidget(widget.IMG, {
+        x: slotX - DOT_OVER, y: slotY - DOT_OVER,
+        w: dotArea, h: dotArea,
+        pos_x: Math.round(dotArea / 2 - DOT_SIZE / 2),
+        pos_y: 0,
+        center_x: Math.round(dotArea / 2),
+        center_y: Math.round(dotArea / 2),
+        angle: 0,
+        src: 'widget/dot.png',
+        show_level: show_level.ONLY_NORMAL,
+      })
+
+      // icona alba/tramonto al centro-alto del widget
+      const sunIconW = createWidget(widget.IMG, {
+        x: cx - px(12), y: cy - px(24),
+        src: 'xicon/sunrise.png',
+        show_level: show_level.ONLY_NORMAL,
+      }).addEventListener(event.CLICK_DOWN, () => {
+        launchApp({ appId: config.appId, native: true })
+      })
+
+      // orario del prossimo evento al centro-basso
+      const sunTextW = createWidget(widget.TEXT, {
+        x: slotX, y: cy + px(8),
+        w: px(92), h: px(22),
+        text: '--:--',
+        text_size: px(16),
+        color: 0xffffff,
+        align_h: align.CENTER_H,
+        align_v: align.CENTER_V,
+        show_level: show_level.ONLY_NORMAL,
+      }).addEventListener(event.CLICK_DOWN, () => {
+        launchApp({ appId: config.appId, native: true })
+      })
+
+      const sunWeather = new Weather()
+      const sunTime = new Time()
+
+      function _getSunMins() {
+        try {
+          const td = sunWeather.getForecast().tideData
+          if (!td || !td.count) return [0, 0]
+          const { sunrise, sunset } = td.data[0] || {}
+          if (!sunrise || !sunset) return [0, 0]
+          return [sunrise.hour * 60 + sunrise.minute, sunset.hour * 60 + sunset.minute]
+        } catch (e) { return [0, 0] }
+      }
+
+      function _updateSun() {
+        const [riseMins, setMins] = _getSunMins()
+        const dayDur = setMins >= riseMins ? setMins - riseMins : (24 * 60 - riseMins + setMins)
+        const halfAngle = (360 * dayDur / (24 * 60)) / 2
+
+        dayArc.setProperty(prop.MORE, {
+          center_x: cx, center_y: cy,
+          radius: ARC_RADIUS,
+          start_angle: -halfAngle, end_angle: halfAngle,
+          color: 0xffaa00,
+          line_width: ARC_LINE_W,
+          level: 100, corner_flag: 0,
+          show_level: show_level.ONLY_NORMAL,
+        })
+
+        const noon = (riseMins + dayDur / 2) % (24 * 60)
+        const midnight = (noon + 12 * 60) % (24 * 60)
+        const nowMins = sunTime.getHours() * 60 + sunTime.getMinutes()
+        let diff = nowMins - midnight
+        if (diff < 0) diff += 24 * 60
+        const sunPos = diff / (24 * 60)
+        dotWidget.setProperty(prop.MORE, {
+          x: slotX - DOT_OVER, y: slotY - DOT_OVER,
+          w: dotArea, h: dotArea,
+          pos_x: Math.round(dotArea / 2 - DOT_SIZE / 2),
+          pos_y: 0,
+          center_x: Math.round(dotArea / 2),
+          center_y: Math.round(dotArea / 2),
+          angle: sunPos * 360 - 180,
+          src: 'widget/dot.png',
+        })
+
+        const isDay = nowMins >= riseMins && nowMins <= setMins
+        const evType = isDay ? 'sunset' : 'sunrise'
+        try {
+          const td = sunWeather.getForecast().tideData
+          const obj = isDay ? td.data[0].sunset : td.data[0].sunrise
+          const hh = obj.hour.toString().padStart(2, '0')
+          const mm = obj.minute.toString().padStart(2, '0')
+          sunTextW.setProperty(prop.MORE, { text: `${hh}:${mm}` })
+          sunIconW.setProperty(prop.MORE, { src: `xicon/${evType}.png` })
+        } catch (e) {}
+      }
+
+      createWidget(widget.WIDGET_DELEGATE, {
+        resume_call: () => { _updateSun() }
+      })
     }
     if (config.id == 107) {
       createWidget(widget.IMG, {

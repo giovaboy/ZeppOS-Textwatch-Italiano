@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(identify /home/giovanni/projects/zeppos/amazfit-watchfaces/src/watchfaces/modular/assets/common.r/widget/dot.png)",
+      "Bash(mkdir -p /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/480x480-amazfit-balance.r/widget)",
+      "Bash(cp /home/giovanni/projects/zeppos/amazfit-watchfaces/src/watchfaces/modular/assets/common.r/widget/dot.png /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/480x480-amazfit-balance.r/widget/dot.png)",
+      "Bash(node --input-type=module --eval ':*)"
+    ]
+  }
+}
