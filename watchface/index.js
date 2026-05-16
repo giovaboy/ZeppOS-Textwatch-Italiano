@@ -7,6 +7,7 @@ import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
 import EditTypesUtil, {widgetOptionalArray } from './editTypesUtil.js'
+import { ZONE_PALETTE, buildZoneConfig } from './colorZones.js'
 
 try {
   (() => {
@@ -174,6 +175,49 @@ WatchFace({
     minuteAODColor = themes[currentIdTheme].values.minuteAODColor;
     healthColor = themes[currentIdTheme].values.healthColor;
     dateColor = themes[currentIdTheme].values.dateColor;
+
+    // ── Zone color selectors (colori indipendenti per ogni elemento) ──────────
+    // Ogni widget porta la stessa palette; id 0 = "usa tema" (nessun override).
+    // Il bgPath è quello del tema corrente così lo sfondo non cambia.
+    const _bgPath = themes[currentIdTheme].path
+    const _zoneCfg = (zone) => buildZoneConfig(zone, _bgPath)
+
+    const hourZoneBg = createWidget(widget.WATCHFACE_EDIT_BG, {
+      edit_id: 102,
+      x: px(0), y: px(0), show_level: show_level.ONLY_NORMAL | show_level.ONLY_EDIT,
+      bg_config: _zoneCfg('hour'), count: ZONE_PALETTE.length, default_id: 0,
+      fg: 'mask/fg_x.png', tips_x: px(178), tips_y: px(20), tips_bg: 'mask/tips.png'
+    })
+    const minuteZoneBg = createWidget(widget.WATCHFACE_EDIT_BG, {
+      edit_id: 103,
+      x: px(0), y: px(0), show_level: show_level.ONLY_NORMAL | show_level.ONLY_EDIT,
+      bg_config: _zoneCfg('minute'), count: ZONE_PALETTE.length, default_id: 0,
+      fg: 'mask/fg_x.png', tips_x: px(178), tips_y: px(20), tips_bg: 'mask/tips.png'
+    })
+    const dateZoneBg = createWidget(widget.WATCHFACE_EDIT_BG, {
+      edit_id: 104,
+      x: px(0), y: px(0), show_level: show_level.ONLY_NORMAL | show_level.ONLY_EDIT,
+      bg_config: _zoneCfg('date'), count: ZONE_PALETTE.length, default_id: 0,
+      fg: 'mask/fg_x.png', tips_x: px(178), tips_y: px(20), tips_bg: 'mask/tips.png'
+    })
+    const healthZoneBg = createWidget(widget.WATCHFACE_EDIT_BG, {
+      edit_id: 105,
+      x: px(0), y: px(0), show_level: show_level.ONLY_NORMAL | show_level.ONLY_EDIT,
+      bg_config: _zoneCfg('health'), count: ZONE_PALETTE.length, default_id: 0,
+      fg: 'mask/fg_x.png', tips_x: px(178), tips_y: px(20), tips_bg: 'mask/tips.png'
+    })
+
+    // Applica gli override di zona (sovrascrive i colori del tema se id > 0)
+    const _zoneOverride = (bg, assign) => {
+      const idx = bg.getProperty(prop.CURRENT_TYPE) || 0
+      const entry = ZONE_PALETTE[idx]
+      if (entry && entry.color != null) assign(entry.color)
+    }
+    _zoneOverride(hourZoneBg,   (c) => { hourColor   = c })
+    _zoneOverride(minuteZoneBg, (c) => { minuteColor = c })
+    _zoneOverride(dateZoneBg,   (c) => { dateColor   = c })
+    _zoneOverride(healthZoneBg, (c) => { healthColor = c })
+    // ─────────────────────────────────────────────────────────────────────────
 
     let screenType = getScene();
 
