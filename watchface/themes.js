@@ -332,4 +332,82 @@ export const themes = [
       healthColor: 0xffff00,
     }
   },
+  {
+    // Ruggine + rosso autunno + ambra dorata: foglie di ottobre
+    id: 27, preview: 'bg/prev_autunno.png', path: 'bg/BG_black.png',
+    name: 'Autunno',
+    values: {
+      hourColor: 0xd35400,
+      minuteColor: 0xe74c3c,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xf39c12,
+      healthColor: 0xf8c471,
+    }
+  },
+  {
+    // Turchese aurora + viola cielo + blu ghiaccio: aurora boreale
+    id: 28, preview: 'bg/prev_aurora.png', path: 'bg/BG_black.png',
+    name: 'Aurora Boreale',
+    values: {
+      hourColor: 0x00cec9,
+      minuteColor: 0xa29bfe,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x74b9ff,
+      healthColor: 0x55efc4,
+    }
+  },
+  {
+    // Rubino + bordeaux + oro: eleganza serale
+    id: 29, preview: 'bg/prev_bordeaux.png', path: 'bg/BG_black.png',
+    name: 'Bordeaux',
+    values: {
+      hourColor: 0xc0392b,
+      minuteColor: 0x922b21,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xf1c40f,
+      healthColor: 0xe8c44d,
+    }
+  },
+  {
+    // Ametista chiaro + lavanda + malva: toni gioiello pastello
+    id: 30, preview: 'bg/prev_lavanda.png', path: 'bg/BG_black.png',
+    name: 'Lavanda',
+    values: {
+      hourColor: 0x9b59b6,
+      minuteColor: 0xc39bd3,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xd7bde2,
+      healthColor: 0xab8bc8,
+    }
+  },
+  {
+    // Corallo + giallo banana + celeste: colori tropicali
+    id: 31, preview: 'bg/prev_isola.png', path: 'bg/BG_black.png',
+    name: 'Isola',
+    values: {
+      hourColor: 0xff6b6b,
+      minuteColor: 0xfeca57,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x48dbfb,
+      healthColor: 0xff9ff3,
+    }
+  },
+  {
+    // Argento + ciano: look metallico high-tech
+    id: 32, preview: 'bg/prev_acciaio.png', path: 'bg/BG_black.png',
+    name: 'Acciaio',
+    values: {
+      hourColor: 0xbdc3c7,
+      minuteColor: 0x00bcd4,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x90caf9,
+      healthColor: 0xb2ebf2,
+    }
+  },
 ]
