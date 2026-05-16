@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/usr/lib/code-server/lib/node -e \"require\\('canvas'\\)\")",
+      "Bash(/usr/lib/code-server/lib/node -e \"require\\('jimp'\\)\")",
+      "Bash(/usr/lib/code-server/lib/node -e \"require\\('sharp'\\)\")",
+      "Bash(/usr/lib/code-server/lib/node -e \"require\\('pngjs'\\)\")",
+      "Read(//home/giovanni/**)",
+      "Read(//home/giovanni/projects/zeppos/**)",
+      "Read(//opt/**)",
+      "Bash(/usr/lib/code-server/lib/node -e \"const z = require\\('zlib'\\); console.log\\('zlib ok'\\); const fs = require\\('fs'\\); console.log\\('fs ok'\\);\")"
+    ]
+  }
+}

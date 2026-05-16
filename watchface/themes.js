@@ -253,5 +253,83 @@ export const themes = [
       dateColor: 0xffd700,
       healthColor: 0xba55d3,
     }
-  }
+  },
+  {
+    // Oro caldo dell'alba, corallo per i minuti, oro puro per la data
+    id: 21, preview: 'bg/prev_alba.png', path: 'bg/BG_black.png',
+    name: 'Alba',
+    values: {
+      hourColor: 0xffb347,
+      minuteColor: 0xff7f50,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xffd700,
+      healthColor: 0xffe4b5,
+    }
+  },
+  {
+    // Blu profondo → azzurro acqua → ciano pallido: immersione nell'oceano
+    id: 22, preview: 'bg/prev_oceano.png', path: 'bg/BG_black.png',
+    name: 'Oceano',
+    values: {
+      hourColor: 0x0096c7,
+      minuteColor: 0x48cae4,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x90e0ef,
+      healthColor: 0xade8f4,
+    }
+  },
+  {
+    // Fiori di ciliegio rosso-cremisi + zafferano: ispirato ai giardini giapponesi
+    id: 23, preview: 'bg/prev_kyoto.png', path: 'bg/BG_black.png',
+    name: 'Kyoto',
+    values: {
+      hourColor: 0xc2185b,
+      minuteColor: 0xff8f00,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xf06292,
+      healthColor: 0xfff9c4,
+    }
+  },
+  {
+    // Tramonto sul mare: arancio fuoco → oro → salmone chiaro
+    id: 24, preview: 'bg/prev_tramonto.png', path: 'bg/BG_black.png',
+    name: 'Tramonto',
+    values: {
+      hourColor: 0xff4500,
+      minuteColor: 0xffd700,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xff6b6b,
+      healthColor: 0xffa07a,
+    }
+  },
+  {
+    // Palette scandinava: grigio acciaio su nero, essenziale e freddo
+    id: 25, preview: 'bg/prev_nordico.png', path: 'bg/BG_black.png',
+    name: 'Nordico',
+    values: {
+      hourColor: 0xcfd8dc,
+      minuteColor: 0x90a4ae,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x78909c,
+      healthColor: 0xb0bec5,
+    }
+  },
+  {
+    // Verde neon + rosa acceso + ciano elettrico: estetica cyberpunk
+    id: 26, preview: 'bg/prev_neonnotte.png', path: 'bg/BG_black.png',
+    name: 'Neon Notte',
+    values: {
+      hourColor: 0x39ff14,
+      minuteColor: 0xff1493,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x00e5ff,
+      healthColor: 0xffff00,
+    }
+  },
 ]

@@ -4,7 +4,14 @@
       "Bash(identify /home/giovanni/projects/zeppos/amazfit-watchfaces/src/watchfaces/modular/assets/common.r/widget/dot.png)",
       "Bash(mkdir -p /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/480x480-amazfit-balance.r/widget)",
       "Bash(cp /home/giovanni/projects/zeppos/amazfit-watchfaces/src/watchfaces/modular/assets/common.r/widget/dot.png /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/480x480-amazfit-balance.r/widget/dot.png)",
-      "Bash(node --input-type=module --eval ':*)"
+      "Bash(node --input-type=module --eval ':*)",
+      "Bash(identify /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/480x480-amazfit-balance.r/bg/prev_biancoenero.png)",
+      "Bash(python3 -c ':*)",
+      "Bash(python -c ':*)",
+      "Bash(node -e ':*)",
+      "Bash(convert --version)",
+      "Read(//usr/bin/**)",
+      "Read(//usr/**)"
     ]
   }
 }
