@@ -314,7 +314,7 @@ WatchFace({
       }
     })
     let item1 = editGroup1.getProperty(prop.CURRENT_TYPE);
-    EditTypesUtil.drawWidget(item1, editableWidgetsIds[0]);
+    try { EditTypesUtil.drawWidget(item1, editableWidgetsIds[0]) } catch(e) { logger.log('widget 1 error: ' + e) }
 
     /* 2 - STEP EDITABLE GROUP */
     editGroup2 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
@@ -340,7 +340,7 @@ WatchFace({
       }
     })
     let item2 = editGroup2.getProperty(prop.CURRENT_TYPE);
-    EditTypesUtil.drawWidget(item2, editableWidgetsIds[1]);
+    try { EditTypesUtil.drawWidget(item2, editableWidgetsIds[1]) } catch(e) { logger.log('widget 2 error: ' + e) }
 
     /* 3 - DISTANCE EDITABLE GROUP */
     editGroup3 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
@@ -366,7 +366,7 @@ WatchFace({
       }
     })
     let item3 = editGroup3.getProperty(prop.CURRENT_TYPE);
-    EditTypesUtil.drawWidget(item3, editableWidgetsIds[2]);
+    try { EditTypesUtil.drawWidget(item3, editableWidgetsIds[2]) } catch(e) { logger.log('widget 3 error: ' + e) }
 
     createWidget(widget.WATCHFACE_EDIT_MASK, {
       x: 0, y: 0, w: px(480), h: px(480),

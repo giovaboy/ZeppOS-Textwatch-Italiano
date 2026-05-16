@@ -287,7 +287,9 @@ export default class EditTypesUtil {
         }))
 
         // barre attive (aggiornate al resume)
-        const paiSensor  = new Pai()
+        let paiSensor = null
+        try { paiSensor = new Pai() } catch (_) {}
+
         const barWidgets = barXCoords.map(bx => createWidget(widget.FILL_RECT, {
           x: bx, y: barBaseY, w: BAR_W, h: BAR_H,
           radius: Math.round(BAR_W / 2), color: 0xd612c0,
@@ -296,6 +298,7 @@ export default class EditTypesUtil {
 
         createWidget(widget.WIDGET_DELEGATE, {
           resume_call: () => {
+            if (!paiSensor) return
             barWidgets.forEach((bar, i) => {
               const level  = (paiSensor[`prepai${i}`] || 0) / 100
               const height = Math.max(1, Math.min(level * BAR_H, BAR_H))
