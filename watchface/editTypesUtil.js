@@ -5,6 +5,7 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN } from '@zos/router'
 import { Pai, Weather, Time } from '@zos/sensor'
+import { px } from '@zos/utils'
 
 // ─── Path constants ───────────────────────────────────────────────────────────
 const numPath     = 'numbers_28/'
