@@ -21,7 +21,8 @@ export const ZONE_PALETTE = [
 // bgPath: path sfondo del tema corrente (viene preservato per ogni opzione)
 export function buildZoneConfig(zone, bgPath) {
   return ZONE_PALETTE.map((_, i) => ({
+    id:      i,
     preview: 'bg/zone_' + zone + '_' + String(i).padStart(2, '0') + '.png',
-    path: bgPath,
+    path:    bgPath,
   }))
 }

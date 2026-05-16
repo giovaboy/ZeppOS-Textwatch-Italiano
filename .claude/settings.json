@@ -8,7 +8,8 @@
       "Read(//home/giovanni/**)",
       "Read(//home/giovanni/projects/zeppos/**)",
       "Read(//opt/**)",
-      "Bash(/usr/lib/code-server/lib/node -e \"const z = require\\('zlib'\\); console.log\\('zlib ok'\\); const fs = require\\('fs'\\); console.log\\('fs ok'\\);\")"
+      "Bash(/usr/lib/code-server/lib/node -e \"const z = require\\('zlib'\\); console.log\\('zlib ok'\\); const fs = require\\('fs'\\); console.log\\('fs ok'\\);\")",
+      "WebFetch(domain:docs.zepp.com)"
     ]
   }
 }
