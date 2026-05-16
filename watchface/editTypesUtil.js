@@ -1,1097 +1,416 @@
 import { createWidget, widget, align, show_level, data_type, event, edit_type, prop } from '@zos/ui'
-import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR, SYSTEM_APP_BATTERY, SYSTEM_APP_SLEEP, SYSTEM_APP_SPO2, SYSTEM_APP_STATUS, SYSTEM_APP_PRESSURE, SYSTEM_APP_WEATHER, SYSTEM_APP_ALTIMETER, SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY, SPORTLIST, APPLIST, SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN, SYSTEM_APP_MENSTRUAL } from '@zos/router'
-import { log } from '@zos/utils'
+import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
+         SYSTEM_APP_BATTERY, SYSTEM_APP_SLEEP, SYSTEM_APP_SPO2, SYSTEM_APP_STATUS,
+         SYSTEM_APP_PRESSURE, SYSTEM_APP_WEATHER, SYSTEM_APP_ALTIMETER,
+         SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
+         SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN } from '@zos/router'
 import { Pai, Weather, Time } from '@zos/sensor'
 
-const logger = log.getLogger('textwatch-italiano')
+// ─── Path constants ───────────────────────────────────────────────────────────
+const numPath     = 'numbers_28/'
+const iconBg      = 'iconbg/'
+const XicPath     = 'xicon/'
+const previewPath = 'preview/'
+const heartPath   = 'heart/'
+const UVIPath     = 'UVI/'
 
-const previewPath = 'preview/';
-const numPath = 'numbers_28/';//numbers_28
-const iconBg = 'iconbg/';
-const XicPath = 'xicon/';
-const heartPath = 'heart/';
-const UVIPath =  'UVI/';
-const weatherPath = 'weather/';
-const moonPath =  'moon/';
+// ─── Image arrays ─────────────────────────────────────────────────────────────
+const numArray     = Array.from({ length: 10 }, (_, i) => `${numPath}${i}.png`)
+const weatherArray = Array.from({ length: 29 }, (_, i) => `weather/${i}.png`)
+const moonArray    = Array.from({ length: 29 }, (_, i) => `moon/${i + 1}.png`)
+const heartArray   = Array.from({ length: 6 },  (_, i) => `${heartPath}${i + 1}.png`)
+const uviArray     = Array.from({ length: 5 },   (_, i) => `${UVIPath}${i + 1}.png`)
 
-const numArray = [
-    numPath + '0.png',
-    numPath + '1.png',
-    numPath + '2.png',
-    numPath + '3.png',
-    numPath + '4.png',
-    numPath + '5.png',
-    numPath + '6.png',
-    numPath + '7.png',
-    numPath + '8.png',
-    numPath + '9.png',
-  ];
+// ─── Slot geometry ────────────────────────────────────────────────────────────
+// Associa edit_id → x di partenza; y è comune a tutti e tre gli slot
+const SLOT_X = { 110: 42, 111: 194, 112: 346 }
+const SLOT_Y = 290
 
-  const weatherArray = [
-    weatherPath + '0.png',
-    weatherPath + '1.png',
-    weatherPath + '2.png',
-    weatherPath + '3.png',
-    weatherPath + '4.png',
-    weatherPath + '5.png',
-    weatherPath + '6.png',
-    weatherPath + '7.png',
-    weatherPath + '8.png',
-    weatherPath + '9.png',
-    weatherPath + '10.png',
-    weatherPath + '11.png',
-    weatherPath + '12.png',
-    weatherPath + '13.png',
-    weatherPath + '14.png',
-    weatherPath + '15.png',
-    weatherPath + '16.png',
-    weatherPath + '17.png',
-    weatherPath + '18.png',
-    weatherPath + '19.png',
-    weatherPath + '20.png',
-    weatherPath + '21.png',
-    weatherPath + '22.png',
-    weatherPath + '23.png',
-    weatherPath + '24.png',
-    weatherPath + '25.png',
-    weatherPath + '26.png',
-    weatherPath + '27.png',
-    weatherPath + '28.png',
-  ];
+// ─── Widget definitions ───────────────────────────────────────────────────────
+// r:       renderer ('arc' | 'numeric' | 'pointer' | 'pointerT' |
+//                    'heart' | 'uvi' | 'moon' | 'weather' | 'paiWeekly' | 'sun')
+// dt:      data_type per TEXT_IMG / ARC_PROGRESS / IMG_POINTER
+// icon:    stem per xicon/  (es. 'step' → xicon/step.png)
+// bg:      stem per iconbg/ (es. 'step' → iconbg/step.png)
+// color:   colore arco (solo renderer 'arc')
+// app:     appId per launchApp
+// unit:    stem unità misura in numPath (es. 'degree', 'percent')
+// dot:     stem punto decimale in numPath (es. 'point', 'slash')
+// neg:     true → usa numPath/negative.png
+// invalid: true → none.png | 'w' → wnone.png
+// params:  parametri opzionali per launchApp
+const WIDGET_DEFS = {
+  // ── arco + numero + icona ──────────────────────────────────────────────────
+  [edit_type.STEP]:              { r:'arc',      dt: data_type.STEP,              icon:'step',      bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS },
+  [edit_type.CAL]:               { r:'arc',      dt: data_type.CAL,               icon:'kcal',      bg:'cal',       color:0xdf4f26, app:SYSTEM_APP_STATUS },
+  [edit_type.PAI]:               { r:'arc',      dt: data_type.PAI_WEEKLY,        icon:'Pai',       bg:'pai',       color:0xd612c0, app:SYSTEM_APP_PAI },
+  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_BATTERY },
+  [edit_type.STAND]:             { r:'arc',      dt: data_type.STAND,             icon:'stand',     bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS,       dot:'slash' },
+  [edit_type.RECOVERY_TIME]:     { r:'arc',      dt: data_type.RECOVERY_TIME,     icon:'recovery',  bg:'recovery',  color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS },
+  [edit_type.VO2MAX]:            { r:'arc',      dt: data_type.VO2MAX,            icon:'vo2',       bg:'vo2',       color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS, params:{page:1} },
+  // ── sfondo + numero + icona ───────────────────────────────────────────────
+  [edit_type.DISTANCE]:          { r:'numeric',  dt: data_type.DISTANCE,          icon:'dis',       bg:'dis',       app:SYSTEM_APP_STATUS,       dot:'point', invalid:true },
+  [edit_type.SLEEP]:             { r:'numeric',  dt: data_type.SLEEP,             icon:'sleep',     bg:'sleep',     app:SYSTEM_APP_SLEEP,        dot:'point', invalid:true },
+  [edit_type.STRESS]:            { r:'numeric',  dt: data_type.STRESS,            icon:'pressure',  bg:'kpa',       app:SYSTEM_APP_PRESSURE,     invalid:true },
+  [edit_type.FAT_BURN]:          { r:'numeric',  dt: data_type.FAT_BURN,          icon:'sport',     bg:'sport',     app:SYSTEM_APP_STATUS,       dot:'point', invalid:true },
+  [edit_type.ALTIMETER]:         { r:'numeric',  dt: data_type.ALTIMETER,         icon:'Kpa',       bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    invalid:true },
+  [edit_type.STOP_WATCH]:        { r:'numeric',  dt: data_type.STOP_WATCH,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_STOP_WATCH,   dot:'point', invalid:true },
+  [edit_type.ALARM_CLOCK]:       { r:'numeric',  dt: data_type.ALARM_CLOCK,       icon:'alarm',     bg:'dis',       app:SYSTEM_APP_ALARM,        dot:'point', invalid:true },
+  [edit_type.COUNT_DOWN]:        { r:'numeric',  dt: data_type.COUNT_DOWN,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_COUNTDOWN,    dot:'point', invalid:true },
+  [edit_type.TRAINING_LOAD]:     { r:'numeric',  dt: data_type.TRAINING_LOAD,     icon:'recovery',  bg:'recovery',  app:SYSTEM_APP_SPORT_STATUS, invalid:true },
+  [edit_type.MONTH_RUN_DISTANCE]:{ r:'numeric',  dt: data_type.MONTH_RUN_DISTANCE,icon:'run',       bg:'recovery',  app:SYSTEM_APP_SPORT_HISTORY,invalid:true },
+  // ── puntatore rotante ─────────────────────────────────────────────────────
+  [edit_type.SPO2]:              { r:'pointer',  dt: data_type.SPO2,              icon:'spo2',      bg:'spo2',      app:SYSTEM_APP_SPO2,         unit:'percent', invalid:true },
+  [edit_type.WIND]:              { r:'pointer',  dt: data_type.WIND,              icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
+  [edit_type.TEMPERATURE]:       { r:'pointerT', dt: data_type.WEATHER_CURRENT,   icon:'T',         bg:'t',         app:SYSTEM_APP_WEATHER,      unit:'degree', neg:true, invalid:true },
+  // ── speciali ──────────────────────────────────────────────────────────────
+  [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           invalid:true },
+  [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
+  [edit_type.MOON]:              { r:'moon',     dt: data_type.MOON,                                                 app:SYSTEM_APP_SUN_AND_MOON },
+  [edit_type.WEATHER]:           { r:'weather',  dt: data_type.WEATHER_CURRENT,                     bg:'weather',   app:SYSTEM_APP_WEATHER,      unit:'degree', neg:true, invalid:'w' },
+  // ── nuovi ─────────────────────────────────────────────────────────────────
+  [edit_type.PAI_WEEKLY]:        { r:'paiWeekly',                                                                   app:SYSTEM_APP_PAI },
+  [edit_type.SUN]:               { r:'sun',                                                                          app:SYSTEM_APP_SUN_AND_MOON },
+}
 
-  const moonArray = [
-    moonPath + '1.png',
-    moonPath + '2.png',
-    moonPath + '3.png',
-    moonPath + '4.png',
-    moonPath + '5.png',
-    moonPath + '6.png',
-    moonPath + '7.png',
-    moonPath + '8.png',
-    moonPath + '9.png',
-    moonPath + '10.png',
-    moonPath + '11.png',
-    moonPath + '12.png',
-    moonPath + '13.png',
-    moonPath + '14.png',
-    moonPath + '15.png',
-    moonPath + '16.png',
-    moonPath + '17.png',
-    moonPath + '18.png',
-    moonPath + '19.png',
-    moonPath + '20.png',
-    moonPath + '21.png',
-    moonPath + '22.png',
-    moonPath + '23.png',
-    moonPath + '24.png',
-    moonPath + '25.png',
-    moonPath + '26.png',
-    moonPath + '27.png',
-    moonPath + '28.png',
-    moonPath + '29.png',
-  ];
+// ─── Optional widget list (menu di modifica) ──────────────────────────────────
+export const widgetOptionalArray = [
+  { type: edit_type.ALARM_CLOCK,  preview: previewPath + 'step.png'     },
+  { type: edit_type.COUNT_DOWN,   preview: previewPath + 'step.png'     },
+  { type: edit_type.STEP,         preview: previewPath + 'step.png'     },
+  { type: edit_type.CAL,          preview: previewPath + 'kcal.png'     },
+  { type: edit_type.BATTERY,      preview: previewPath + 'bat.png'      },
+  { type: edit_type.HEART,        preview: previewPath + 'heart.png'    },
+  { type: edit_type.UVI,          preview: previewPath + 'UVI.png'      },
+  { type: edit_type.PAI,          preview: previewPath + 'Pai.png'      },
+  { type: edit_type.DISTANCE,     preview: previewPath + 'dis.png'      },
+  { type: edit_type.STAND,        preview: previewPath + 'stand.png'    },
+  { type: edit_type.SPO2,         preview: previewPath + 'spo2.png'     },
+  { type: edit_type.STRESS,       preview: previewPath + 'pressure.png' },
+  { type: edit_type.SLEEP,        preview: previewPath + 'sleep.png'    },
+  { type: edit_type.WIND,         preview: previewPath + 'wind.png'     },
+  { type: edit_type.WEATHER,      preview: previewPath + 'weather.png'  },
+  { type: edit_type.TEMPERATURE,  preview: previewPath + 'T.png'        },
+  { type: edit_type.FAT_BURN,     preview: previewPath + 'sport.png'    },
+  { type: edit_type.ALTIMETER,    preview: previewPath + 'Kpa.png'      },
+  { type: edit_type.MOON,         preview: previewPath + 'moon.png'     },
+  { type: edit_type.PAI_WEEKLY,   preview: previewPath + 'Pai.png'      },
+  { type: edit_type.SUN,          preview: previewPath + 'sun.png'      },
+]
 
-  const heartArray = [
-    heartPath + '1.png',
-    heartPath + '2.png',
-    heartPath + '3.png',
-    heartPath + '4.png',
-    heartPath + '5.png',
-    heartPath + '6.png',
-  ];
-
-  const uviArray = [
-    UVIPath + '1.png',
-    UVIPath + '2.png',
-    UVIPath + '3.png',
-    UVIPath + '4.png',
-    UVIPath + '5.png',
-  ];
-/*
-ui.edit_type.STEP=10000
-ui.edit_type.BATTERY=11001
-ui.edit_type.HEART=10001
-ui.edit_type.CAL=10006
-ui.edit_type.DISTANCE=10009
-ui.edit_type.AQI=10405
-ui.edit_type.HUMIDITY=10406
-ui.edit_type.UVI=10407
-ui.edit_type.DATE=11002
-ui.edit_type.WEEK=11003
-ui.edit_type.WEATHER=10401
-ui.edit_type.TEMPERATURE=10400
-ui.edit_type.SUN=10408
-ui.edit_type.STAND=10007
-ui.edit_type.SUN_RISE=10600
-ui.edit_type.SUN_SET=10601
-ui.edit_type.WIND=10409
-ui.edit_type.SPO2=10002
-ui.edit_type.STRESS=10003
-ui.edit_type.FAT_BURN=10008
-ui.edit_type.FLOOR=10010
-ui.edit_type.ALTIMETER=10411
-ui.edit_type.BODY_TEMP=10011
-ui.edit_type.MOON=10602
-ui.edit_type.PAI_DAILY=10015
-ui.edit_type.PAI=10015
-ui.edit_type.PAI_WEEKLY=10012
-ui.edit_type.APP_PAI=10013
-ui.edit_type.SMS=10800
-ui.edit_type.TIME=11000
-ui.edit_type.WEATHER_CURRENT=10402
-ui.edit_type.WEATHER_HIGH=10403
-ui.edit_type.WEATHER_LOW=10404
-ui.edit_type.WIND_DIRECTION=10410
-ui.edit_type.COUNT_DOWN=10801
-ui.edit_type.STOP_WATCH=10802
-ui.edit_type.SLEEP=10004
-ui.edit_type.ALARM_CLOCK=10803
-ui.edit_type.MENSYRUAL=10005
-ui.edit_type.TRAINING_LOAD=10200
-ui.edit_type.VO2MAX=10201
-ui.edit_type.RECOVERY_TIME=10202
-ui.edit_type.ALTITUDE=10603
-ui.edit_type.FATIGUE=10014
-ui.edit_type.RUNNING_TIME=11004
-ui.edit_type.RUNNING_DISTANCE=11005
-ui.edit_type.RUNNING_CAL=11006
-ui.edit_type.RUNNING_AVERAGE_PACE=11007
-ui.edit_type.RUNNING_AVERAGE_HEARTRATE=11008
-ui.edit_type.RUNNING_AVERAGE_CADENCE=11009
-ui.edit_type.RUNNING_AVERAGE_STRIDE=11010
-ui.edit_type.MONTH_RUN_TIMES=11011
-ui.edit_type.MONTH_RUN_DISTANCE=11012
-ui.edit_type.INVALID=11013
-*/
-  export const  widgetOptionalArray = [
-    // {
-    //   type: edit_type.APPLIST,
-    //   //preview: previewPath + 'step.png',
-    // },
-    // {
-    //   type: edit_type.SPORTLIST,
-    //   preview: previewPath + 'step.png',
-    // },
-    // {
-    //   type: edit_type.RECOVERY_TIME,
-    //   preview: previewPath + 'step.png',
-    // },
-    // {
-    //   type: edit_type.TRAINING_LOAD,
-    //   preview: previewPath + 'step.png',
-    // },
-    // {
-    //   type: edit_type.MONTH_RUN_DISTANCE,
-    //   preview: previewPath + 'step.png',
-    // },
-    // {
-    //   type:edit_type.VO2MAX,
-    //   preview: previewPath + 'step.png',
-    // },
-    // {
-    //   type:edit_type.STOP_WATCH,
-    //   preview: previewPath + 'step.png',
-    // },
-    {
-      type:edit_type.ALARM_CLOCK,
-      preview: previewPath + 'step.png',
-    },
-    {
-      type:edit_type.COUNT_DOWN,
-      preview: previewPath + 'step.png',
-    },
-    {
-      type: edit_type.STEP,
-      preview: previewPath + 'step.png',
-    },
-    {
-      type: edit_type.CAL,
-      preview: previewPath + 'kcal.png',
-    },
-    {
-      type: edit_type.BATTERY,
-      preview: previewPath + 'bat.png',
-    },
-    {
-      type: edit_type.HEART,
-      preview: previewPath + 'heart.png',
-    },
-    {
-      type: edit_type.UVI,
-      preview: previewPath + 'UVI.png',
-    },
-    {
-      type: edit_type.PAI,
-      preview: previewPath + 'Pai.png',
-    },
-    {
-      type: edit_type.DISTANCE,
-      preview: previewPath + 'dis.png',
-    },
-    {
-      type: edit_type.STAND,
-      preview: previewPath + 'stand.png',
-    },
-    {
-      type: edit_type.SPO2,
-      preview: previewPath + 'spo2.png',
-    },
-    {
-      type: edit_type.STRESS,
-      preview: previewPath + 'pressure.png',
-    },
-    {
-      type: edit_type.SLEEP,
-      preview: previewPath + 'sleep.png',
-    },
-    {
-      type: edit_type.WIND,
-      preview: previewPath + 'wind.png',
-    },
-    {
-      type: edit_type.WEATHER,
-      preview: previewPath + 'weather.png',
-    },
-    {
-      type: edit_type.TEMPERATURE,
-      preview: previewPath + 'T.png',
-    },
-    {
-      type: edit_type.FAT_BURN,
-      preview: previewPath + 'sport.png',
-    },
-    {
-      type: edit_type.ALTIMETER,
-      preview: previewPath + 'Kpa.png',
-    },
-    {
-      type: edit_type.MOON,
-      preview: previewPath + 'moon.png',
-    },
-    {
-      type: edit_type.PAI_WEEKLY,
-      preview: previewPath + 'Pai.png',
-    },
-    {
-      type: edit_type.SUN,
-      preview: previewPath + 'sun.png',
-    },
-  ];
-
+// ─── Renderer ─────────────────────────────────────────────────────────────────
 export default class EditTypesUtil {
 
-   static drawWidget(editType, id) {
-    let config = {
-      bgx: null,
-      bgy: null,
-      w: null,
-      iconX: null,
-      iconY: null,
-      numX: null,
-      numY: null,
-      numH: null,
-      bgImg: null,
-      array: null,
-      type: null,
-      src: null,
-      numArray: null,
-      h: 0,
-      invalid: null,
-      align: null,
-      unitEn: null,
-      unitSc: null,
-      unitTc: null,
-      spPath: null,
-      negative: null,
-      color: null,
-      id: null,
-      appId: null,
-      appParams: null
-    }
-    switch (id) {
-      case 110:
-        config.bgx = px(42 + 4)//84*84
-        config.bgy = px(290 + 4)//284
-        config.bgw = px(92)
-        config.numX = px(42)
-        config.numY = px(290 + 32)
-        config.numH = px(20)
-        config.iconX = px(42 + 30)
-        config.iconY = px(290 + 56)
-        break
-      case 111:
-        config.bgx = px(194 + 4)
-        config.bgy = px(290 + 4)
-        config.bgw = px(92)
-        config.numX = px(194)
-        config.numY = px(290 + 32)
-        config.numH = px(20)
-        config.iconX = px(194 + 30)
-        config.iconY = px(290 + 56)
-        break
-      case 112:
-        config.bgx = px(346 + 4)
-        config.bgy = px(290 + 4)
-        config.bgw = px(92)
-        config.numX = px(346)
-        config.numY = px(290 + 32)
-        config.numH = px(20)
-        config.iconX = px(346 + 30)
-        config.iconY = px(290 + 56)
-        break
-      default:
-        return
+  static drawWidget(editType, slotId) {
+    const slotBaseX = SLOT_X[slotId]
+    if (slotBaseX === undefined) return
+    const def = WIDGET_DEFS[editType]
+    if (!def) return
+
+    // Geometria slot
+    const sx  = px(slotBaseX)
+    const sy  = px(SLOT_Y)
+    const bgx = sx + px(4)
+    const bgy = sy + px(4)
+    const bgw = px(92)
+    const numX  = sx
+    const numY  = sy + px(32)
+    const numH  = px(20)
+    const iconX = sx + px(30)
+    const iconY = sy + px(56)
+    const cx = sx + px(46)
+    const cy = sy + px(46)
+
+    // Asset derivati dalla definizione
+    const launch     = () => launchApp({ appId: def.app, native: true, params: def.params })
+    const iconPath   = def.icon    ? XicPath + def.icon + '.png' : null
+    const bgImg      = def.bg      ? iconBg  + def.bg  + '.png' : null
+    const unitImg    = def.unit    ? numPath + def.unit + '.png' : null
+    const dotImg     = def.dot     ? numPath + def.dot  + '.png' : null
+    const negImg     = def.neg     ? numPath + 'negative.png'    : null
+    const invalidImg = def.invalid === 'w' ? numPath + 'wnone.png'
+                     : def.invalid          ? numPath + 'none.png'
+                     : null
+
+    // Sfondo quadrato con tap
+    function drawBg() {
+      createWidget(widget.IMG, {
+        x: bgx, y: bgy, w: bgw, h: bgw, src: bgImg,
+        show_level: show_level.ONLY_NORMAL,
+      }).addEventListener(event.CLICK_DOWN, launch)
     }
 
-    switch (editType) {
-      case edit_type.STEP:
-        config.id = 103
-        config.iconPath = XicPath + 'step.png'
-        config.dataType = data_type.STEP
-        config.numArray = numArray
-        config.bgImg = iconBg + 'step.png'
-        config.color = 0x06a5ff
-        config.appId = SYSTEM_APP_STATUS
-        break
-      case edit_type.CAL:
-        config.id = 103
-        config.iconPath = XicPath + 'kcal.png'
-        config.dataType = data_type.CAL
-        config.numArray = numArray
-        config.bgImg = iconBg + 'cal.png'
-        config.color = 0xdf4f26
-        config.appId = SYSTEM_APP_STATUS
-        break
-      case edit_type.PAI:
-        config.id = 103
-        config.iconPath = XicPath + 'Pai.png'
-        config.dataType = data_type.PAI_WEEKLY
-        config.numArray = numArray
-        config.bgImg = iconBg + 'pai.png'
-        config.color = 0xd612c0
-        config.appId = SYSTEM_APP_PAI
-        break
-      case edit_type.DISTANCE:
-        config.id = 104
-        config.iconPath = XicPath + 'dis.png'
-        config.dataType = data_type.DISTANCE
-        config.numArray = numArray
-        config.spPath = numPath + 'point.png'
-        config.invalid = numPath +'none.png'
-        config.bgImg = iconBg + 'dis.png'
-        config.appId = SYSTEM_APP_STATUS
-        break
-      case edit_type.HEART:
-        config.id = 102
-        config.array = heartArray
-        config.iconPath = XicPath + 'heart.png'
-        config.dataType = data_type.HEART
-        config.numArray = numArray
-        config.invalid = numPath +'none.png'
-        config.appId = SYSTEM_APP_HR
-        break
-      case edit_type.BATTERY:
-        config.id = 103
-        config.iconPath = XicPath + 'bat.png'
-        config.dataType = data_type.BATTERY
-        config.numArray = numArray
-        config.bgImg = iconBg + 'bat.png'
-        config.color = 0x06c18a
-        config.appId = SYSTEM_APP_BATTERY
-        break
-      case edit_type.SLEEP:
-        config.id = 104
-        config.iconPath = XicPath + 'sleep.png'
-        config.dataType = data_type.SLEEP
-        config.numArray = numArray
-        config.spPath = numPath + 'point.png'
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'sleep.png'
-        config.appId = SYSTEM_APP_SLEEP
-        break
-      case edit_type.SPO2:
-        config.id = 105
-        config.iconPath = XicPath + 'spo2.png'
-        config.dataType = data_type.SPO2
-        config.numArray = numArray
-        config.unitEn = numPath + 'percent.png'
-        config.unitSc = numPath + 'percent.png'
-        config.unitTc = numPath + 'percent.png'
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'spo2.png'
-        config.appId = SYSTEM_APP_SPO2
-        break
-      case edit_type.STAND:
-        config.id = 103
-        config.iconPath = XicPath + 'stand.png'
-        config.dataType = data_type.STAND
-        config.numArray = numArray
-        config.spPath = numPath + 'slash.png'
-        config.bgImg = iconBg + 'step.png'
-        config.color = 0x06a5ff
-        config.appId = SYSTEM_APP_STATUS
-        break
-      case edit_type.STRESS:
-        config.id = 104
-        config.iconPath = XicPath + 'pressure.png'
-        config.dataType = data_type.STRESS
-        config.numArray = numArray
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'kpa.png'
-        config.appId = SYSTEM_APP_PRESSURE
-        break
-      case edit_type.TEMPERATURE:
-        config.id = 109
-        config.iconPath = XicPath + 'T.png'
-        config.dataType = data_type.WEATHER_CURRENT
-        config.numArray = numArray
-        config.unitEn = numPath +'degree.png'
-        config.unitSc = numPath +'degree.png'
-        config.unitTc = numPath +'degree.png'
-        config.negative = numPath +'negative.ng'
-        config.invalid = numPath +'none.png'
-        config.bgImg = iconBg + 't.png'
-        config.appId = SYSTEM_APP_WEATHER
-        break
-      case edit_type.UVI:
-        config.id = 108
-        config.array = uviArray
-        config.flag = true
-        config.iconPath = XicPath + 'UVI.png'
-        config.dataType = data_type.UVI
-        config.numArray = numArray
-        config.invalid = numPath + 'none.png'
-        config.appId = SYSTEM_APP_WEATHER
-        break
-      case edit_type.WEATHER:
-        config.id = 107
-        config.bgImg = iconBg + 'weather.png'
-        config.dataType = data_type.WEATHER_CURRENT
-        config.numArray = numArray
-        config.invalid = numPath + 'wnone.png'
-        config.negative = numPath + 'negative.png'
-        config.unitEn = numPath + 'degree.png'
-        config.unitSc = numPath + 'degree.png'
-        config.unitTc = numPath + 'degree.png'
-        config.appId = SYSTEM_APP_WEATHER
-        break
-      case edit_type.WIND:
-        config.id = 105
-        config.iconPath = XicPath + 'wind.png'
-        config.dataType = data_type.WIND
-        config.numArray = numArray
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'wind.png'
-        config.appId = SYSTEM_APP_WEATHER
-        break
-      case edit_type.FAT_BURN:
-        config.id = 104
-        config.iconPath = XicPath + 'sport.png'
-        config.dataType = data_type.FAT_BURN
-        config.numArray = numArray
-        config.spPath = numPath + 'point.png'
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'sport.png'
-        config.appId = SYSTEM_APP_STATUS
-        break
-      case edit_type.ALTIMETER:
-        config.id = 104
-        config.iconPath = XicPath + 'Kpa.png'
-        config.dataType = data_type.ALTIMETER
-        config.numArray = numArray
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'kpa.png'
-        config.appId = SYSTEM_APP_ALTIMETER
-        break
-      case edit_type.MOON:
-        config.id = 106
-        config.iconPath = createWidget(widget.IMG_LEVEL, {
-          x: config.bgx,//156
-          y: config.bgy,//275
-          image_array: moonArray,//84*84
-          image_length: moonArray.length,
-          type: data_type.MOON,
+    // Numero (TEXT_IMG) + icona piccola — usato da arc, heart, uvi, moon, pointer
+    // withDot=true aggiunge isCharacter e dot_image (usato da tutti tranne temperature)
+    function drawIconText(withDot = true) {
+      createWidget(widget.TEXT_IMG, {
+        x: numX, y: numY, w: bgw, h: numH,
+        type: def.dt, font_array: numArray, h_space: 0,
+        align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
+        unit_sc: unitImg, unit_en: unitImg, unit_tc: unitImg,
+        invalid_image: invalidImg, negative_image: negImg,
+        ...(withDot && { isCharacter: true, dot_image: dotImg }),
+      }).addEventListener(event.CLICK_DOWN, launch)
+
+      if (iconPath) {
+        createWidget(widget.IMG, {
+          x: iconX, y: iconY, src: iconPath,
           show_level: show_level.ONLY_NORMAL,
-        })
-        config.dataType = data_type.MOON
-        config.numArray = numArray
-        config.appId = SYSTEM_APP_SUN_AND_MOON
-        break
-      case edit_type.RECOVERY_TIME:
-        config.id = 103
-        config.iconPath = XicPath + 'recovery.png'
-        config.dataType = data_type.RECOVERY_TIME
-        config.numArray = numArray
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'recovery.png'
-        config.color = 0x06a5ff
-        config.appId = SYSTEM_APP_SPORT_STATUS
-        break
-      case edit_type.TRAINING_LOAD:
-        config.id = 104
-        config.iconPath = XicPath + 'recovery.png'
-        config.dataType = data_type.TRAINING_LOAD
-        config.numArray = numArray
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'recovery.png'
-        config.color = 0x06a5ff
-        config.appId = SYSTEM_APP_SPORT_STATUS
-        break
-      case edit_type.MONTH_RUN_DISTANCE:
-          config.id = 104
-          config.iconPath = XicPath + 'run.png'
-          config.dataType = data_type.MONTH_RUN_DISTANCE
-          config.numArray = numArray
-          config.invalid = numPath + 'none.png'
-          config.bgImg = iconBg + 'recovery.png'
-          config.color = 0x06a5ff
-          config.appId = SYSTEM_APP_SPORT_HISTORY
-          break
-      case edit_type.VO2MAX:
-        config.id = 103
-        config.iconPath = XicPath + 'vo2.png'
-        config.dataType = data_type.VO2MAX//15-65
-        config.numArray = numArray
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'vo2.png'
-        config.color = 0x06a5ff
-        config.appId = SYSTEM_APP_SPORT_STATUS
-        config.appParams = {page: 1}//?
-        break
-      case edit_type.STOP_WATCH:
-        config.id = 104
-        config.iconPath = XicPath + 'stopwatch.png'
-        config.dataType = data_type.STOP_WATCH
-        config.numArray = numArray
-        config.spPath = numPath + 'point.png'
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'dis.png'
-        config.appId = SYSTEM_APP_STOP_WATCH
-        break
-      case edit_type.ALARM_CLOCK:
-        config.id = 104
-        config.iconPath = XicPath + 'alarm.png'
-        config.dataType = data_type.ALARM_CLOCK
-        config.numArray = numArray
-        config.spPath = numPath + 'point.png'
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'dis.png'
-        config.appId = SYSTEM_APP_ALARM
-        break
-      case edit_type.COUNT_DOWN:
-        config.id = 104
-        config.iconPath = XicPath + 'stopwatch.png'
-        config.dataType = data_type.COUNT_DOWN
-        config.numArray = numArray
-        config.spPath = numPath + 'point.png'
-        config.invalid = numPath + 'none.png'
-        config.bgImg = iconBg + 'dis.png'
-        config.appId = SYSTEM_APP_COUNTDOWN
-        break
-
-      case edit_type.PAI_WEEKLY:
-        config.id = 113
-        config.appId = SYSTEM_APP_PAI
-        break
-
-      case edit_type.SUN:
-        config.id = 114
-        config.appId = SYSTEM_APP_SUN_AND_MOON
-        break
-
-      default:
-        return config
-    }
-
-    function iconText() {
-      createWidget(widget.TEXT_IMG, {
-        isCharacter: true,
-        x: config.numX,// + 1,
-        y: config.numY,
-        w: config.bgw,
-        h: config.numH,
-        type: config.dataType,
-        font_array: config.numArray,
-        h_space: config.h,
-        align_h: align.CENTER_H,
-        show_level: show_level.ONLY_NORMAL,
-        unit_sc: config.unitSc,
-        unit_en: config.unitEn,
-        unit_tc: config.unitTc,
-        invalid_image: config.invalid,
-        dot_image: config.spPath,
-        negative_image: config.negative,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      createWidget(widget.IMG, {
-        x: config.iconX,
-        y: config.iconY,// + 2,
-        src: config.iconPath,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-    }
-
-    function tIconText() {
-      createWidget(widget.TEXT_IMG, {
-        x: config.numX,// + 1,
-        y: config.numY,
-        w: config.bgw,
-        h: config.numH,
-        type: config.dataType,
-        font_array: config.numArray,
-        h_space: config.h,
-        align_h: align.CENTER_H,
-        show_level: show_level.ONLY_NORMAL,
-        unit_sc: config.unitSc,
-        unit_en: config.unitEn,
-        unit_tc: config.unitTc,
-        invalid_image: config.invalid,
-        negative_image: config.negative,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      createWidget(widget.IMG, {
-        x: config.iconX,
-        y: config.iconY,// + 2,
-        src: config.iconPath,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-    }
-
-    if (config.id == 102) {
-      createWidget(widget.IMG, {
-        x: config.bgx,
-        y: config.bgy,
-        alpha: 255,
-        src: heartPath + 'heart0.png',
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-          launchApp({ appId: config.appId, native: true, params: config.appParams })
-        });
-
-      createWidget(widget.IMG_LEVEL, {
-        x: config.bgx,
-        y: config.bgy,
-        image_array: config.array,
-        image_length: config.array.length,
-        type: config.dataType,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      iconText()
-    }
-
-    if (config.id == 108) {
-      createWidget(widget.IMG, {
-        x: config.bgx,
-        y: config.bgy,
-        alpha: 255,
-        src: UVIPath + 'uvi0.png',
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-      createWidget(widget.IMG_LEVEL, {
-        x: config.bgx,
-        y: config.bgy,
-        image_array: config.array,
-        image_length: config.array.length,
-        type: config.dataType,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      iconText()
-    }
-    //BATTERY STAND PAI
-    if (config.id == 103) {
-      createWidget(widget.IMG, {
-        x: config.bgx,
-        y: config.bgy,
-        w: config.bgw,
-        h: config.bgw,
-        src: config.bgImg,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      createWidget(widget.ARC_PROGRESS, {
-        x: 0, y: 0,
-        w: px(92), h: px(92),
-        center_x: config.bgx + px(42),
-        center_y: config.bgy + px(42),
-        radius: 35,
-        start_angle: -139,
-        end_angle: 139,
-        line_width: 8,
-        color: config.color,
-        type: config.dataType,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      iconText()
-    }
-    if (config.id == 104) {
-      createWidget(widget.IMG, {//background
-        x: config.bgx,
-        y: config.bgy,
-        w: config.bgw,
-        h: config.bgw,
-        src: config.bgImg,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      createWidget(widget.TEXT_IMG, {
-        x: config.numX,
-        y: config.numY - px(6),
-        w: config.bgw,
-        h: config.numH,
-        type: config.dataType,
-        font_array: config.numArray,
-        h_space: config.h,
-        align_h: align.CENTER_H,
-        show_level: show_level.ONLY_NORMAL,
-        unit_sc: config.unitSc,
-        unit_en: config.unitEn,
-        unit_tc: config.unitTc,
-        invalid_image: config.invalid,
-        dot_image: config.spPath,
-        negative_image: config.negative,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      createWidget(widget.IMG, {
-        x: config.iconX,
-        y: config.iconY - px(5),
-        src: config.iconPath,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-    }
-
-    if (config.id == 105 || config.id == 109) {
-      createWidget(widget.IMG, {
-        x: config.bgx,
-        y: config.bgy,
-        w: config.bgw,
-        h: config.bgw,
-        src: config.bgImg,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      createWidget(widget.IMG_POINTER, {
-        src: numPath + 'p.png',
-        center_x: config.numX + px(46),
-        center_y: px(290 + 46),
-        x: px(6),
-        y: px(40),
-        type: config.dataType,
-        start_angle: -135,
-        end_angle: 135,
-        show_level: show_level.ONLY_NORMAL,
-      })
-      if (config.id == 109) {
-        tIconText()
-      } else {
-        iconText()
+        }).addEventListener(event.CLICK_DOWN, launch)
       }
     }
-    if (config.id == 106) {
-      iconText()
-    }
 
-    // PAI WEEKLY – grafico a 7 barre (una per giorno)
-    if (config.id == 113) {
-      const slotX = config.bgx - px(4)
-      const slotY = config.bgy - px(4)
-      const cx = slotX + px(46)
-      const cy = slotY + px(46)
+    switch (def.r) {
 
-      const BAR_W = px(8)
-      const BAR_H = px(28)
-      const BAR_GAP = px(2)
-
-      // sfondo circolare riutilizzando la stessa immagine del PAI ad arco
-      createWidget(widget.IMG, {
-        x: config.bgx, y: config.bgy,
-        w: config.bgw, h: config.bgw,
-        src: iconBg + 'pai.png',
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true })
-      })
-
-      // punteggio PAI settimanale in alto
-      createWidget(widget.TEXT_IMG, {
-        x: slotX, y: slotY + px(4),
-        w: px(92), h: px(22),
-        type: data_type.PAI_WEEKLY,
-        font_array: numArray,
-        h_space: 0,
-        align_h: align.CENTER_H,
-        show_level: show_level.ONLY_NORMAL,
-        invalid_image: numPath + 'none.png',
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true })
-      })
-
-      // etichetta "PAI" in basso
-      createWidget(widget.TEXT, {
-        x: slotX, y: cy + px(16),
-        w: px(92), h: px(18),
-        text: 'PAI',
-        text_size: px(14),
-        color: 0xd612c0,
-        align_h: align.CENTER_H,
-        align_v: align.CENTER_V,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true })
-      })
-
-      // coordinate x delle 7 barre, centrate nel widget
-      const barXCoords = new Array(7).fill(null).map(
-        (_, i) => Math.round(cx - 3.5 * BAR_W - 3 * BAR_GAP + i * (BAR_W + BAR_GAP))
-      )
-      const barBaseY = cy - Math.round(BAR_H / 2)
-
-      // barre di sfondo (dimmed)
-      barXCoords.forEach(bx => createWidget(widget.FILL_RECT, {
-        x: bx, y: barBaseY,
-        w: BAR_W, h: BAR_H,
-        radius: Math.round(BAR_W / 2),
-        color: 0x4a1048,
-        show_level: show_level.ONLY_NORMAL,
-      }))
-
-      // barre attive (aggiornate dinamicamente)
-      const paiSensor = new Pai()
-      const barWidgets = barXCoords.map(bx => createWidget(widget.FILL_RECT, {
-        x: bx, y: barBaseY,
-        w: BAR_W, h: BAR_H,
-        radius: Math.round(BAR_W / 2),
-        color: 0xd612c0,
-        show_level: show_level.ONLY_NORMAL,
-      }))
-
-      createWidget(widget.WIDGET_DELEGATE, {
-        resume_call: () => {
-          barWidgets.forEach((barWidget, i) => {
-            const value = paiSensor[`prepai${i}`]
-            const level = (value || 0) / 100
-            const height = Math.max(1, Math.min(level * BAR_H, BAR_H))
-            barWidget.setProperty(prop.MORE, {
-              x: barXCoords[i],
-              y: barBaseY + BAR_H - height,
-              w: BAR_W,
-              h: height,
-              radius: Math.round(BAR_W / 2),
-              color: 0xd612c0,
-            })
-          })
-        }
-      })
-    }
-
-    // SUN – arco giorno con punto sole e prossimo evento alba/tramonto
-    if (config.id == 114) {
-      const slotX = config.bgx - px(4)
-      const slotY = config.bgy - px(4)
-      const cx = slotX + px(46)
-      const cy = slotY + px(46)
-
-      const ARC_RADIUS = 35
-      const ARC_LINE_W = 8
-      const DOT_SIZE = px(14)
-      const DOT_OVER = px(1)
-      const dotArea = px(92) + 2 * DOT_OVER
-
-      // arco sfondo (cerchio completo, dimmed)
-      createWidget(widget.ARC_PROGRESS, {
-        center_x: cx, center_y: cy,
-        radius: ARC_RADIUS,
-        start_angle: 0, end_angle: 360,
-        color: 0x333344,
-        line_width: ARC_LINE_W,
-        level: 100, corner_flag: 0,
-        show_level: show_level.ONLY_NORMAL,
-      })
-
-      // arco attivo (durata del giorno: alba → tramonto)
-      const dayArc = createWidget(widget.ARC_PROGRESS, {
-        center_x: cx, center_y: cy,
-        radius: ARC_RADIUS,
-        start_angle: 0, end_angle: 0,
-        color: 0xffaa00,
-        line_width: ARC_LINE_W,
-        level: 100, corner_flag: 0,
-        show_level: show_level.ONLY_NORMAL,
-      })
-
-      // punto rotante sulla posizione del sole
-      const dotWidget = createWidget(widget.IMG, {
-        x: slotX - DOT_OVER, y: slotY - DOT_OVER,
-        w: dotArea, h: dotArea,
-        pos_x: Math.round(dotArea / 2 - DOT_SIZE / 2),
-        pos_y: 0,
-        center_x: Math.round(dotArea / 2),
-        center_y: Math.round(dotArea / 2),
-        angle: 0,
-        src: 'widget/dot.png',
-        show_level: show_level.ONLY_NORMAL,
-      })
-
-      // icona alba/tramonto al centro-alto del widget
-      const sunIconW = createWidget(widget.IMG, {
-        x: cx - px(12), y: cy - px(24),
-        src: 'xicon/sunrise.png',
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true })
-      })
-
-      // orario del prossimo evento al centro-basso
-      const sunTextW = createWidget(widget.TEXT, {
-        x: slotX, y: cy + px(8),
-        w: px(92), h: px(22),
-        text: '--:--',
-        text_size: px(16),
-        color: 0xffffff,
-        align_h: align.CENTER_H,
-        align_v: align.CENTER_V,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true })
-      })
-
-      const sunWeather = new Weather()
-      const sunTime = new Time()
-
-      function _getSunMins() {
-        try {
-          const td = sunWeather.getForecast().tideData
-          if (!td || !td.count) return [0, 0]
-          const { sunrise, sunset } = td.data[0] || {}
-          if (!sunrise || !sunset) return [0, 0]
-          return [sunrise.hour * 60 + sunrise.minute, sunset.hour * 60 + sunset.minute]
-        } catch (e) { return [0, 0] }
-      }
-
-      function _updateSun() {
-        const [riseMins, setMins] = _getSunMins()
-        const dayDur = setMins >= riseMins ? setMins - riseMins : (24 * 60 - riseMins + setMins)
-        const halfAngle = (360 * dayDur / (24 * 60)) / 2
-
-        dayArc.setProperty(prop.MORE, {
+      case 'arc':
+        drawBg()
+        createWidget(widget.ARC_PROGRESS, {
+          x: 0, y: 0, w: bgw, h: bgw,
           center_x: cx, center_y: cy,
-          radius: ARC_RADIUS,
-          start_angle: -halfAngle, end_angle: halfAngle,
-          color: 0xffaa00,
-          line_width: ARC_LINE_W,
-          level: 100, corner_flag: 0,
+          radius: 35, start_angle: -139, end_angle: 139,
+          line_width: 8, color: def.color, type: def.dt,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        drawIconText()
+        break
+
+      case 'numeric':
+        drawBg()
+        createWidget(widget.TEXT_IMG, {
+          x: numX, y: numY - px(6), w: bgw, h: numH,
+          type: def.dt, font_array: numArray, h_space: 0,
+          align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
+          unit_sc: unitImg, unit_en: unitImg, unit_tc: unitImg,
+          invalid_image: invalidImg, dot_image: dotImg, negative_image: negImg,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        createWidget(widget.IMG, {
+          x: iconX, y: iconY - px(5), src: iconPath,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        break
+
+      case 'pointer':
+      case 'pointerT':
+        drawBg()
+        createWidget(widget.IMG_POINTER, {
+          src: numPath + 'p.png',
+          center_x: cx, center_y: cy,
+          x: px(6), y: px(40),
+          type: def.dt, start_angle: -135, end_angle: 135,
           show_level: show_level.ONLY_NORMAL,
         })
+        drawIconText(def.r === 'pointer')
+        break
 
-        const noon = (riseMins + dayDur / 2) % (24 * 60)
-        const midnight = (noon + 12 * 60) % (24 * 60)
-        const nowMins = sunTime.getHours() * 60 + sunTime.getMinutes()
-        let diff = nowMins - midnight
-        if (diff < 0) diff += 24 * 60
-        const sunPos = diff / (24 * 60)
-        dotWidget.setProperty(prop.MORE, {
-          x: slotX - DOT_OVER, y: slotY - DOT_OVER,
+      case 'heart':
+        createWidget(widget.IMG, {
+          x: bgx, y: bgy, alpha: 255, src: heartPath + 'heart0.png',
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        createWidget(widget.IMG_LEVEL, {
+          x: bgx, y: bgy, image_array: heartArray, image_length: heartArray.length,
+          type: def.dt, show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        drawIconText()
+        break
+
+      case 'uvi':
+        createWidget(widget.IMG, {
+          x: bgx, y: bgy, alpha: 255, src: UVIPath + 'uvi0.png',
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        createWidget(widget.IMG_LEVEL, {
+          x: bgx, y: bgy, image_array: uviArray, image_length: uviArray.length,
+          type: def.dt, show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        drawIconText()
+        break
+
+      case 'moon':
+        createWidget(widget.IMG_LEVEL, {
+          x: bgx, y: bgy, image_array: moonArray, image_length: moonArray.length,
+          type: def.dt, show_level: show_level.ONLY_NORMAL,
+        })
+        drawIconText()
+        break
+
+      case 'weather':
+        drawBg()
+        createWidget(widget.TEXT_IMG, {
+          x: numX, y: numY - px(6), w: bgw, h: numH,
+          type: def.dt, font_array: numArray, h_space: 0,
+          align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
+          unit_sc: unitImg, unit_en: unitImg, unit_tc: unitImg,
+          invalid_image: invalidImg, negative_image: negImg,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        createWidget(widget.IMG_LEVEL, {
+          x: iconX, y: iconY - px(5),
+          image_array: weatherArray, image_length: weatherArray.length,
+          type: data_type.WEATHER, show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        break
+
+      case 'paiWeekly': {
+        const BAR_W   = px(8)
+        const BAR_H   = px(28)
+        const BAR_GAP = px(2)
+        const barXCoords = Array.from({ length: 7 },
+          (_, i) => Math.round(cx - 3.5 * BAR_W - 3 * BAR_GAP + i * (BAR_W + BAR_GAP))
+        )
+        const barBaseY = cy - Math.round(BAR_H / 2)
+
+        createWidget(widget.IMG, {
+          x: bgx, y: bgy, w: bgw, h: bgw, src: iconBg + 'pai.png',
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+
+        createWidget(widget.TEXT_IMG, {
+          x: sx, y: sy + px(4), w: bgw, h: px(22),
+          type: data_type.PAI_WEEKLY, font_array: numArray, h_space: 0,
+          align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
+          invalid_image: numPath + 'none.png',
+        }).addEventListener(event.CLICK_DOWN, launch)
+
+        createWidget(widget.TEXT, {
+          x: sx, y: cy + px(16), w: bgw, h: px(18),
+          text: 'PAI', text_size: px(14), color: 0xd612c0,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+
+        // barre di sfondo
+        barXCoords.forEach(bx => createWidget(widget.FILL_RECT, {
+          x: bx, y: barBaseY, w: BAR_W, h: BAR_H,
+          radius: Math.round(BAR_W / 2), color: 0x4a1048,
+          show_level: show_level.ONLY_NORMAL,
+        }))
+
+        // barre attive (aggiornate al resume)
+        const paiSensor  = new Pai()
+        const barWidgets = barXCoords.map(bx => createWidget(widget.FILL_RECT, {
+          x: bx, y: barBaseY, w: BAR_W, h: BAR_H,
+          radius: Math.round(BAR_W / 2), color: 0xd612c0,
+          show_level: show_level.ONLY_NORMAL,
+        }))
+
+        createWidget(widget.WIDGET_DELEGATE, {
+          resume_call: () => {
+            barWidgets.forEach((bar, i) => {
+              const level  = (paiSensor[`prepai${i}`] || 0) / 100
+              const height = Math.max(1, Math.min(level * BAR_H, BAR_H))
+              bar.setProperty(prop.MORE, {
+                x: barXCoords[i], y: barBaseY + BAR_H - height,
+                w: BAR_W, h: height,
+                radius: Math.round(BAR_W / 2), color: 0xd612c0,
+              })
+            })
+          }
+        })
+        break
+      }
+
+      case 'sun': {
+        const ARC_RADIUS = 35
+        const ARC_LINE_W = 8
+        const DOT_SIZE   = px(14)
+        const DOT_OVER   = px(1)
+        const dotArea    = px(92) + 2 * DOT_OVER
+
+        // arco sfondo (cerchio completo, dimmed)
+        createWidget(widget.ARC_PROGRESS, {
+          center_x: cx, center_y: cy,
+          radius: ARC_RADIUS, start_angle: 0, end_angle: 360,
+          color: 0x333344, line_width: ARC_LINE_W,
+          level: 100, corner_flag: 0, show_level: show_level.ONLY_NORMAL,
+        })
+
+        // arco attivo (alba → tramonto)
+        const dayArc = createWidget(widget.ARC_PROGRESS, {
+          center_x: cx, center_y: cy,
+          radius: ARC_RADIUS, start_angle: 0, end_angle: 0,
+          color: 0xffaa00, line_width: ARC_LINE_W,
+          level: 100, corner_flag: 0, show_level: show_level.ONLY_NORMAL,
+        })
+
+        // punto rotante sulla posizione del sole
+        const dotWidget = createWidget(widget.IMG, {
+          x: sx - DOT_OVER, y: sy - DOT_OVER,
           w: dotArea, h: dotArea,
           pos_x: Math.round(dotArea / 2 - DOT_SIZE / 2),
           pos_y: 0,
           center_x: Math.round(dotArea / 2),
           center_y: Math.round(dotArea / 2),
-          angle: sunPos * 360 - 180,
-          src: 'widget/dot.png',
+          angle: 0, src: 'widget/dot.png',
+          show_level: show_level.ONLY_NORMAL,
         })
 
-        const isDay = nowMins >= riseMins && nowMins <= setMins
-        const evType = isDay ? 'sunset' : 'sunrise'
-        try {
-          const td = sunWeather.getForecast().tideData
-          const obj = isDay ? td.data[0].sunset : td.data[0].sunrise
+        // icona (alba / tramonto)
+        const sunIconW = createWidget(widget.IMG, {
+          x: cx - px(12), y: cy - px(24),
+          src: 'xicon/sunrise.png', show_level: show_level.ONLY_NORMAL,
+        })
+        sunIconW.addEventListener(event.CLICK_DOWN, launch)
+
+        // orario prossimo evento
+        const sunTextW = createWidget(widget.TEXT, {
+          x: sx, y: cy + px(8), w: bgw, h: px(22),
+          text: '--:--', text_size: px(16), color: 0xffffff,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        })
+        sunTextW.addEventListener(event.CLICK_DOWN, launch)
+
+        const sunWeather = new Weather()
+        const sunTime    = new Time()
+
+        // Legge i dati meteo una sola volta; null se non disponibili
+        function _getTideDay() {
+          try {
+            const td = sunWeather.getForecast().tideData
+            if (!td || !td.count) return null
+            const day = td.data[0] || {}
+            if (!day.sunrise || !day.sunset) return null
+            return day
+          } catch (e) { return null }
+        }
+
+        function _updateSun() {
+          const day = _getTideDay()
+          if (!day) return
+
+          const riseMins  = day.sunrise.hour * 60 + day.sunrise.minute
+          const setMins   = day.sunset.hour  * 60 + day.sunset.minute
+          const dayDur    = setMins >= riseMins ? setMins - riseMins : (24 * 60 - riseMins + setMins)
+          const halfAngle = (360 * dayDur / (24 * 60)) / 2
+
+          dayArc.setProperty(prop.MORE, {
+            center_x: cx, center_y: cy,
+            radius: ARC_RADIUS, start_angle: -halfAngle, end_angle: halfAngle,
+            color: 0xffaa00, line_width: ARC_LINE_W,
+            level: 100, corner_flag: 0, show_level: show_level.ONLY_NORMAL,
+          })
+
+          const noon     = (riseMins + dayDur / 2) % (24 * 60)
+          const midnight = (noon + 12 * 60) % (24 * 60)
+          const nowMins  = sunTime.getHours() * 60 + sunTime.getMinutes()
+          let diff = nowMins - midnight
+          if (diff < 0) diff += 24 * 60
+          dotWidget.setProperty(prop.MORE, { angle: diff / (24 * 60) * 360 - 180 })
+
+          const isDay  = nowMins >= riseMins && nowMins <= setMins
+          const evType = isDay ? 'sunset' : 'sunrise'
+          const obj    = isDay ? day.sunset : day.sunrise
           const hh = obj.hour.toString().padStart(2, '0')
           const mm = obj.minute.toString().padStart(2, '0')
           sunTextW.setProperty(prop.MORE, { text: `${hh}:${mm}` })
           sunIconW.setProperty(prop.MORE, { src: `xicon/${evType}.png` })
-        } catch (e) {}
+        }
+
+        createWidget(widget.WIDGET_DELEGATE, {
+          resume_call: () => { _updateSun() }
+        })
+        break
       }
-
-      createWidget(widget.WIDGET_DELEGATE, {
-        resume_call: () => { _updateSun() }
-      })
-    }
-    if (config.id == 107) {
-      createWidget(widget.IMG, {
-        x: config.bgx,
-        y: config.bgy,
-        w: config.bgw,
-        h: config.bgw,
-        src: config.bgImg,
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      createWidget(widget.TEXT_IMG, {
-        x: config.numX,//150
-        y: config.numY - px(6),//310
-        w: config.bgw,
-        h: config.numH,
-        type: config.dataType,
-        font_array: config.numArray,
-        h_space: config.h,
-        align_h: align.CENTER_H,
-        show_level: show_level.ONLY_NORMAL,
-        unit_sc: config.unitSc,
-        unit_en: config.unitEn,
-        unit_tc: config.unitTc,
-        invalid_image: config.invalid,
-        negative_image: config.negative,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
-
-      createWidget(widget.IMG, {
-        x: config.iconX,
-        y: config.iconY - px(5),
-        src: createWidget(widget.IMG_LEVEL, {
-          x: config.iconX,
-          y: config.iconY - px(5),
-          image_array: weatherArray,//32*32
-          image_length: weatherArray.length,
-          type: data_type.WEATHER,
-          show_level: show_level.ONLY_NORMAL,
-        }),
-        show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, () => {
-        launchApp({ appId: config.appId, native: true, params: config.appParams })
-      });
     }
   }
-
-
 }
