@@ -182,12 +182,12 @@ WatchFace({
     dateColor = themes[currentIdTheme].values.dateColor;
 
     // ── Color zone selectors ──────────────────────────────────────────────────
-    // Positioned as small pill indicators in a strip at the bottom of the screen.
-    // Each group lets the user pick a per-zone color override from the edit UI.
-    const CS_Y  = px(445);
+    // Placed between the health row and the date row (y≈390), where the circular
+    // screen is wide enough to fit all 4 groups (verified: corners at (89,426) and
+    // (391,426) are within the 240-radius circle).
+    // Invisible in normal mode — accessible only via the watchface edit UI.
+    const CS_Y  = px(390);
     const CS_HW = px(36);
-    const CS_TIPS_X = -px(44);
-    const CS_TIPS_Y = -px(40);
 
     function _makeColorGroup(editId, x, defaultColor) {
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
@@ -199,8 +199,8 @@ WatchFace({
         optional_types: colorOptionalArray,
         count: colorOptionalArray.length,
         tips_BG:    'mask/tips.png',
-        tips_x:     CS_TIPS_X,
-        tips_y:     CS_TIPS_Y,
+        tips_x:     -px(44),
+        tips_y:     -px(40),
         tips_width: px(124),
         select_list: {
           title_font_size:          34,
@@ -212,22 +212,15 @@ WatchFace({
       })
       const selectedType = grp.getProperty(prop.CURRENT_TYPE)
       const override = getColorFromType(selectedType)
-      const effectiveColor = (override !== null) ? override : defaultColor
-      // Draw a colored pill showing the active color
-      createWidget(widget.FILL_RECT, {
-        x: x + px(4), y: CS_Y + px(4),
-        w: CS_HW - px(8), h: CS_HW - px(8),
-        radius: px(14),
-        color: effectiveColor,
-        show_level: show_level.ONLY_NORMAL,
-      })
       return { grp, override }
     }
 
-    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(61),  hourColor)
-    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(166), minuteColor)
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(271), dateColor)
-    const csHealth = _makeColorGroup(COLOR_EDIT_ID.HEALTH, px(376), healthColor)
+    // x positions calculated so all 4 corners of every group are within the
+    // circular screen at y=390–426: safe range is x∈[89, 391].
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(89),  hourColor)
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(178), minuteColor)
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(267), dateColor)
+    const csHealth = _makeColorGroup(COLOR_EDIT_ID.HEALTH, px(355), healthColor)
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
