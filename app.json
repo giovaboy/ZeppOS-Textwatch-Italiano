@@ -13,8 +13,7 @@
     "description": "TextWatch in Italiano"
   },
   "permissions": [
-    "device:os.local_storage",
-    "device:os.settings"
+    "device:os.local_storage"
   ],
   "runtime": {
     "apiVersion": {
@@ -32,9 +31,6 @@
           "editable": 1,
           "lockscreen": 1,
           "hightCost": 0
-        },
-        "setting": {
-          "path": "setting/index"
         }
       },
       "platforms": [

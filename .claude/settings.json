@@ -11,7 +11,15 @@
       "Bash(/usr/lib/code-server/lib/node -e \"const z = require\\('zlib'\\); console.log\\('zlib ok'\\); const fs = require\\('fs'\\); console.log\\('fs ok'\\);\")",
       "WebFetch(domain:docs.zepp.com)",
       "WebSearch",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:amazfitwatchfaces.com)",
+      "WebFetch(domain:deepwiki.com)",
+      "Bash(node -e ':*)",
+      "Bash(ls /usr/bin/node*)",
+      "Bash(ls ~/.nvm/versions/node/*/bin/node)",
+      "Read(//home/**)",
+      "Bash(command -v npx)",
+      "Bash(/usr/lib/code-server/lib/node -e ':*)"
     ]
   }
 }

@@ -7,8 +7,7 @@ import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
 import EditTypesUtil, {widgetOptionalArray } from './editTypesUtil.js'
-import { ZONE_PALETTE } from './colorZones.js'
-import { settingsStorage } from '@zos/settings'
+import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID } from './colorSelector.js'
 
 try {
   (() => {
@@ -137,6 +136,11 @@ let editGroup1 = null;
 let editGroup2 = null;
 let editGroup3 = null;
 
+let colorGroupHour   = null;
+let colorGroupMinute = null;
+let colorGroupDate   = null;
+let colorGroupHealth = null;
+
 WatchFace({
   //https://github.com/zepp-health/zeppos-samples/blob/main/application/3.0/3.0-feature/app-service/time_service.js
 
@@ -177,16 +181,63 @@ WatchFace({
     healthColor = themes[currentIdTheme].values.healthColor;
     dateColor = themes[currentIdTheme].values.dateColor;
 
-    // ── Override colori da settings (app Zepp → settingsStorage) ─────────────
-    const _applyZone = (key, assign) => {
-      const idx = parseInt(settingsStorage.getItem(key) || '0')
-      const entry = ZONE_PALETTE[idx]
-      if (entry && entry.color != null) assign(entry.color)
+    // ── Color zone selectors ──────────────────────────────────────────────────
+    // Positioned as small pill indicators in a strip at the bottom of the screen.
+    // Each group lets the user pick a per-zone color override from the edit UI.
+    const CS_Y  = px(445);
+    const CS_HW = px(36);
+    const CS_TIPS_X = -px(44);
+    const CS_TIPS_Y = -px(40);
+
+    function _makeColorGroup(editId, x, defaultColor) {
+      const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
+        edit_id: editId,
+        x, y: CS_Y, w: CS_HW, h: CS_HW,
+        select_image:    'mask/select.png',
+        un_select_image: 'mask/select.png',
+        default_type: colorOptionalArray[0].type,
+        optional_types: colorOptionalArray,
+        count: colorOptionalArray.length,
+        tips_BG:    'mask/tips.png',
+        tips_x:     CS_TIPS_X,
+        tips_y:     CS_TIPS_Y,
+        tips_width: px(124),
+        select_list: {
+          title_font_size:          34,
+          title_align_h:            align.CENTER_H,
+          list_item_vspace:         8,
+          list_tips_text_font_size: 32,
+          list_tips_text_align_h:   align.LEFT,
+        }
+      })
+      const selectedType = grp.getProperty(prop.CURRENT_TYPE)
+      const override = getColorFromType(selectedType)
+      const effectiveColor = (override !== null) ? override : defaultColor
+      // Draw a colored pill showing the active color
+      createWidget(widget.FILL_RECT, {
+        x: x + px(4), y: CS_Y + px(4),
+        w: CS_HW - px(8), h: CS_HW - px(8),
+        radius: px(14),
+        color: effectiveColor,
+        show_level: show_level.ONLY_NORMAL,
+      })
+      return { grp, override }
     }
-    _applyZone('zone_hour',   (c) => { hourColor   = c })
-    _applyZone('zone_minute', (c) => { minuteColor = c })
-    _applyZone('zone_date',   (c) => { dateColor   = c })
-    _applyZone('zone_health', (c) => { healthColor = c })
+
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(61),  hourColor)
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(166), minuteColor)
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(271), dateColor)
+    const csHealth = _makeColorGroup(COLOR_EDIT_ID.HEALTH, px(376), healthColor)
+
+    colorGroupHour   = csHour.grp
+    colorGroupMinute = csMinute.grp
+    colorGroupDate   = csDate.grp
+    colorGroupHealth = csHealth.grp
+
+    if (csHour.override   !== null) hourColor   = csHour.override
+    if (csMinute.override !== null) minuteColor = csMinute.override
+    if (csDate.override   !== null) dateColor   = csDate.override
+    if (csHealth.override !== null) healthColor = csHealth.override
     // ─────────────────────────────────────────────────────────────────────────
 
     let screenType = getScene();
@@ -566,6 +617,11 @@ WatchFace({
     deleteWidget(editGroup2);
     deleteWidget(editGroup3);
 
+    deleteWidget(colorGroupHour);
+    deleteWidget(colorGroupMinute);
+    deleteWidget(colorGroupDate);
+    deleteWidget(colorGroupHealth);
+
     dateTextWidget = null;
     hourTextWidgetA = null;
     hourTextWidgetB = null;
@@ -581,6 +637,11 @@ WatchFace({
     editGroup1 = null;
     editGroup2 = null;
     editGroup3 = null;
+
+    colorGroupHour   = null;
+    colorGroupMinute = null;
+    colorGroupDate   = null;
+    colorGroupHealth = null;
 
   },
 })
