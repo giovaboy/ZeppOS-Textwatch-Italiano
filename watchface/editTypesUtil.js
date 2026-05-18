@@ -74,8 +74,12 @@ const WIDGET_DEFS = {
   [edit_type.SUN]:               { r:'sun',                                                                          app:SYSTEM_APP_SUN_AND_MOON },
 }
 
+// Custom type for blank/empty slot
+const BLANK_TYPE = 0x186b0
+
 // ─── Optional widget list (menu di modifica) ──────────────────────────────────
 export const widgetOptionalArray = [
+  { type: BLANK_TYPE,             preview: 'bg/color/prev_blank.png', title_en: 'Empty', title_sc: 'Vuoto', title_tc: 'Vuoto' },
   { type: edit_type.ALARM_CLOCK,  preview: previewPath + 'step.png'     },
   { type: edit_type.COUNT_DOWN,   preview: previewPath + 'step.png'     },
   { type: edit_type.STEP,         preview: previewPath + 'step.png'     },

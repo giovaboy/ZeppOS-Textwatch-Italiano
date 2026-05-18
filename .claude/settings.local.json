@@ -11,7 +11,8 @@
       "Bash(node -e ':*)",
       "Bash(convert --version)",
       "Read(//usr/bin/**)",
-      "Read(//usr/**)"
+      "Read(//usr/**)",
+      "Bash(/usr/lib/code-server/lib/node -e ':*)"
     ]
   }
 }

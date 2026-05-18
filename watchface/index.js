@@ -1,8 +1,8 @@
 import { createWidget, deleteWidget, widget, align, text_style, prop, anim_status, show_level, event, edit_type } from '@zos/ui'
 import { getScene, SCENE_AOD } from '@zos/app'
 import { px, log } from '@zos/utils'
-import { Time, Weather } from '@zos/sensor'
-import { launchApp, SYSTEM_APP_CALENDAR, SYSTEM_APP_SUN_AND_MOON} from '@zos/router'
+import { Time } from '@zos/sensor'
+import { launchApp, SYSTEM_APP_CALENDAR } from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
@@ -29,14 +29,10 @@ const logger = log.getLogger("textwatch-italiano");
 const localStorage = new LocalStorage()
 
 const timeSensor = new Time()
-const weatherSensor = new Weather()
-
-const showSunEventTimeTo = "01:00";//hh:mm
 
 const dateTextSize = px(28);
 const minuteTextSize = px(64);
 const hourTextSize = px(64);
-const healthTextSize = px(22)
 
 const HaH = (hourTextSize * 1.25);
 const HbH = HaH;
@@ -74,7 +70,6 @@ const animDuration = 1000;
 const animFps = 25;
 
 let currentIdTheme = 0;
-let tideDataToday = null;
 
 const aodBgColor = 0x000000;
 
@@ -83,7 +78,6 @@ let hourColor;
 let minuteColor;
 let hourAODColor;
 let minuteAODColor;
-let healthColor;
 
 const dummyCharsetMinute = 'acdegimnopqrstuv';
 const dummyCharsetHour = 'acdegimnopqrstuvz';
@@ -129,9 +123,6 @@ let animIdHourB = null;
 let animIdMinuteA = null;
 let animIdMinuteB = null;
 
-let sunIconWidget = null;
-let sunWidget = null;
-
 let editGroup1 = null;
 let editGroup2 = null;
 let editGroup3 = null;
@@ -139,7 +130,6 @@ let editGroup3 = null;
 let colorGroupHour   = null;
 let colorGroupMinute = null;
 let colorGroupDate   = null;
-let colorGroupHealth = null;
 
 WatchFace({
   //https://github.com/zepp-health/zeppos-samples/blob/main/application/3.0/3.0-feature/app-service/time_service.js
@@ -178,7 +168,6 @@ WatchFace({
     minuteColor = themes[currentIdTheme].values.minuteColor;
     hourAODColor = themes[currentIdTheme].values.hourAODColor;
     minuteAODColor = themes[currentIdTheme].values.minuteAODColor;
-    healthColor = themes[currentIdTheme].values.healthColor;
     dateColor = themes[currentIdTheme].values.dateColor;
 
     // ── Color zone selectors ──────────────────────────────────────────────────
@@ -215,22 +204,19 @@ WatchFace({
       return { grp, override }
     }
 
-    // x positions calculated so all 4 corners of every group are within the
-    // circular screen at y=390–426: safe range is x∈[89, 391].
-    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(89),  hourColor)
-    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(178), minuteColor)
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(267), dateColor)
-    const csHealth = _makeColorGroup(COLOR_EDIT_ID.HEALTH, px(355), healthColor)
+    // x positions for 3 groups centered on screen, all within the circular boundary
+    // at y=390–426 (safe range x∈[89,391]): gap=60px, x=[126,222,318]
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(126), hourColor)
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(222), minuteColor)
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(318), dateColor)
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
     colorGroupDate   = csDate.grp
-    colorGroupHealth = csHealth.grp
 
     if (csHour.override   !== null) hourColor   = csHour.override
     if (csMinute.override !== null) minuteColor = csMinute.override
     if (csDate.override   !== null) dateColor   = csDate.override
-    if (csHealth.override !== null) healthColor = csHealth.override
     // ─────────────────────────────────────────────────────────────────────────
 
     let screenType = getScene();
@@ -328,25 +314,6 @@ WatchFace({
         minuteTextWidgetB.setProperty(prop.MORE, {text: '', x: MbX });
       }
     });
-
-    /* SUN_RISE - SUN_SET */
-    sunIconWidget = createWidget(widget.IMG, {
-      x: px(224), y: px(80), w: 32, align_h: align.CENTER_H, align_v: align.CENTER_V, show_level: show_level.ONLY_NORMAL,
-      src: 'xicon/sunrise.png'
-    });
-    sunWidget = createWidget(widget.TEXT,{
-      x: px(110), y: px(52), w: px(260), h: px(30), text_size: healthTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V,
-      text:null,
-      color: healthColor, char_space: 0, padding: false, show_level: show_level.ONLY_NORMAL,
-      unit_type: 0,
-    });
-    sunIconWidget.addEventListener(event.CLICK_DOWN, (info) => {
-      launchApp({ appId: SYSTEM_APP_SUN_AND_MOON, native: true })
-    });
-    sunWidget.addEventListener(event.CLICK_DOWN, (info) => {
-      launchApp({ appId: SYSTEM_APP_SUN_AND_MOON, native: true })
-    });
-    updateSunWidget();
 
     /* 1 - HEART EDITABLE GROUP */
     editGroup1 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
@@ -459,7 +426,6 @@ WatchFace({
           hourAODWidget.setProperty(prop.MORE, {text : ''});
           minuteAODWidget.setProperty(prop.MORE, {text : ''});
           updateDateWidget();
-          updateSunWidget();
         }
       },
       pause_call: function () {
@@ -474,10 +440,9 @@ WatchFace({
     };
 
     /* SENSOR EVENTS */
-    timeSensor.onPerDay(() => {//DOES THIS EXECUTE?
+    timeSensor.onPerDay(() => {
       if ( DEBUG ) logger.log('onPerDay: ' + timeSensor.getDay() + '-' + timeSensor.getMonth())
       updateDateWidget();
-      tideDataToday = weatherSensor.getForecast().tideData.data[0];
     });
 
     timeSensor.onPerMinute(() => {
@@ -502,8 +467,6 @@ WatchFace({
         });
 
         if (min == 0) {
-          tideDataToday = weatherSensor.getForecast().tideData.data[0];
-
           hourTextWidgetB.setProperty(prop.MORE, {text : `${NumberToText.getHours(hour)}`, x: HbX });
 
           hourTextWidgetA.setProperty(prop.ANIM_STATUS, {
@@ -517,7 +480,6 @@ WatchFace({
           });
 
         }
-        updateSunWidget();
       }
     })
 
@@ -528,59 +490,6 @@ WatchFace({
       });
     }
 
-    function updateSunWidget(){
-      if ( tideDataToday == null) {
-        tideDataToday = weatherSensor.getForecast().tideData.data[0];
-      }
-
-      let sunrise = tideDataToday.sunrise.hour.toString().padStart(2, '0') + ':' + tideDataToday.sunrise.minute.toString().padStart(2, '0');
-      let sunset = tideDataToday.sunset.hour.toString().padStart(2, '0') + ':' + tideDataToday.sunset.minute.toString().padStart(2, '0');
-      let now = timeSensor.getHours().toString().padStart(2, '0') + ':' +  timeSensor.getMinutes().toString().padStart(2, '0');
-
-      if (now < sunrise) {
-        let diff = calcTimeDiff(now, sunrise);
-        if ( DEBUG ) logger.log('now=' + now + ' - sunrise=' + sunrise + ' - diff=' + diff);
-        if (diff <= showSunEventTimeTo) {
-          let diffArr = diff.split(':');
-          sunWidget.setProperty(prop.MORE, { text: `${NumberToText.getMinutesTo(diffArr[0]*60 + diffArr[1]*1)}` });
-          sunIconWidget.setProperty(prop.MORE, {src: 'xicon/sunrise.png'});
-          sunIconWidget.setProperty(prop.VISIBLE, true);
-          sunWidget.setProperty(prop.VISIBLE, true);
-        } else {
-          sunIconWidget.setProperty(prop.VISIBLE, false);
-          sunWidget.setProperty(prop.VISIBLE, false);
-        }
-      } else if (now < sunset) {
-        let diff = calcTimeDiff(now, sunset);
-        if ( DEBUG ) logger.log('now=' + now + ' - sunset=' + sunset + ' - diff=' + diff);
-        if (diff <= showSunEventTimeTo) {
-          let diffArr = diff.split(':');
-          sunWidget.setProperty(prop.MORE, { text: `${NumberToText.getMinutesTo(diffArr[0]*60 + diffArr[1]*1)}` });
-          sunIconWidget.setProperty(prop.MORE, {src: 'xicon/sunset.png'});
-          sunIconWidget.setProperty(prop.VISIBLE, true);
-          sunWidget.setProperty(prop.VISIBLE, true);
-        } else {
-          sunIconWidget.setProperty(prop.VISIBLE, false);
-          sunWidget.setProperty(prop.VISIBLE, false);
-        }
-      } else {
-        sunIconWidget.setProperty(prop.VISIBLE, false);
-        sunWidget.setProperty(prop.VISIBLE, false);
-      }
-
-    }
-
-    function calcTimeDiff(time1, time2) {
-      const [h1, m1] = time1.split(':');
-      const [h2, m2] = time2.split(':');
-      let diff = (h2 - h1) * 60 + (m2 - m1);
-      if (diff < 0) diff += 24 * 60;
-      const hours = Math.floor(diff / 60);
-      const minutes = diff - hours * 60;
-      const hh = hours.toString().padStart(2, '0');
-      const mm = minutes.toString().padStart(2, '0');
-      return `${hh}:${mm}`;
-    }
   },
 
   onInit() {
@@ -603,9 +512,6 @@ WatchFace({
     deleteWidget(hourAODWidget);
     deleteWidget(minuteAODWidget);
 
-    deleteWidget(sunIconWidget);
-    deleteWidget(sunWidget);
-
     deleteWidget(editGroup1);
     deleteWidget(editGroup2);
     deleteWidget(editGroup3);
@@ -613,7 +519,6 @@ WatchFace({
     deleteWidget(colorGroupHour);
     deleteWidget(colorGroupMinute);
     deleteWidget(colorGroupDate);
-    deleteWidget(colorGroupHealth);
 
     dateTextWidget = null;
     hourTextWidgetA = null;
@@ -624,9 +529,6 @@ WatchFace({
     hourAODWidget = null;
     minuteAODWidget = null;
 
-    sunIconWidget = null;
-    sunWidget = null;
-
     editGroup1 = null;
     editGroup2 = null;
     editGroup3 = null;
@@ -634,7 +536,6 @@ WatchFace({
     colorGroupHour   = null;
     colorGroupMinute = null;
     colorGroupDate   = null;
-    colorGroupHealth = null;
 
   },
 })

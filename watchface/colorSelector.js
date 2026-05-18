@@ -38,5 +38,4 @@ export const COLOR_EDIT_ID = {
   HOUR:   120,
   MINUTE: 121,
   DATE:   122,
-  HEALTH: 123,
 }
