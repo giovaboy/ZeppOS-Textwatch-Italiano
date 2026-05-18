@@ -154,7 +154,6 @@ WatchFace({
     });
 
     currentIdTheme = editBg.getProperty(prop.CURRENT_TYPE);
-    tideDataToday = weatherSensor.getForecast().tideData.data[0];
 
     if ( currentIdTheme === undefined ) {//in AOD this will be undefined
       currentIdTheme = localStorage.getItem( 'currentIdTheme', 0 )
