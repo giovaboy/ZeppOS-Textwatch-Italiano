@@ -253,5 +253,161 @@ export const themes = [
       dateColor: 0xffd700,
       healthColor: 0xba55d3,
     }
-  }
+  },
+  {
+    // Oro caldo dell'alba, corallo per i minuti, oro puro per la data
+    id: 21, preview: 'bg/prev_alba.png', path: 'bg/BG_black.png',
+    name: 'Alba',
+    values: {
+      hourColor: 0xffb347,
+      minuteColor: 0xff7f50,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xffd700,
+      healthColor: 0xffe4b5,
+    }
+  },
+  {
+    // Blu profondo → azzurro acqua → ciano pallido: immersione nell'oceano
+    id: 22, preview: 'bg/prev_oceano.png', path: 'bg/BG_black.png',
+    name: 'Oceano',
+    values: {
+      hourColor: 0x0096c7,
+      minuteColor: 0x48cae4,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x90e0ef,
+      healthColor: 0xade8f4,
+    }
+  },
+  {
+    // Fiori di ciliegio rosso-cremisi + zafferano: ispirato ai giardini giapponesi
+    id: 23, preview: 'bg/prev_kyoto.png', path: 'bg/BG_black.png',
+    name: 'Kyoto',
+    values: {
+      hourColor: 0xc2185b,
+      minuteColor: 0xff8f00,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xf06292,
+      healthColor: 0xfff9c4,
+    }
+  },
+  {
+    // Tramonto sul mare: arancio fuoco → oro → salmone chiaro
+    id: 24, preview: 'bg/prev_tramonto.png', path: 'bg/BG_black.png',
+    name: 'Tramonto',
+    values: {
+      hourColor: 0xff4500,
+      minuteColor: 0xffd700,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xff6b6b,
+      healthColor: 0xffa07a,
+    }
+  },
+  {
+    // Palette scandinava: grigio acciaio su nero, essenziale e freddo
+    id: 25, preview: 'bg/prev_nordico.png', path: 'bg/BG_black.png',
+    name: 'Nordico',
+    values: {
+      hourColor: 0xcfd8dc,
+      minuteColor: 0x90a4ae,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x78909c,
+      healthColor: 0xb0bec5,
+    }
+  },
+  {
+    // Verde neon + rosa acceso + ciano elettrico: estetica cyberpunk
+    id: 26, preview: 'bg/prev_neonnotte.png', path: 'bg/BG_black.png',
+    name: 'Neon Notte',
+    values: {
+      hourColor: 0x39ff14,
+      minuteColor: 0xff1493,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x00e5ff,
+      healthColor: 0xffff00,
+    }
+  },
+  {
+    // Ruggine + rosso autunno + ambra dorata: foglie di ottobre
+    id: 27, preview: 'bg/prev_autunno.png', path: 'bg/BG_black.png',
+    name: 'Autunno',
+    values: {
+      hourColor: 0xd35400,
+      minuteColor: 0xe74c3c,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xf39c12,
+      healthColor: 0xf8c471,
+    }
+  },
+  {
+    // Turchese aurora + viola cielo + blu ghiaccio: aurora boreale
+    id: 28, preview: 'bg/prev_aurora.png', path: 'bg/BG_black.png',
+    name: 'Aurora Boreale',
+    values: {
+      hourColor: 0x00cec9,
+      minuteColor: 0xa29bfe,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x74b9ff,
+      healthColor: 0x55efc4,
+    }
+  },
+  {
+    // Rubino + bordeaux + oro: eleganza serale
+    id: 29, preview: 'bg/prev_bordeaux.png', path: 'bg/BG_black.png',
+    name: 'Bordeaux',
+    values: {
+      hourColor: 0xc0392b,
+      minuteColor: 0x922b21,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xf1c40f,
+      healthColor: 0xe8c44d,
+    }
+  },
+  {
+    // Ametista chiaro + lavanda + malva: toni gioiello pastello
+    id: 30, preview: 'bg/prev_lavanda.png', path: 'bg/BG_black.png',
+    name: 'Lavanda',
+    values: {
+      hourColor: 0x9b59b6,
+      minuteColor: 0xc39bd3,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0xd7bde2,
+      healthColor: 0xab8bc8,
+    }
+  },
+  {
+    // Corallo + giallo banana + celeste: colori tropicali
+    id: 31, preview: 'bg/prev_isola.png', path: 'bg/BG_black.png',
+    name: 'Isola',
+    values: {
+      hourColor: 0xff6b6b,
+      minuteColor: 0xfeca57,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x48dbfb,
+      healthColor: 0xff9ff3,
+    }
+  },
+  {
+    // Argento + ciano: look metallico high-tech
+    id: 32, preview: 'bg/prev_acciaio.png', path: 'bg/BG_black.png',
+    name: 'Acciaio',
+    values: {
+      hourColor: 0xbdc3c7,
+      minuteColor: 0x00bcd4,
+      hourAODColor: 0xffffff,
+      minuteAODColor: 0xffffff,
+      dateColor: 0x90caf9,
+      healthColor: 0xb2ebf2,
+    }
+  },
 ]

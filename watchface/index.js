@@ -7,6 +7,7 @@ import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
 import EditTypesUtil, {widgetOptionalArray } from './editTypesUtil.js'
+import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID } from './colorSelector.js'
 
 try {
   (() => {
@@ -135,6 +136,11 @@ let editGroup1 = null;
 let editGroup2 = null;
 let editGroup3 = null;
 
+let colorGroupHour   = null;
+let colorGroupMinute = null;
+let colorGroupDate   = null;
+let colorGroupHealth = null;
+
 WatchFace({
   //https://github.com/zepp-health/zeppos-samples/blob/main/application/3.0/3.0-feature/app-service/time_service.js
 
@@ -174,6 +180,58 @@ WatchFace({
     minuteAODColor = themes[currentIdTheme].values.minuteAODColor;
     healthColor = themes[currentIdTheme].values.healthColor;
     dateColor = themes[currentIdTheme].values.dateColor;
+
+    // ── Color zone selectors ──────────────────────────────────────────────────
+    // Placed between the health row and the date row (y≈390), where the circular
+    // screen is wide enough to fit all 4 groups (verified: corners at (89,426) and
+    // (391,426) are within the 240-radius circle).
+    // Invisible in normal mode — accessible only via the watchface edit UI.
+    const CS_Y  = px(390);
+    const CS_HW = px(36);
+
+    function _makeColorGroup(editId, x, defaultColor) {
+      const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
+        edit_id: editId,
+        x, y: CS_Y, w: CS_HW, h: CS_HW,
+        select_image:    'mask/select_color.png',
+        un_select_image: 'mask/select_color.png',
+        default_type: colorOptionalArray[0].type,
+        optional_types: colorOptionalArray,
+        count: colorOptionalArray.length,
+        tips_BG:    'mask/tips.png',
+        tips_x:     -px(44),
+        tips_y:     -px(40),
+        tips_width: px(124),
+        select_list: {
+          title_font_size:          34,
+          title_align_h:            align.CENTER_H,
+          list_item_vspace:         8,
+          list_tips_text_font_size: 32,
+          list_tips_text_align_h:   align.LEFT,
+        }
+      })
+      const selectedType = grp.getProperty(prop.CURRENT_TYPE)
+      const override = getColorFromType(selectedType)
+      return { grp, override }
+    }
+
+    // x positions calculated so all 4 corners of every group are within the
+    // circular screen at y=390–426: safe range is x∈[89, 391].
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(89),  hourColor)
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(178), minuteColor)
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(267), dateColor)
+    const csHealth = _makeColorGroup(COLOR_EDIT_ID.HEALTH, px(355), healthColor)
+
+    colorGroupHour   = csHour.grp
+    colorGroupMinute = csMinute.grp
+    colorGroupDate   = csDate.grp
+    colorGroupHealth = csHealth.grp
+
+    if (csHour.override   !== null) hourColor   = csHour.override
+    if (csMinute.override !== null) minuteColor = csMinute.override
+    if (csDate.override   !== null) dateColor   = csDate.override
+    if (csHealth.override !== null) healthColor = csHealth.override
+    // ─────────────────────────────────────────────────────────────────────────
 
     let screenType = getScene();
 
@@ -314,7 +372,7 @@ WatchFace({
       }
     })
     let item1 = editGroup1.getProperty(prop.CURRENT_TYPE);
-    EditTypesUtil.drawWidget(item1, editableWidgetsIds[0]);
+    try { EditTypesUtil.drawWidget(item1, editableWidgetsIds[0]) } catch(e) { logger.log('widget 1 error: ' + e) }
 
     /* 2 - STEP EDITABLE GROUP */
     editGroup2 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
@@ -340,7 +398,7 @@ WatchFace({
       }
     })
     let item2 = editGroup2.getProperty(prop.CURRENT_TYPE);
-    EditTypesUtil.drawWidget(item2, editableWidgetsIds[1]);
+    try { EditTypesUtil.drawWidget(item2, editableWidgetsIds[1]) } catch(e) { logger.log('widget 2 error: ' + e) }
 
     /* 3 - DISTANCE EDITABLE GROUP */
     editGroup3 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
@@ -366,7 +424,7 @@ WatchFace({
       }
     })
     let item3 = editGroup3.getProperty(prop.CURRENT_TYPE);
-    EditTypesUtil.drawWidget(item3, editableWidgetsIds[2]);
+    try { EditTypesUtil.drawWidget(item3, editableWidgetsIds[2]) } catch(e) { logger.log('widget 3 error: ' + e) }
 
     createWidget(widget.WATCHFACE_EDIT_MASK, {
       x: 0, y: 0, w: px(480), h: px(480),
@@ -552,6 +610,11 @@ WatchFace({
     deleteWidget(editGroup2);
     deleteWidget(editGroup3);
 
+    deleteWidget(colorGroupHour);
+    deleteWidget(colorGroupMinute);
+    deleteWidget(colorGroupDate);
+    deleteWidget(colorGroupHealth);
+
     dateTextWidget = null;
     hourTextWidgetA = null;
     hourTextWidgetB = null;
@@ -567,6 +630,11 @@ WatchFace({
     editGroup1 = null;
     editGroup2 = null;
     editGroup3 = null;
+
+    colorGroupHour   = null;
+    colorGroupMinute = null;
+    colorGroupDate   = null;
+    colorGroupHealth = null;
 
   },
 })
