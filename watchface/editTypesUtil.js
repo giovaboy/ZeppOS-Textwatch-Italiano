@@ -260,11 +260,11 @@ export default class EditTypesUtil {
         )
         const barBaseY = cy - Math.round(BAR_H / 2)
 
-        createWidget(widget.IMG, {
+        /*createWidget(widget.IMG, {
           x: bgx, y: bgy, w: bgw, h: bgw, src: iconBg + 'pai.png',
           show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
-
+*/
         createWidget(widget.TEXT_IMG, {
           x: sx, y: sy + px(4), w: bgw, h: px(22),
           type: data_type.PAI_WEEKLY, font_array: numArray, h_space: 0,
@@ -272,10 +272,8 @@ export default class EditTypesUtil {
           invalid_image: numPath + 'none.png',
         }).addEventListener(event.CLICK_DOWN, launch)
 
-        createWidget(widget.TEXT, {
-          x: sx, y: cy + px(16), w: bgw, h: px(18),
-          text: 'PAI', text_size: px(14), color: 0xd612c0,
-          align_h: align.CENTER_H, align_v: align.CENTER_V,
+        createWidget(widget.IMG, {
+          x: iconX, y: iconY, src: XicPath + 'Pai.png',
           show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
 
