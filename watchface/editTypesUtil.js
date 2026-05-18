@@ -266,7 +266,7 @@ export default class EditTypesUtil {
         }).addEventListener(event.CLICK_DOWN, launch)
 */
         createWidget(widget.TEXT_IMG, {
-          x: sx, y: sy + px(4), w: bgw, h: px(22),
+          x: sx, y: sy + px(6), w: bgw, h: px(22),
           type: data_type.PAI_WEEKLY, font_array: numArray, h_space: 0,
           align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
           invalid_image: numPath + 'none.png',
@@ -284,29 +284,33 @@ export default class EditTypesUtil {
           show_level: show_level.ONLY_NORMAL,
         }))
 
-        // barre attive (aggiornate al resume)
+        // barre attive — inizializzate vuote, aggiornate subito e al resume
         let paiSensor = null
         try { paiSensor = new Pai() } catch (_) {}
 
         const barWidgets = barXCoords.map(bx => createWidget(widget.FILL_RECT, {
-          x: bx, y: barBaseY, w: BAR_W, h: BAR_H,
+          x: bx, y: barBaseY + BAR_H - 1, w: BAR_W, h: 1,
           radius: Math.round(BAR_W / 2), color: 0xd612c0,
           show_level: show_level.ONLY_NORMAL,
         }))
 
-        createWidget(widget.WIDGET_DELEGATE, {
-          resume_call: () => {
-            if (!paiSensor) return
-            barWidgets.forEach((bar, i) => {
-              const level  = (paiSensor[`prepai${i}`] || 0) / 100
-              const height = Math.max(1, Math.min(level * BAR_H, BAR_H))
-              bar.setProperty(prop.MORE, {
-                x: barXCoords[i], y: barBaseY + BAR_H - height,
-                w: BAR_W, h: height,
-                radius: Math.round(BAR_W / 2), color: 0xd612c0,
-              })
+        function _updatePaiBars() {
+          if (!paiSensor) return
+          barWidgets.forEach((bar, i) => {
+            const level  = (paiSensor[`prepai${i}`] || 0) / 100
+            const height = Math.max(1, Math.min(level * BAR_H, BAR_H))
+            bar.setProperty(prop.MORE, {
+              x: barXCoords[i], y: barBaseY + BAR_H - height,
+              w: BAR_W, h: height,
+              radius: Math.round(BAR_W / 2), color: 0xd612c0,
             })
-          }
+          })
+        }
+
+        _updatePaiBars()
+
+        createWidget(widget.WIDGET_DELEGATE, {
+          resume_call: () => { _updatePaiBars() }
         })
         break
       }
