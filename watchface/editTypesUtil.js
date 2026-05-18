@@ -115,8 +115,8 @@ export default class EditTypesUtil {
     // Geometria slot
     const sx  = px(slotBaseX)
     const sy  = px(SLOT_Y)
-    const bgx = sx// + px(4)
-    const bgy = sy// + px(4)
+    const bgx = sx + px(4)
+    const bgy = sy + px(4)
     const bgw = px(92)
     const numX  = sx
     const numY  = sy + px(32)
