@@ -193,8 +193,8 @@ WatchFace({
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
         edit_id: editId,
         x, y: CS_Y, w: CS_HW, h: CS_HW,
-        select_image:    'mask/select.png',
-        un_select_image: 'mask/select.png',
+        select_image:    'mask/select_color.png',
+        un_select_image: 'mask/select_color.png',
         default_type: colorOptionalArray[0].type,
         optional_types: colorOptionalArray,
         count: colorOptionalArray.length,

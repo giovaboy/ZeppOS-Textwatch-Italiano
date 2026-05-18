@@ -21,7 +21,7 @@ export const COLOR_ENTRIES = [
 // optional_types array for WATCHFACE_EDIT_GROUP
 export const colorOptionalArray = COLOR_ENTRIES.map(c => ({
   type:     c.type,
-  preview:  'color/prev_' + c.id + '.png',
+  preview:  'bg/color/prev_' + c.id + '.png',
   title_en: c.name,
   title_sc: c.name,
   title_tc: c.name,
