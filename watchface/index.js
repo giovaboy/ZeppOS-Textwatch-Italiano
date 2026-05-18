@@ -174,13 +174,12 @@ WatchFace({
     // screen is wide enough to fit all 4 groups (verified: corners at (89,426) and
     // (391,426) are within the 240-radius circle).
     // Invisible in normal mode — accessible only via the watchface edit UI.
-    const CS_Y  = px(390);
     const CS_HW = px(36);
 
-    function _makeColorGroup(editId, x, defaultColor) {
+    function _makeColorGroup(editId, x, y, defaultColor) {
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
         edit_id: editId,
-        x, y: CS_Y, w: CS_HW, h: CS_HW,
+        x, y, w: CS_HW, h: CS_HW,
         select_image:    'mask/select_color.png',
         un_select_image: 'mask/select_color.png',
         default_type: colorOptionalArray[0].type,
@@ -203,11 +202,13 @@ WatchFace({
       return { grp, override }
     }
 
-    // x positions for 3 groups centered on screen, all within the circular boundary
-    // at y=390–426 (safe range x∈[89,391]): gap=60px, x=[126,222,318]
-    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(126), hourColor)
-    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(222), minuteColor)
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(318), dateColor)
+    // Ogni pallino colore è allineato verticalmente al proprio testo (lato destro x=340).
+    // Ore:    centro testo y=150 → y=132;  fondo y=168  — dentro il cerchio ✓
+    // Minuti: centro testo y=230 → y=212;  fondo y=248  — dentro il cerchio ✓
+    // Data:   centro testo y=417 → y=399;  fondo y=435  — dentro il cerchio ✓
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(340), px(132), hourColor)
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(340), px(212), minuteColor)
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(340), px(399), dateColor)
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
