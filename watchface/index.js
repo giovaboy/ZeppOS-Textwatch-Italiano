@@ -486,7 +486,7 @@ WatchFace({
     function updateDateWidget(){
       dateTextWidget.setProperty(prop.MORE, {
         //text: 'mercoledi 30 settembre',
-        text: `${NumberToText.getDayOfWeek(timeSensor.getDay())} ${timeSensor.getDate()} ${NumberToText.getMonth(timeSensor.getMonth())}`
+        text: NumberToText.getDate(timeSensor.getDay(), timeSensor.getDate(), timeSensor.getMonth())
       });
     }
 

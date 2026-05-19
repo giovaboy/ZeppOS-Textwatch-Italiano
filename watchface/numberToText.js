@@ -1,7 +1,5 @@
-import { getLanguage } from '@zos/settings'
-
 // ─── Language detection (at load time) ────────────────────────────────────────
-const _it = (() => { try { return (getLanguage() || '').startsWith('it') } catch (_) { return false } })()
+const _it = (() => { try { return (hmSetting.getLanguage() || '').startsWith('it') } catch (_) { return false } })()
 
 // ─── Italian data ─────────────────────────────────────────────────────────────
 
@@ -135,4 +133,11 @@ export default class NumberToText {
 
   static getDayOfWeek(d) { return _it ? IT_DAYS[d]   : EN_DAYS[d]   }
   static getMonth(m)     { return _it ? IT_MONTHS[m] : EN_MONTHS[m] }
+
+  // Formato data completo: "lunedì 19 maggio" (it) oppure "monday, may 19" (en)
+  static getDate(dayOfWeek, date, month) {
+    return _it
+      ? `${IT_DAYS[dayOfWeek]} ${date} ${IT_MONTHS[month]}`
+      : `${EN_DAYS[dayOfWeek]}, ${EN_MONTHS[month]} ${date}`
+  }
 }
