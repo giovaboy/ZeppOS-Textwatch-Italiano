@@ -19,7 +19,8 @@
       "Bash(ls ~/.nvm/versions/node/*/bin/node)",
       "Read(//home/**)",
       "Bash(command -v npx)",
-      "Bash(/usr/lib/code-server/lib/node -e ':*)"
+      "Bash(/usr/lib/code-server/lib/node -e ':*)",
+      "Bash(curl -s https://raw.githubusercontent.com/giovaboy/amazfit-watchfaces/main/src/watchfaces/modular/utils/constants.js)"
     ]
   }
 }

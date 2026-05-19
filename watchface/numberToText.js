@@ -1,6 +1,6 @@
 // ─── Language detection (at load time) ────────────────────────────────────────
-// hmSetting.getLanguage() returns a numeric code: 10 = Italian, 2 = English (default)
-const _it = (() => { try { return hmSetting.getLanguage() === 10 } catch (_) { return false } })()
+// DeviceRuntimeCore.HmUtils.getLanguage() returns ISO strings like 'it-IT', 'en-US'
+const _it = (() => { try { return DeviceRuntimeCore.HmUtils.getLanguage() === 'it-IT' } catch (_) { return false } })()
 
 // ─── Italian data ─────────────────────────────────────────────────────────────
 
