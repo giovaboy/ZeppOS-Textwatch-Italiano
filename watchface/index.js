@@ -322,7 +322,7 @@ WatchFace({
       w: editableWidgetsHW, h: editableWidgetsHW,
       select_image: 'mask/select.png',
       un_select_image:  'mask/select.png',
-      default_type: BLANK_TYPE,
+      default_type: edit_type.HEART,
       optional_types: widgetOptionalArray,
       count: widgetOptionalArray.length,
       tips_BG: 'mask/tips.png',

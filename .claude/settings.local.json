@@ -12,7 +12,8 @@
       "Bash(convert --version)",
       "Read(//usr/bin/**)",
       "Read(//usr/**)",
-      "Bash(/usr/lib/code-server/lib/node -e ':*)"
+      "Bash(/usr/lib/code-server/lib/node -e ':*)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
