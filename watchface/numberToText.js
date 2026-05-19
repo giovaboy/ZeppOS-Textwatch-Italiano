@@ -2,8 +2,8 @@ import { getLanguage } from '@zos/settings'
 
 // ─── Language detection (at load time) ────────────────────────────────────────
 // getLanguage() returns a numeric code — see https://docs.zepp.com/docs/reference/related-resources/language-list/
-// 10 = Italian (it-IT)
-const _it = (() => { try { return getLanguage() === 10 } catch (_) { return false } })()
+// 2=en, 3=es, 4=ru, 10=it  (default: English)
+const _lang = (() => { try { return getLanguage() } catch (_) { return 2 } })()
 
 // ─── Italian data ─────────────────────────────────────────────────────────────
 
@@ -27,18 +27,15 @@ const IT_MAP = {
   50: 'cinquanta', 51: 'cinquantuno', 58: 'cinquantotto',
   45: 'e tre quarti',
 }
-
 const IT_DAYS = {
   1: 'lunedì',   2: 'martedì', 3: 'mercoledì', 4: 'giovedì',
   5: 'venerdì',  6: 'sabato',  7: 'domenica',
 }
-
 const IT_MONTHS = {
   1: 'gennaio',  2: 'febbraio', 3: 'marzo',    4: 'aprile',
   5: 'maggio',   6: 'giugno',   7: 'luglio',   8: 'agosto',
   9: 'settembre',10: 'ottobre', 11: 'novembre',12: 'dicembre',
 }
-
 const IT_MINUTES_TO = {
   0:  'adesso',
   1:  'tra un minuto',
@@ -47,10 +44,7 @@ const IT_MINUTES_TO = {
   60: "tra un'ora",
 }
 
-// Converte un numero (1-59) in parola italiana.
-// Usa la forma esplicita dalla mappa per valori < 26 e per le elisioni
-// fonetiche italiane (x1: "trentuno", x8: "ventotto", ecc.);
-// compone decine + unità per tutti gli altri.
+// Elisioni fonetiche: x1 "trentuno", x8 "ventotto", tutti < 26 diretti
 function _itNumToWords(n) {
   const mod = n % 10
   if (n < 26 || mod === 1 || mod === 8) return IT_MAP[n]
@@ -66,18 +60,15 @@ const EN_ONES = [
   'seventeen', 'eighteen', 'nineteen',
 ]
 const EN_TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty']
-
 const EN_DAYS = {
   1: 'monday',   2: 'tuesday',  3: 'wednesday', 4: 'thursday',
   5: 'friday',   6: 'saturday', 7: 'sunday',
 }
-
 const EN_MONTHS = {
-  1: 'january',  2: 'february', 3: 'march',     4: 'april',
-  5: 'may',      6: 'june',     7: 'july',       8: 'august',
-  9: 'september',10: 'october', 11: 'november', 12: 'december',
+  1: 'january',  2: 'february', 3: 'march',    4: 'april',
+  5: 'may',      6: 'june',     7: 'july',      8: 'august',
+  9: 'september',10: 'october', 11: 'november',12: 'december',
 }
-
 const EN_MINUTES_TO = {
   0:  'now',
   1:  'in a minute',
@@ -93,55 +84,175 @@ function _enNumToWords(n) {
   return ones ? tens + '-' + ones : tens
 }
 
+// ─── Spanish data ─────────────────────────────────────────────────────────────
+
+// 16-29 sono forme composte in una parola sola; 30+ usano "y"
+const ES_MAP = {
+  1:  'uno',   2:  'dos',    3:  'tres',      4:  'cuatro',   5:  'cinco',
+  6:  'seis',  7:  'siete',  8:  'ocho',      9:  'nueve',    10: 'diez',
+  11: 'once',  12: 'doce',   13: 'trece',     14: 'catorce',  15: 'quince',
+  16: 'dieciséis',  17: 'diecisiete', 18: 'dieciocho', 19: 'diecinueve',
+  20: 'veinte', 21: 'veintiuno', 22: 'veintidós', 23: 'veintitrés',
+  24: 'veinticuatro', 25: 'veinticinco', 26: 'veintiséis',
+  27: 'veintisiete', 28: 'veintiocho', 29: 'veintinueve',
+  30: 'treinta', 40: 'cuarenta', 50: 'cincuenta',
+}
+const ES_DAYS = {
+  1: 'lunes',   2: 'martes', 3: 'miércoles', 4: 'jueves',
+  5: 'viernes', 6: 'sábado', 7: 'domingo',
+}
+const ES_MONTHS = {
+  1: 'enero',    2: 'febrero',   3: 'marzo',      4: 'abril',
+  5: 'mayo',     6: 'junio',     7: 'julio',       8: 'agosto',
+  9: 'septiembre', 10: 'octubre', 11: 'noviembre', 12: 'diciembre',
+}
+const ES_MINUTES_TO = {
+  0:  'ahora',
+  1:  'en un minuto',
+  15: 'en un cuarto de hora',
+  45: 'en tres cuartos',
+  60: 'en una hora',
+}
+
+function _esNumToWords(n) {
+  if (n <= 29) return ES_MAP[n]
+  const tens = ES_MAP[Math.floor(n / 10) * 10]
+  const ones = n % 10
+  return ones ? tens + ' y ' + ES_MAP[ones] : tens
+}
+
+// ─── Russian data ─────────────────────────────────────────────────────────────
+
+const RU_ONES = [
+  '', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять',
+  'десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать',
+  'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать',
+]
+const RU_TENS = ['', '', 'двадцать', 'тридцать', 'сорок', 'пятьдесят']
+const RU_HOURS = [
+  'полночь', 'час', 'два', 'три', 'четыре', 'пять', 'шесть',
+  'семь', 'восемь', 'девять', 'десять', 'одиннадцать', 'полдень',
+]
+const RU_DAYS = {
+  1: 'понедельник', 2: 'вторник',  3: 'среда',    4: 'четверг',
+  5: 'пятница',     6: 'суббота',  7: 'воскресенье',
+}
+// Mesi in caso genitivo (usato nelle date: "19 мая")
+const RU_MONTHS = {
+  1: 'января',   2: 'февраля',  3: 'марта',     4: 'апреля',
+  5: 'мая',      6: 'июня',     7: 'июля',       8: 'августа',
+  9: 'сентября', 10: 'октября', 11: 'ноября',   12: 'декабря',
+}
+const RU_MINUTES_TO = {
+  0:  'сейчас',
+  1:  'через минуту',
+  15: 'через четверть часа',
+  45: 'через три четверти',
+  60: 'через час',
+}
+
+function _ruNumToWords(n) {
+  if (n < 20) return RU_ONES[n]
+  const tens = RU_TENS[Math.floor(n / 10)]
+  const ones = RU_ONES[n % 10]
+  return ones ? tens + ' ' + ones : tens
+}
+
 // ─── API pubblica ─────────────────────────────────────────────────────────────
 
 export default class NumberToText {
 
   static getHours(h) {
-    if (_it) {
-      if (h === 0)             return IT_MAP.mezzanotte
-      if (h === 12)            return IT_MAP.mezzogiorno
-      if (h === 1 || h === 13) return IT_MAP.una
-      return IT_MAP[h]
-    } else {
-      if (h === 0)  return 'midnight'
-      if (h === 12) return 'noon'
-      return _enNumToWords(h > 12 ? h - 12 : h)
+    const h12 = h > 12 ? h - 12 : h
+    switch (_lang) {
+      case 10: // Italian
+        if (h === 0)             return IT_MAP.mezzanotte
+        if (h === 12)            return IT_MAP.mezzogiorno
+        if (h === 1 || h === 13) return IT_MAP.una
+        return IT_MAP[h]
+      case 3:  // Spanish
+        if (h === 0)             return 'medianoche'
+        if (h === 12)            return 'mediodía'
+        if (h === 1 || h === 13) return 'una'
+        return ES_MAP[h12]
+      case 4:  // Russian
+        return RU_HOURS[h12]
+      default: // English
+        if (h === 0)  return 'midnight'
+        if (h === 12) return 'noon'
+        return _enNumToWords(h12)
     }
   }
 
   static getMinutes(m) {
-    if (_it) {
-      if (m === 0)  return IT_MAP[0]
-      if (m === 15) return IT_MAP.quarto
-      if (m === 45) return IT_MAP[45]
-      return IT_MAP.e + _itNumToWords(m)
-    } else {
-      if (m === 0)  return "o'clock"
-      if (m === 15) return 'fifteen'
-      if (m === 30) return 'thirty'
-      if (m === 45) return 'forty-five'
-      return _enNumToWords(m)
+    switch (_lang) {
+      case 10: // Italian
+        if (m === 0)  return IT_MAP[0]
+        if (m === 15) return IT_MAP.quarto
+        if (m === 45) return IT_MAP[45]
+        return IT_MAP.e + _itNumToWords(m)
+      case 3:  // Spanish
+        if (m === 0)  return 'en punto'
+        if (m === 15) return 'y cuarto'
+        if (m === 30) return 'y media'
+        if (m === 45) return 'y tres cuartos'
+        return 'y ' + _esNumToWords(m)
+      case 4:  // Russian
+        if (m === 0)  return 'ровно'
+        if (m === 15) return 'и четверть'
+        if (m === 30) return 'и полчаса'
+        if (m === 45) return 'и три четверти'
+        return 'и ' + _ruNumToWords(m)
+      default: // English
+        if (m === 0)  return "o'clock"
+        if (m === 15) return 'fifteen'
+        if (m === 30) return 'thirty'
+        if (m === 45) return 'forty-five'
+        return _enNumToWords(m)
     }
   }
 
   static getMinutesTo(m) {
-    if (_it) {
-      if (m in IT_MINUTES_TO) return IT_MINUTES_TO[m]
-      return 'tra ' + _itNumToWords(m) + ' minuti'
-    } else {
-      if (m in EN_MINUTES_TO) return EN_MINUTES_TO[m]
-      return 'in ' + _enNumToWords(m) + ' minutes'
+    switch (_lang) {
+      case 10: // Italian
+        if (m in IT_MINUTES_TO) return IT_MINUTES_TO[m]
+        return 'tra ' + _itNumToWords(m) + ' minuti'
+      case 3:  // Spanish
+        if (m in ES_MINUTES_TO) return ES_MINUTES_TO[m]
+        return 'en ' + _esNumToWords(m) + ' minutos'
+      case 4:  // Russian
+        if (m in RU_MINUTES_TO) return RU_MINUTES_TO[m]
+        return 'через ' + _ruNumToWords(m) + ' минут'
+      default: // English
+        if (m in EN_MINUTES_TO) return EN_MINUTES_TO[m]
+        return 'in ' + _enNumToWords(m) + ' minutes'
     }
   }
 
-  static getDayOfWeek(d) { return _it ? IT_DAYS[d]   : EN_DAYS[d]   }
-  static getMonth(m)     { return _it ? IT_MONTHS[m] : EN_MONTHS[m] }
+  static getDayOfWeek(d) {
+    switch (_lang) {
+      case 10: return IT_DAYS[d]
+      case 3:  return ES_DAYS[d]
+      case 4:  return RU_DAYS[d]
+      default: return EN_DAYS[d]
+    }
+  }
 
-  // Formato data completo: "lunedì 19 maggio" (it) oppure "monday, may 19" (en)
+  static getMonth(m) {
+    switch (_lang) {
+      case 10: return IT_MONTHS[m]
+      case 3:  return ES_MONTHS[m]
+      case 4:  return RU_MONTHS[m]
+      default: return EN_MONTHS[m]
+    }
+  }
+
   static getDate(dayOfWeek, date, month) {
-    return _it
-      ? `${IT_DAYS[dayOfWeek]} ${date} ${IT_MONTHS[month]}`
-      : `${EN_DAYS[dayOfWeek]}, ${EN_MONTHS[month]} ${date}`
+    switch (_lang) {
+      case 10: return `${IT_DAYS[dayOfWeek]} ${date} ${IT_MONTHS[month]}`
+      case 3:  return `${ES_DAYS[dayOfWeek]}, ${date} de ${ES_MONTHS[month]}`
+      case 4:  return `${RU_DAYS[dayOfWeek]}, ${date} ${RU_MONTHS[month]}`
+      default: return `${EN_DAYS[dayOfWeek]}, ${EN_MONTHS[month]} ${date}`
+    }
   }
 }
