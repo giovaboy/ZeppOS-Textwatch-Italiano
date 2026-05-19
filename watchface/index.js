@@ -177,7 +177,12 @@ WatchFace({
     // Invisible in normal mode — accessible only via the watchface edit UI.
     const CS_HW = px(36);
 
+    const CS_DOT  = CS_HW - px(8)  // colored circle diameter (inset 4px each side)
+    const CS_RAD  = Math.round(CS_DOT / 2)
+
     function _makeColorGroup(editId, x, y, defaultType) {
+      // Read current selection before creating widgets
+      // (WATCHFACE_EDIT_GROUP does not render the preview inside itself automatically)
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
         edit_id: editId,
         x, y, w: CS_HW, h: CS_HW,
@@ -200,6 +205,15 @@ WatchFace({
       })
       const selectedType = grp.getProperty(prop.CURRENT_TYPE)
       const override = getColorFromType(selectedType)
+      const displayColor = override ?? getColorFromType(defaultType) ?? 0x888888
+
+      // Colored dot drawn AFTER the group so it renders on top of un_select_image
+      createWidget(widget.FILL_RECT, {
+        x: x + px(4), y: y + px(4), w: CS_DOT, h: CS_DOT,
+        radius: CS_RAD, color: displayColor,
+        show_level: show_level.ONLY_EDIT,
+      })
+
       return { grp, override }
     }
 
