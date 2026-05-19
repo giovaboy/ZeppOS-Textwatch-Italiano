@@ -1,5 +1,6 @@
 // ─── Language detection (at load time) ────────────────────────────────────────
-const _it = (() => { try { return (hmSetting.getLanguage() || '').startsWith('it') } catch (_) { return false } })()
+// hmSetting.getLanguage() returns a numeric code: 10 = Italian, 2 = English (default)
+const _it = (() => { try { return hmSetting.getLanguage() === 10 } catch (_) { return false } })()
 
 // ─── Italian data ─────────────────────────────────────────────────────────────
 
