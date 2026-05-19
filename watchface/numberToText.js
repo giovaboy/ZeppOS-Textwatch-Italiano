@@ -1,6 +1,9 @@
+import { getLanguage } from '@zos/settings'
+
 // ─── Language detection (at load time) ────────────────────────────────────────
-// DeviceRuntimeCore.HmUtils.getLanguage() returns ISO strings like 'it-IT', 'en-US'
-const _it = (() => { try { return DeviceRuntimeCore.HmUtils.getLanguage() === 'it-IT' } catch (_) { return false } })()
+// getLanguage() returns a numeric code — see https://docs.zepp.com/docs/reference/related-resources/language-list/
+// 10 = Italian (it-IT)
+const _it = (() => { try { return getLanguage() === 10 } catch (_) { return false } })()
 
 // ─── Italian data ─────────────────────────────────────────────────────────────
 
