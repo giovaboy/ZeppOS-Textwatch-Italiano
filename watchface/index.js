@@ -131,9 +131,6 @@ let colorGroupHour   = null;
 let colorGroupMinute = null;
 let colorGroupDate   = null;
 
-let colorDotHour   = null;
-let colorDotMinute = null;
-let colorDotDate   = null;
 
 WatchFace({
   //https://github.com/zepp-health/zeppos-samples/blob/main/application/3.0/3.0-feature/app-service/time_service.js
@@ -181,12 +178,7 @@ WatchFace({
     // Invisible in normal mode — accessible only via the watchface edit UI.
     const CS_HW = px(36);
 
-    const CS_DOT  = CS_HW - px(8)  // colored circle diameter (inset 4px each side)
-    const CS_RAD  = Math.round(CS_DOT / 2)
-
     function _makeColorGroup(editId, x, y, defaultType) {
-      // Read current selection before creating widgets
-      // (WATCHFACE_EDIT_GROUP does not render the preview inside itself automatically)
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
         edit_id: editId,
         x, y, w: CS_HW, h: CS_HW,
@@ -207,18 +199,8 @@ WatchFace({
           list_tips_text_align_h:   align.LEFT,
         }
       })
-      const selectedType = grp.getProperty(prop.CURRENT_TYPE)
-      const override = getColorFromType(selectedType)
-      const displayColor = override ?? getColorFromType(defaultType) ?? 0x888888
-
-      // Colored dot drawn AFTER the group so it renders on top of un_select_image
-      const dot = createWidget(widget.FILL_RECT, {
-        x: x + px(4), y: y + px(4), w: CS_DOT, h: CS_DOT,
-        radius: CS_RAD, color: displayColor,
-        show_level: show_level.ONLY_EDIT,
-      })
-
-      return { grp, override, dot }
+      const override = getColorFromType(grp.getProperty(prop.CURRENT_TYPE))
+      return { grp, override }
     }
 
     // Ogni pallino colore è allineato verticalmente al proprio testo (lato destro x=340).
@@ -233,24 +215,14 @@ WatchFace({
     colorGroupMinute = csMinute.grp
     colorGroupDate   = csDate.grp
 
-    colorDotHour   = csHour.dot
-    colorDotMinute = csMinute.dot
-    colorDotDate   = csDate.dot
-
     if (csHour.override   !== null) hourColor   = csHour.override
     if (csMinute.override !== null) minuteColor = csMinute.override
     if (csDate.override   !== null) dateColor   = csDate.override
 
     function _refreshColors() {
-      const h = getColorFromType(colorGroupHour.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(tc.hour)
-      const m = getColorFromType(colorGroupMinute.getProperty(prop.CURRENT_TYPE)) ?? getColorFromType(tc.minute)
-      const d = getColorFromType(colorGroupDate.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(tc.date)
-      hourColor   = h
-      minuteColor = m
-      dateColor   = d
-      colorDotHour.setProperty(prop.MORE,   { color: h })
-      colorDotMinute.setProperty(prop.MORE, { color: m })
-      colorDotDate.setProperty(prop.MORE,   { color: d })
+      hourColor   = getColorFromType(colorGroupHour.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(tc.hour)
+      minuteColor = getColorFromType(colorGroupMinute.getProperty(prop.CURRENT_TYPE)) ?? getColorFromType(tc.minute)
+      dateColor   = getColorFromType(colorGroupDate.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(tc.date)
     }
     // ─────────────────────────────────────────────────────────────────────────
 
