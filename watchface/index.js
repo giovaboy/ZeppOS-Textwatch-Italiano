@@ -6,7 +6,7 @@ import { launchApp, SYSTEM_APP_CALENDAR } from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
-import EditTypesUtil, {widgetOptionalArray } from './editTypesUtil.js'
+import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE } from './editTypesUtil.js'
 import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID } from './colorSelector.js'
 
 try {
@@ -322,7 +322,7 @@ WatchFace({
       w: editableWidgetsHW, h: editableWidgetsHW,
       select_image: 'mask/select.png',
       un_select_image:  'mask/select.png',
-      default_type: edit_type.HEART,
+      default_type: BLANK_TYPE,
       optional_types: widgetOptionalArray,
       count: widgetOptionalArray.length,
       tips_BG: 'mask/tips.png',

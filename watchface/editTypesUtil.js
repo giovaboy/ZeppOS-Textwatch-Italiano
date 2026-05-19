@@ -75,7 +75,7 @@ const WIDGET_DEFS = {
 }
 
 // Custom type for blank/empty slot
-const BLANK_TYPE = 0x186b0
+export const BLANK_TYPE = 0x186b0
 
 // ─── Optional widget list (menu di modifica) ──────────────────────────────────
 export const widgetOptionalArray = [
@@ -301,8 +301,9 @@ export default class EditTypesUtil {
         function _updatePaiBars() {
           if (!paiSensor) return
           // prepai0 = 6 giorni fa … prepai6 = oggi (API watchface hmSensor)
+          // PAI_DAILY range: [0, 75] → usiamo 75 come massimo fisso
           const week = Array.from({ length: 7 }, (_, i) => paiSensor[`prepai${i}`] || 0)
-          const maxVal = Math.max(...week, 1)
+          const maxVal = 75
           barWidgets.forEach((bar, i) => {
             const height = Math.max(1, Math.round((week[i] / maxVal) * BAR_H))
             bar.setProperty(prop.MORE, {
