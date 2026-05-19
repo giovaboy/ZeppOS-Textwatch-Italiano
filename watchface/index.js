@@ -131,6 +131,10 @@ let colorGroupHour   = null;
 let colorGroupMinute = null;
 let colorGroupDate   = null;
 
+let colorDotHour   = null;
+let colorDotMinute = null;
+let colorDotDate   = null;
+
 WatchFace({
   //https://github.com/zepp-health/zeppos-samples/blob/main/application/3.0/3.0-feature/app-service/time_service.js
 
@@ -208,13 +212,13 @@ WatchFace({
       const displayColor = override ?? getColorFromType(defaultType) ?? 0x888888
 
       // Colored dot drawn AFTER the group so it renders on top of un_select_image
-      createWidget(widget.FILL_RECT, {
+      const dot = createWidget(widget.FILL_RECT, {
         x: x + px(4), y: y + px(4), w: CS_DOT, h: CS_DOT,
         radius: CS_RAD, color: displayColor,
         show_level: show_level.ONLY_EDIT,
       })
 
-      return { grp, override }
+      return { grp, override, dot }
     }
 
     // Ogni pallino colore è allineato verticalmente al proprio testo (lato destro x=340).
@@ -229,9 +233,25 @@ WatchFace({
     colorGroupMinute = csMinute.grp
     colorGroupDate   = csDate.grp
 
+    colorDotHour   = csHour.dot
+    colorDotMinute = csMinute.dot
+    colorDotDate   = csDate.dot
+
     if (csHour.override   !== null) hourColor   = csHour.override
     if (csMinute.override !== null) minuteColor = csMinute.override
     if (csDate.override   !== null) dateColor   = csDate.override
+
+    function _refreshColors() {
+      const h = getColorFromType(colorGroupHour.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(tc.hour)
+      const m = getColorFromType(colorGroupMinute.getProperty(prop.CURRENT_TYPE)) ?? getColorFromType(tc.minute)
+      const d = getColorFromType(colorGroupDate.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(tc.date)
+      hourColor   = h
+      minuteColor = m
+      dateColor   = d
+      colorDotHour.setProperty(prop.MORE,   { color: h })
+      colorDotMinute.setProperty(prop.MORE, { color: m })
+      colorDotDate.setProperty(prop.MORE,   { color: d })
+    }
     // ─────────────────────────────────────────────────────────────────────────
 
     let screenType = getScene();
@@ -433,9 +453,10 @@ WatchFace({
           hourAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}` });
           minuteAODWidget.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}` });
         } else {
+          _refreshColors()
           if ( DEBUG ) { secondTextWidget.setProperty(prop.MORE, {text : timeSensor.getSeconds() }) }
-          hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, x: HaX });
-          minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, x: MaX });
+          hourTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getHours(timeSensor.getHours())}`, x: HaX, color: hourColor });
+          minuteTextWidgetA.setProperty(prop.MORE, {text : `${NumberToText.getMinutes(timeSensor.getMinutes())}`, x: MaX, color: minuteColor });
           hourTextWidgetB.setProperty(prop.MORE, {text : '', x: HbX});
           minuteTextWidgetB.setProperty(prop.MORE, {text : '', x: MbX});
           hourAODWidget.setProperty(prop.MORE, {text : ''});
@@ -500,8 +521,8 @@ WatchFace({
 
     function updateDateWidget(){
       dateTextWidget.setProperty(prop.MORE, {
-        //text: 'mercoledi 30 settembre',
-        text: NumberToText.getDate(timeSensor.getDay(), timeSensor.getDate(), timeSensor.getMonth())
+        text: NumberToText.getDate(timeSensor.getDay(), timeSensor.getDate(), timeSensor.getMonth()),
+        color: dateColor
       });
     }
 
