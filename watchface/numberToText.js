@@ -1,6 +1,11 @@
-// ─── Dati statici (creati una sola volta) ─────────────────────────────────────
+import { getLanguage } from '@zos/settings'
 
-const MAP = {
+// ─── Language detection (at load time) ────────────────────────────────────────
+const _it = (() => { try { return (getLanguage() || '').startsWith('it') } catch (_) { return false } })()
+
+// ─── Italian data ─────────────────────────────────────────────────────────────
+
+const IT_MAP = {
   mezzanotte: 'mezzanotte',
   mezzogiorno: 'mezzogiorno',
   una:    'una',
@@ -21,18 +26,18 @@ const MAP = {
   45: 'e tre quarti',
 }
 
-const DAYS = {
+const IT_DAYS = {
   1: 'lunedì',   2: 'martedì', 3: 'mercoledì', 4: 'giovedì',
   5: 'venerdì',  6: 'sabato',  7: 'domenica',
 }
 
-const MONTHS = {
+const IT_MONTHS = {
   1: 'gennaio',  2: 'febbraio', 3: 'marzo',    4: 'aprile',
   5: 'maggio',   6: 'giugno',   7: 'luglio',   8: 'agosto',
   9: 'settembre',10: 'ottobre', 11: 'novembre',12: 'dicembre',
 }
 
-const MINUTES_TO = {
+const IT_MINUTES_TO = {
   0:  'adesso',
   1:  'tra un minuto',
   15: "tra un quarto d'ora",
@@ -40,17 +45,50 @@ const MINUTES_TO = {
   60: "tra un'ora",
 }
 
-// ─── Helper interno ───────────────────────────────────────────────────────────
-
 // Converte un numero (1-59) in parola italiana.
 // Usa la forma esplicita dalla mappa per valori < 26 e per le elisioni
 // fonetiche italiane (x1: "trentuno", x8: "ventotto", ecc.);
 // compone decine + unità per tutti gli altri.
-function _numToWords(n) {
+function _itNumToWords(n) {
   const mod = n % 10
-  if (n < 26 || mod === 1 || mod === 8) return MAP[n]
-  const decine = MAP[Math.floor(n / 10) * 10]
-  return mod ? decine + MAP[mod] : decine
+  if (n < 26 || mod === 1 || mod === 8) return IT_MAP[n]
+  const decine = IT_MAP[Math.floor(n / 10) * 10]
+  return mod ? decine + IT_MAP[mod] : decine
+}
+
+// ─── English data ─────────────────────────────────────────────────────────────
+
+const EN_ONES = [
+  '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+  'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
+  'seventeen', 'eighteen', 'nineteen',
+]
+const EN_TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty']
+
+const EN_DAYS = {
+  1: 'monday',   2: 'tuesday',  3: 'wednesday', 4: 'thursday',
+  5: 'friday',   6: 'saturday', 7: 'sunday',
+}
+
+const EN_MONTHS = {
+  1: 'january',  2: 'february', 3: 'march',     4: 'april',
+  5: 'may',      6: 'june',     7: 'july',       8: 'august',
+  9: 'september',10: 'october', 11: 'november', 12: 'december',
+}
+
+const EN_MINUTES_TO = {
+  0:  'now',
+  1:  'in a minute',
+  15: 'in a quarter hour',
+  45: 'in three quarters',
+  60: 'in an hour',
+}
+
+function _enNumToWords(n) {
+  if (n < 20) return EN_ONES[n]
+  const tens = EN_TENS[Math.floor(n / 10)]
+  const ones = EN_ONES[n % 10]
+  return ones ? tens + '-' + ones : tens
 }
 
 // ─── API pubblica ─────────────────────────────────────────────────────────────
@@ -58,24 +96,43 @@ function _numToWords(n) {
 export default class NumberToText {
 
   static getHours(h) {
-    if (h === 0)        return MAP.mezzanotte
-    if (h === 12)       return MAP.mezzogiorno
-    if (h === 1 || h === 13) return MAP.una
-    return MAP[h]
+    if (_it) {
+      if (h === 0)             return IT_MAP.mezzanotte
+      if (h === 12)            return IT_MAP.mezzogiorno
+      if (h === 1 || h === 13) return IT_MAP.una
+      return IT_MAP[h]
+    } else {
+      if (h === 0)  return 'midnight'
+      if (h === 12) return 'noon'
+      return _enNumToWords(h > 12 ? h - 12 : h)
+    }
   }
 
   static getMinutes(m) {
-    if (m === 0)  return MAP[0]
-    if (m === 15) return MAP.quarto
-    if (m === 45) return MAP[45]
-    return MAP.e + _numToWords(m)
+    if (_it) {
+      if (m === 0)  return IT_MAP[0]
+      if (m === 15) return IT_MAP.quarto
+      if (m === 45) return IT_MAP[45]
+      return IT_MAP.e + _itNumToWords(m)
+    } else {
+      if (m === 0)  return "o'clock"
+      if (m === 15) return 'fifteen'
+      if (m === 30) return 'thirty'
+      if (m === 45) return 'forty-five'
+      return _enNumToWords(m)
+    }
   }
 
   static getMinutesTo(m) {
-    if (m in MINUTES_TO) return MINUTES_TO[m]
-    return 'tra ' + _numToWords(m) + ' minuti'
+    if (_it) {
+      if (m in IT_MINUTES_TO) return IT_MINUTES_TO[m]
+      return 'tra ' + _itNumToWords(m) + ' minuti'
+    } else {
+      if (m in EN_MINUTES_TO) return EN_MINUTES_TO[m]
+      return 'in ' + _enNumToWords(m) + ' minutes'
+    }
   }
 
-  static getDayOfWeek(d) { return DAYS[d]   }
-  static getMonth(m)     { return MONTHS[m] }
+  static getDayOfWeek(d) { return _it ? IT_DAYS[d]   : EN_DAYS[d]   }
+  static getMonth(m)     { return _it ? IT_MONTHS[m] : EN_MONTHS[m] }
 }
