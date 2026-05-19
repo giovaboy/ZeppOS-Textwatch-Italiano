@@ -1,413 +1,171 @@
+// Colors are referenced by name via the COLOR constants from colorSelector.js.
+// AOD colors are always 0xffffff and are hardcoded in index.js.
+import { COLOR } from './colorSelector.js'
+
 export const themes = [
   {
     id: 0, preview: 'bg/prev_biancoenero.png', path: 'bg/BG_black.png',
     name: 'Bianco e Nero',
-    values: {
-      hourColor: 0xffffff,
-      minuteColor: 0xffffff,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      healthColor: 0xffffff,
-      dateColor: 0xffffff
-    }
+    colors: { hour: COLOR.WHITE,       minute: COLOR.WHITE,       date: COLOR.WHITE,        health: COLOR.WHITE          },
   },
   {
     id: 1, preview: 'bg/prev_viola.png', path: 'bg/BG_black.png',
     name: 'Viola',
-    values: {
-      hourColor: 0x9c27b0,
-      minuteColor: 0xc658fb,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xff78b7,
-      healthColor: 0xdda0dd,
-    }
+    colors: { hour: COLOR.PURPLE,      minute: COLOR.ORCHID,      date: COLOR.LIGHT_PINK,   health: COLOR.PLUM           },
   },
   {
     id: 2, preview: 'bg/prev_blueviola.png', path: 'bg/BG_black.png',
     name: 'Blu e Viola',
-    values: {
-      hourColor: 0x03a9f4,
-      minuteColor: 0x2196f3,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x3f51b5,
-      healthColor: 0x673ab7,
-    }
+    colors: { hour: COLOR.VIVID_SKY,   minute: COLOR.CORNFLOWER,  date: COLOR.BLUE,         health: COLOR.INDIGO         },
   },
   {
     id: 3, preview: 'bg/prev_arancione.png', path: 'bg/BG_black.png',
     name: 'Arancione',
-    values: {
-      hourColor: 0xff5722,
-      minuteColor: 0xff9800,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xffc107,
-      healthColor: 0xffe0b2,
-    }
+    colors: { hour: COLOR.DEEP_ORANGE, minute: COLOR.AMBER,       date: COLOR.LIGHT_AMBER,  health: COLOR.PEACH          },
   },
   {
     id: 4, preview: 'bg/prev_azzurrinoegiallino.png', path: 'bg/BG_black.png',
     name: 'Azzurrino e Giallino',
-    values: {
-      hourColor: 0x3182de,
-      minuteColor: 0xffcc33,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xe4fa3c,
-      healthColor: 0xffffff,
-    }
+    colors: { hour: COLOR.MEDIUM_BLUE, minute: COLOR.GOLDEN_YELLOW, date: COLOR.LIME_YELLOW, health: COLOR.WHITE         },
   },
   {
     id: 5, preview: 'bg/prev_violaelime.png', path: 'bg/BG_black.png',
     name: 'Viola e Lime',
-    values: {
-      hourColor: 0x8080ff,
-      minuteColor: 0xffeb3b,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xe4fa3c,
-      healthColor: 0xffffff,
-    }
+    colors: { hour: COLOR.PERIWINKLE,  minute: COLOR.YELLOW,      date: COLOR.LIME_YELLOW,  health: COLOR.WHITE          },
   },
   {
     id: 6, preview: 'bg/prev_rosa.png', path: 'bg/BG_black.png',
     name: 'Rosa',
-    values: {
-      hourColor: 0xe91e63,
-      minuteColor: 0xff4081,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xff80ab,
-      healthColor: 0xffcdd2,
-    }
+    colors: { hour: COLOR.PINK,        minute: COLOR.HOT_PINK,    date: COLOR.PASTEL_PINK,  health: COLOR.BLUSH          },
   },
   {
     id: 7, preview: 'bg/prev_verdeeblu.png', path: 'bg/BG_black.png',
     name: 'Verde e Blu',
-    values: {
-      hourColor: 0x4caf50,
-      minuteColor: 0x03a9f4,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x00bcd4,
-      healthColor: 0x8bc34a,
-    }
+    colors: { hour: COLOR.MEADOW_GREEN, minute: COLOR.VIVID_SKY,  date: COLOR.CYAN,         health: COLOR.GREEN          },
   },
   {
     id: 8, preview: 'bg/prev_rossoeblu.png', path: 'bg/BG_black.png',
     name: 'Rosso e Blu',
-    values: {
-      hourColor: 0xff0000,
-      minuteColor: 0x0000ff,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x4169e1,
-      healthColor: 0xffffff,
-    }
+    colors: { hour: COLOR.PURE_RED,    minute: COLOR.PURE_BLUE,   date: COLOR.ROYAL_BLUE,   health: COLOR.WHITE          },
   },
   {
     id: 9, preview: 'bg/prev_gialloeblu.png', path: 'bg/BG_black.png',
     name: 'Giallo e Blu',
-    values: {
-      hourColor: 0xffff00,
-      minuteColor: 0x0000ff,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x87ceeb,
-      healthColor: 0xffffff,
-    }
+    colors: { hour: COLOR.PURE_YELLOW, minute: COLOR.PURE_BLUE,   date: COLOR.LIGHT_SKY,    health: COLOR.WHITE          },
   },
   {
-    id: 10,
-    preview: 'bg/prev_coolest_scheme.png',
-    path: 'bg/BG_cool_gradient.png',
+    id: 10, preview: 'bg/prev_coolest_scheme.png', path: 'bg/BG_cool_gradient.png',
     name: 'Coolest Scheme',
-    values: {
-      backgroundColor: 0x15202b, // Dark blue-gray background
-      hourColor: 0x64ffda, // Aqua
-      minuteColor: 0x00bfa5, // Turquoise
-      hourAODColor: 0xffffff, // White
-      minuteAODColor: 0xffffff, // White
-      dateColor: 0x18ffff, // Cyan
-      healthColor: 0x00e5ff, // Sky blue // White
-    }
+    colors: { hour: COLOR.AQUAMARINE,  minute: COLOR.TURQUOISE,   date: COLOR.ELECTRIC_CYAN, health: COLOR.NEON_SKY      },
   },
   {
     id: 11, preview: 'bg/prev_rosso.png', path: 'bg/BG_black.png',
     name: 'Rosso Intenso',
-    values: {
-      hourColor: 0xff0000,
-      minuteColor: 0xff6347,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xff4500,
-      healthColor: 0xff7f50,
-    }
+    colors: { hour: COLOR.PURE_RED,    minute: COLOR.TOMATO,      date: COLOR.ORANGE_RED,   health: COLOR.CORAL          },
   },
   {
     id: 12, preview: 'bg/prev_verde.png', path: 'bg/BG_black.png',
     name: 'Verde Smeraldo',
-    values: {
-      hourColor: 0x2ecc71,
-      minuteColor: 0x27ae60,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x1abc9c,
-      healthColor: 0x16a085,
-    }
+    colors: { hour: COLOR.EMERALD,     minute: COLOR.FOREST_GREEN, date: COLOR.SEA_GREEN,   health: COLOR.DARK_SEA_GREEN },
   },
   {
     id: 13, preview: 'bg/prev_giallo.png', path: 'bg/BG_black.png',
     name: 'Giallo Sole',
-    values: {
-      hourColor: 0xffeb3b,
-      minuteColor: 0xffc107,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xffd54f,
-      healthColor: 0xfff176,
-    }
+    colors: { hour: COLOR.YELLOW,      minute: COLOR.LIGHT_AMBER, date: COLOR.HONEY,        health: COLOR.PALE_YELLOW    },
   },
   {
     id: 14, preview: 'bg/prev_turchese.png', path: 'bg/BG_black.png',
     name: 'Turchese',
-    values: {
-      hourColor: 0x1abc9c,
-      minuteColor: 0x16a085,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x48c9b0,
-      healthColor: 0x45b39d,
-    }
+    colors: { hour: COLOR.SEA_GREEN,   minute: COLOR.DARK_SEA_GREEN, date: COLOR.LIGHT_TURQUOISE, health: COLOR.MEDIUM_TURQUOISE },
   },
   {
     id: 15, preview: 'bg/prev_magenta.png', path: 'bg/BG_black.png',
     name: 'Magenta',
-    values: {
-      hourColor: 0xe91e63,
-      minuteColor: 0xff4081,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xf06292,
-      healthColor: 0xf8bbd0,
-    }
+    colors: { hour: COLOR.PINK,        minute: COLOR.HOT_PINK,    date: COLOR.MEDIUM_PINK,  health: COLOR.PALE_PINK      },
   },
   {
     id: 16, preview: 'bg/prev_rossoeblu2.png', path: 'bg/BG_black.png',
     name: 'Rosso e Blu',
-    values: {
-      hourColor: 0xff0000,
-      minuteColor: 0x0000ff,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x8b0000,
-      healthColor: 0x1e90ff,
-    }
+    colors: { hour: COLOR.PURE_RED,    minute: COLOR.PURE_BLUE,   date: COLOR.DARK_RED,     health: COLOR.DODGER_BLUE    },
   },
   {
     id: 17, preview: 'bg/prev_verdementaearancione.png', path: 'bg/BG_black.png',
     name: 'Verde Menta e Arancione',
-    values: {
-      hourColor: 0x98ff98,
-      minuteColor: 0xffa500,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x20b2aa,
-      healthColor: 0xff6347,
-    }
+    colors: { hour: COLOR.MINT_GREEN,  minute: COLOR.VIVID_ORANGE, date: COLOR.SEA_TEAL,    health: COLOR.TOMATO         },
   },
   {
     id: 18, preview: 'bg/prev_fuchsiaeverdeacqua.png', path: 'bg/BG_black.png',
     name: 'Fuchsia e Verde Acqua',
-    values: {
-      hourColor: 0xff00ff,
-      minuteColor: 0x00ffff,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xee82ee,
-      healthColor: 0x7fffd4,
-    }
+    colors: { hour: COLOR.FUCHSIA,     minute: COLOR.PURE_CYAN,   date: COLOR.VIOLET,       health: COLOR.LIGHT_AQUAMARINE },
   },
   {
     id: 19, preview: 'bg/prev_rossoelime.png', path: 'bg/BG_black.png',
     name: 'Rosso e Lime',
-    values: {
-      hourColor: 0xff4500,
-      minuteColor: 0x00ff00,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xdc143c,
-      healthColor: 0x32cd32,
-    }
+    colors: { hour: COLOR.ORANGE_RED,  minute: COLOR.PURE_GREEN,  date: COLOR.CRIMSON,      health: COLOR.BRIGHT_GREEN   },
   },
   {
     id: 20, preview: 'bg/prev_arancioeviola.png', path: 'bg/BG_black.png',
     name: 'Arancione e Viola',
-    values: {
-      hourColor: 0xffa500,
-      minuteColor: 0x8a2be2,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xffd700,
-      healthColor: 0xba55d3,
-    }
+    colors: { hour: COLOR.VIVID_ORANGE, minute: COLOR.BLUE_VIOLET, date: COLOR.GOLD,        health: COLOR.MEDIUM_ORCHID  },
   },
   {
-    // Oro caldo dell'alba, corallo per i minuti, oro puro per la data
     id: 21, preview: 'bg/prev_alba.png', path: 'bg/BG_black.png',
     name: 'Alba',
-    values: {
-      hourColor: 0xffb347,
-      minuteColor: 0xff7f50,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xffd700,
-      healthColor: 0xffe4b5,
-    }
+    colors: { hour: COLOR.WARM_GOLD,   minute: COLOR.CORAL,       date: COLOR.GOLD,         health: COLOR.MOCCASIN       },
   },
   {
-    // Blu profondo → azzurro acqua → ciano pallido: immersione nell'oceano
     id: 22, preview: 'bg/prev_oceano.png', path: 'bg/BG_black.png',
     name: 'Oceano',
-    values: {
-      hourColor: 0x0096c7,
-      minuteColor: 0x48cae4,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x90e0ef,
-      healthColor: 0xade8f4,
-    }
+    colors: { hour: COLOR.OCEAN_BLUE,  minute: COLOR.OCEAN_SKY,   date: COLOR.ICE_BLUE,     health: COLOR.PALE_SKY       },
   },
   {
-    // Fiori di ciliegio rosso-cremisi + zafferano: ispirato ai giardini giapponesi
     id: 23, preview: 'bg/prev_kyoto.png', path: 'bg/BG_black.png',
     name: 'Kyoto',
-    values: {
-      hourColor: 0xc2185b,
-      minuteColor: 0xff8f00,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xf06292,
-      healthColor: 0xfff9c4,
-    }
+    colors: { hour: COLOR.DEEP_PINK,   minute: COLOR.DARK_AMBER,  date: COLOR.MEDIUM_PINK,  health: COLOR.CREAM          },
   },
   {
-    // Tramonto sul mare: arancio fuoco → oro → salmone chiaro
     id: 24, preview: 'bg/prev_tramonto.png', path: 'bg/BG_black.png',
     name: 'Tramonto',
-    values: {
-      hourColor: 0xff4500,
-      minuteColor: 0xffd700,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xff6b6b,
-      healthColor: 0xffa07a,
-    }
+    colors: { hour: COLOR.ORANGE_RED,  minute: COLOR.GOLD,        date: COLOR.SALMON,       health: COLOR.LIGHT_SALMON   },
   },
   {
-    // Palette scandinava: grigio acciaio su nero, essenziale e freddo
     id: 25, preview: 'bg/prev_nordico.png', path: 'bg/BG_black.png',
     name: 'Nordico',
-    values: {
-      hourColor: 0xcfd8dc,
-      minuteColor: 0x90a4ae,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x78909c,
-      healthColor: 0xb0bec5,
-    }
+    colors: { hour: COLOR.ICE_GRAY,    minute: COLOR.BLUE_GRAY,   date: COLOR.SLATE,        health: COLOR.LIGHT_GRAY     },
   },
   {
-    // Verde neon + rosa acceso + ciano elettrico: estetica cyberpunk
     id: 26, preview: 'bg/prev_neonnotte.png', path: 'bg/BG_black.png',
     name: 'Neon Notte',
-    values: {
-      hourColor: 0x39ff14,
-      minuteColor: 0xff1493,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x00e5ff,
-      healthColor: 0xffff00,
-    }
+    colors: { hour: COLOR.NEON_GREEN,  minute: COLOR.NEON_PINK,   date: COLOR.NEON_SKY,     health: COLOR.PURE_YELLOW    },
   },
   {
-    // Ruggine + rosso autunno + ambra dorata: foglie di ottobre
     id: 27, preview: 'bg/prev_autunno.png', path: 'bg/BG_black.png',
     name: 'Autunno',
-    values: {
-      hourColor: 0xd35400,
-      minuteColor: 0xe74c3c,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xf39c12,
-      healthColor: 0xf8c471,
-    }
+    colors: { hour: COLOR.RUST,        minute: COLOR.CINNABAR,    date: COLOR.AMBER_ORANGE, health: COLOR.PASTEL_ORANGE  },
   },
   {
-    // Turchese aurora + viola cielo + blu ghiaccio: aurora boreale
     id: 28, preview: 'bg/prev_aurora.png', path: 'bg/BG_black.png',
     name: 'Aurora Boreale',
-    values: {
-      hourColor: 0x00cec9,
-      minuteColor: 0xa29bfe,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x74b9ff,
-      healthColor: 0x55efc4,
-    }
+    colors: { hour: COLOR.NEON_TEAL,   minute: COLOR.LAVENDER,    date: COLOR.PASTEL_BLUE,  health: COLOR.MINT           },
   },
   {
-    // Rubino + bordeaux + oro: eleganza serale
     id: 29, preview: 'bg/prev_bordeaux.png', path: 'bg/BG_black.png',
     name: 'Bordeaux',
-    values: {
-      hourColor: 0xc0392b,
-      minuteColor: 0x922b21,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xf1c40f,
-      healthColor: 0xe8c44d,
-    }
+    colors: { hour: COLOR.RUBY,        minute: COLOR.BURGUNDY,    date: COLOR.LEMON,        health: COLOR.ANTIQUE_GOLD   },
   },
   {
-    // Ametista chiaro + lavanda + malva: toni gioiello pastello
     id: 30, preview: 'bg/prev_lavanda.png', path: 'bg/BG_black.png',
     name: 'Lavanda',
-    values: {
-      hourColor: 0x9b59b6,
-      minuteColor: 0xc39bd3,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0xd7bde2,
-      healthColor: 0xab8bc8,
-    }
+    colors: { hour: COLOR.AMETHYST,    minute: COLOR.LIGHT_LAVENDER, date: COLOR.PALE_LAVENDER, health: COLOR.LIGHT_AMETHYST },
   },
   {
-    // Corallo + giallo banana + celeste: colori tropicali
     id: 31, preview: 'bg/prev_isola.png', path: 'bg/BG_black.png',
     name: 'Isola',
-    values: {
-      hourColor: 0xff6b6b,
-      minuteColor: 0xfeca57,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x48dbfb,
-      healthColor: 0xff9ff3,
-    }
+    colors: { hour: COLOR.SALMON,      minute: COLOR.BANANA,      date: COLOR.TROPICAL_BLUE, health: COLOR.TROPICAL_PINK },
   },
   {
-    // Argento + ciano: look metallico high-tech
     id: 32, preview: 'bg/prev_acciaio.png', path: 'bg/BG_black.png',
     name: 'Acciaio',
-    values: {
-      hourColor: 0xbdc3c7,
-      minuteColor: 0x00bcd4,
-      hourAODColor: 0xffffff,
-      minuteAODColor: 0xffffff,
-      dateColor: 0x90caf9,
-      healthColor: 0xb2ebf2,
-    }
+    colors: { hour: COLOR.SILVER,      minute: COLOR.CYAN,        date: COLOR.PALE_BLUE,    health: COLOR.PALE_CYAN      },
   },
 ]

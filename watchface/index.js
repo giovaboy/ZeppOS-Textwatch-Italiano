@@ -7,7 +7,7 @@ import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
 import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE } from './editTypesUtil.js'
-import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID } from './colorSelector.js'
+import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE } from './colorSelector.js'
 
 try {
   (() => {
@@ -163,11 +163,12 @@ WatchFace({
 
     if ( DEBUG ) logger.log( 'currentThemeId: ' + currentIdTheme );
 
-    hourColor = themes[currentIdTheme].values.hourColor;
-    minuteColor = themes[currentIdTheme].values.minuteColor;
-    hourAODColor = themes[currentIdTheme].values.hourAODColor;
-    minuteAODColor = themes[currentIdTheme].values.minuteAODColor;
-    dateColor = themes[currentIdTheme].values.dateColor;
+    const tc = themes[currentIdTheme].colors;
+    hourColor     = getColorFromType(tc.hour);
+    minuteColor   = getColorFromType(tc.minute);
+    dateColor     = getColorFromType(tc.date);
+    hourAODColor   = 0xffffff;
+    minuteAODColor = 0xffffff;
 
     // ── Color zone selectors ──────────────────────────────────────────────────
     // Placed between the health row and the date row (y≈390), where the circular
@@ -182,7 +183,7 @@ WatchFace({
         x, y, w: CS_HW, h: CS_HW,
         select_image:    'mask/select_color.png',
         un_select_image: 'mask/select_color.png',
-        default_type: colorOptionalArray[0].type,
+        default_type: NO_OVERRIDE_TYPE,
         optional_types: colorOptionalArray,
         count: colorOptionalArray.length,
         tips_BG:    'mask/tips.png',
