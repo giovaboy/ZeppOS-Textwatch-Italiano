@@ -229,11 +229,11 @@ export const ALL_COLORS = [
   { id: 105, type: COLOR.PALE_CYAN,        color: 0xb2ebf2, name: 'Pale Cyan'        },
 ]
 
-// Per-zone override picker: only the curated palette (IDs 1-12)
+// Curated palette subset (IDs 1-12) — kept for reference/filtering
 export const COLOR_ENTRIES = ALL_COLORS.filter(c => c.id <= 12)
 
-// optional_types array for WATCHFACE_EDIT_GROUP (override picker)
-export const colorOptionalArray = COLOR_ENTRIES.map(c => ({
+// optional_types array for WATCHFACE_EDIT_GROUP (full palette — all 105 colors)
+export const colorOptionalArray = ALL_COLORS.map(c => ({
   type:     c.type,
   preview:  'bg/color/prev_' + c.id + '.png',
   title_en: c.name,

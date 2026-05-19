@@ -7,7 +7,7 @@ import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
 import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE } from './editTypesUtil.js'
-import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE } from './colorSelector.js'
+import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID } from './colorSelector.js'
 
 try {
   (() => {
@@ -177,13 +177,13 @@ WatchFace({
     // Invisible in normal mode — accessible only via the watchface edit UI.
     const CS_HW = px(36);
 
-    function _makeColorGroup(editId, x, y, defaultColor) {
+    function _makeColorGroup(editId, x, y, defaultType) {
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
         edit_id: editId,
         x, y, w: CS_HW, h: CS_HW,
         select_image:    'mask/select_color.png',
         un_select_image: 'mask/select_color.png',
-        default_type: NO_OVERRIDE_TYPE,
+        default_type: defaultType,
         optional_types: colorOptionalArray,
         count: colorOptionalArray.length,
         tips_BG:    'mask/tips.png',
@@ -207,9 +207,9 @@ WatchFace({
     // Ore:    centro testo y=150 → y=132;  fondo y=168  — dentro il cerchio ✓
     // Minuti: centro testo y=230 → y=212;  fondo y=248  — dentro il cerchio ✓
     // Data:   centro testo y=417 → y=399;  fondo y=435  — dentro il cerchio ✓
-    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(340), px(132), hourColor)
-    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(340), px(212), minuteColor)
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(340), px(399), dateColor)
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(340), px(132), tc.hour)
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(340), px(212), tc.minute)
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(340), px(399), tc.date)
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
