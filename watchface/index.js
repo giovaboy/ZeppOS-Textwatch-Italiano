@@ -170,7 +170,7 @@ WatchFace({
     minuteAODColor = 0xffffff;
 
     // ── Color zone selectors ──────────────────────────────────────────────────
-    function _makeColorGroup(editId, x, y, w, h, optArray, selectImg) {
+    function _makeColorGroup(editId, x, y, w, h, optArray, selectImg, tipsBelow = false) {
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
         edit_id: editId,
         x, y, w, h,
@@ -181,15 +181,15 @@ WatchFace({
         count: optArray.length,
         tips_BG:    'mask/tips.png',
         tips_x:     Math.round((w - px(124)) / 2),
-        tips_y:     -px(40),
+        tips_y:     tipsBelow ? h + px(8) : -px(40),
         tips_width: px(124),
-        select_list: {
+        /*select_list: {
           title_font_size:          34,
           title_align_h:            align.CENTER_H,
           list_item_vspace:         8,
           list_tips_text_font_size: 32,
           list_tips_text_align_h:   align.LEFT,
-        }
+        }*/
       })
       return { grp }
     }
@@ -197,7 +197,7 @@ WatchFace({
     // Ore: rettangolo 400×80, centrato orizzontalmente, sovrapposto al testo ore (y=110, h=80)
     const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  hourColorOptionalArray, 'mask/select_rect.png')
     // Minuti: rettangolo 400×80, centrato, sovrapposto al testo minuti
-    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(40),  MaY,       px(400), px(80), minuteColorOptionalArray, 'mask/select_rect.png')
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(40),  MaY,       px(400), px(80), minuteColorOptionalArray, 'mask/select_rect.png', true)
     // Data: rettangolo 480×35, full-width, sovrapposto al testo data
     const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   dateX,   dateY,     dateW,   dateH,  dateColorOptionalArray,   'mask/select_date.png')
 
