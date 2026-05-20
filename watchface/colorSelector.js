@@ -264,6 +264,30 @@ export const hourColorOptionalArray = [
   }))
 ]
 
+// optional_types for the MINUTE color group — preview shows "venti" in each color
+export const minuteColorOptionalArray = [
+  { type: NO_OVERRIDE_TYPE, preview: 'bg/color/minute_prev_0.png', title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
+  ...ALL_COLORS.map(c => ({
+    type:     c.type,
+    preview:  'bg/color/minute_prev_' + c.id + '.png',
+    title_en: c.name,
+    title_sc: c.name,
+    title_tc: c.name,
+  }))
+]
+
+// optional_types for the DATE color group — preview shows "lunedì 01 gennaio" in each color
+export const dateColorOptionalArray = [
+  { type: NO_OVERRIDE_TYPE, preview: 'bg/color/date_prev_0.png', title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
+  ...ALL_COLORS.map(c => ({
+    type:     c.type,
+    preview:  'bg/color/date_prev_' + c.id + '.png',
+    title_en: c.name,
+    title_sc: c.name,
+    title_tc: c.name,
+  }))
+]
+
 // edit_id values for the 3 color selector groups (must not clash with 101/110/111/112)
 export const COLOR_EDIT_ID = {
   HOUR:   120,

@@ -7,7 +7,7 @@ import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
 import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE } from './editTypesUtil.js'
-import { colorOptionalArray, hourColorOptionalArray, getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE } from './colorSelector.js'
+import { hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray, getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE } from './colorSelector.js'
 
 try {
   (() => {
@@ -196,9 +196,10 @@ WatchFace({
 
     // Ore: rettangolo 400×80, centrato orizzontalmente, sovrapposto al testo ore (y=110, h=80)
     const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  hourColorOptionalArray, 'mask/select_rect.png')
-    // Minuti e data: quadrati 92×92 (temporaneamente, in attesa di preview dedicate)
-    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(340), px(212), px(92),  px(92),  colorOptionalArray,     'mask/select.png')
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(340), px(399), px(92),  px(92),  colorOptionalArray,     'mask/select.png')
+    // Minuti: rettangolo 400×80, centrato, sovrapposto al testo minuti
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(40),  MaY,       px(400), px(80), minuteColorOptionalArray, 'mask/select_rect.png')
+    // Data: rettangolo 480×35, full-width, sovrapposto al testo data
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   dateX,   dateY,     dateW,   dateH,  dateColorOptionalArray,   'mask/select_date.png')
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
