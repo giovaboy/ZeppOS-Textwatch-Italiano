@@ -198,8 +198,8 @@ WatchFace({
     const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  hourColorOptionalArray, 'mask/select_rect.png')
     // Minuti: rettangolo 400×80, centrato, sovrapposto al testo minuti
     const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(40),  MaY,       px(400), px(80), minuteColorOptionalArray, 'mask/select_rect.png', true)
-    // Data: rettangolo 480×35, full-width, sovrapposto al testo data
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   dateX,   dateY,     dateW,   dateH,  dateColorOptionalArray,   'mask/select_date.png')
+    // Data: rettangolo 380×35, centrato (x=50), sovrapposto al testo data
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(50),  dateY,     px(380), dateH,  dateColorOptionalArray,   'mask/select_date.png')
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
