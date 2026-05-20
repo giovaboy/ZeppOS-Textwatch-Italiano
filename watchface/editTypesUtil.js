@@ -293,11 +293,15 @@ export default class EditTypesUtil {
           logger.log('PAI sensor creation FAILED: ' + e)
         }
 
-        const barWidgets = barXCoords.map(bx => createWidget(widget.FILL_RECT, {
-          x: bx, y: barBaseY + BAR_H - 1, w: BAR_W, h: 1,
-          radius: Math.round(BAR_W / 2), color: 0xd612c0,
-          show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch))
+        const barWidgets = barXCoords.map(bx => {
+          const bar = createWidget(widget.FILL_RECT, {
+            x: bx, y: barBaseY + BAR_H - 1, w: BAR_W, h: 1,
+            radius: Math.round(BAR_W / 2), color: 0xd612c0,
+            show_level: show_level.ONLY_NORMAL,
+          })
+          bar.addEventListener(event.CLICK_DOWN, launch)
+          return bar
+        })
 
         function _updatePaiBars() {
           if (!paiSensor) { logger.log('_updatePaiBars: paiSensor is null, skip'); return }
