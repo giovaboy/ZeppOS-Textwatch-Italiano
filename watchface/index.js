@@ -7,7 +7,7 @@ import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
 import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE } from './editTypesUtil.js'
-import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID } from './colorSelector.js'
+import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE } from './colorSelector.js'
 
 try {
   (() => {
@@ -166,10 +166,6 @@ WatchFace({
 
     if ( DEBUG ) logger.log( 'currentThemeId: ' + currentIdTheme );
 
-    const tc = themes[currentIdTheme].colors;
-    hourColor     = getColorFromType(tc.hour);
-    minuteColor   = getColorFromType(tc.minute);
-    dateColor     = getColorFromType(tc.date);
     hourAODColor   = 0xffffff;
     minuteAODColor = 0xffffff;
 
@@ -209,17 +205,19 @@ WatchFace({
     // Ore:    centro testo y=150 → y=132;  fondo y=168  — dentro il cerchio ✓
     // Minuti: centro testo y=230 → y=212;  fondo y=248  — dentro il cerchio ✓
     // Data:   centro testo y=417 → y=399;  fondo y=435  — dentro il cerchio ✓
-    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(340), px(132), tc.hour)
-    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(340), px(212), tc.minute)
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(340), px(399), tc.date)
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(340), px(132), NO_OVERRIDE_TYPE)
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(340), px(212), NO_OVERRIDE_TYPE)
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(340), px(399), NO_OVERRIDE_TYPE)
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
     colorGroupDate   = csDate.grp
 
-    if (csHour.override   !== null) hourColor   = csHour.override
-    if (csMinute.override !== null) minuteColor = csMinute.override
-    if (csDate.override   !== null) dateColor   = csDate.override
+    function _colorForZone(groupWidget, themeType) {
+      const sel = groupWidget.getProperty(prop.CURRENT_TYPE)
+      if (sel === NO_OVERRIDE_TYPE || sel === undefined) return getColorFromType(themeType)
+      return getColorFromType(sel) ?? getColorFromType(themeType)
+    }
 
     function _refreshColors() {
       const newTheme = editBgWidget.getProperty(prop.CURRENT_TYPE)
@@ -228,10 +226,12 @@ WatchFace({
         localStorage.setItem('currentIdTheme', currentIdTheme)
       }
       const ntc = themes[currentIdTheme].colors
-      hourColor   = getColorFromType(colorGroupHour.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(ntc.hour)
-      minuteColor = getColorFromType(colorGroupMinute.getProperty(prop.CURRENT_TYPE)) ?? getColorFromType(ntc.minute)
-      dateColor   = getColorFromType(colorGroupDate.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(ntc.date)
+      hourColor   = _colorForZone(colorGroupHour,   ntc.hour)
+      minuteColor = _colorForZone(colorGroupMinute, ntc.minute)
+      dateColor   = _colorForZone(colorGroupDate,   ntc.date)
     }
+
+    _refreshColors()
     // ─────────────────────────────────────────────────────────────────────────
 
     let screenType = getScene();

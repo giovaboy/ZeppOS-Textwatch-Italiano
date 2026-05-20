@@ -232,14 +232,18 @@ export const ALL_COLORS = [
 // Curated palette subset (IDs 1-12) — kept for reference/filtering
 export const COLOR_ENTRIES = ALL_COLORS.filter(c => c.id <= 12)
 
-// optional_types array for WATCHFACE_EDIT_GROUP (full palette — all 105 colors)
-export const colorOptionalArray = ALL_COLORS.map(c => ({
-  type:     c.type,
-  preview:  'bg/color/prev_' + c.id + '.png',
-  title_en: c.name,
-  title_sc: c.name,
-  title_tc: c.name,
-}))
+// optional_types array for WATCHFACE_EDIT_GROUP
+// First entry is the "use theme color" sentinel (NO_OVERRIDE_TYPE), then all 105 colors.
+export const colorOptionalArray = [
+  { type: NO_OVERRIDE_TYPE, preview: 'bg/color/prev_0.png', title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
+  ...ALL_COLORS.map(c => ({
+    type:     c.type,
+    preview:  'bg/color/prev_' + c.id + '.png',
+    title_en: c.name,
+    title_sc: c.name,
+    title_tc: c.name,
+  }))
+]
 
 // Returns the hex color for a given type ID.
 // Returns null for NO_OVERRIDE_TYPE or any unknown type (= no override, use theme color).
