@@ -235,7 +235,7 @@ export const COLOR_ENTRIES = ALL_COLORS.filter(c => c.id <= 12)
 // optional_types array for WATCHFACE_EDIT_GROUP
 // First entry is the "use theme color" sentinel (NO_OVERRIDE_TYPE), then all 105 colors.
 export const colorOptionalArray = [
-  { type: NO_OVERRIDE_TYPE, preview: 'bg/color/prev_0.png', title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
+  { type: NO_OVERRIDE_TYPE, preview: 'preview/step.png', title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
   ...ALL_COLORS.map(c => ({
     type:     c.type,
     preview:  'bg/color/prev_' + c.id + '.png',

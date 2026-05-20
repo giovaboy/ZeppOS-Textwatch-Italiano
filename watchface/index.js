@@ -174,14 +174,14 @@ WatchFace({
     // screen is wide enough to fit all 4 groups (verified: corners at (89,426) and
     // (391,426) are within the 240-radius circle).
     // Invisible in normal mode — accessible only via the watchface edit UI.
-    const CS_HW = px(36);
+    const CS_HW = px(92);
 
     function _makeColorGroup(editId, x, y, defaultType) {
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
         edit_id: editId,
         x, y, w: CS_HW, h: CS_HW,
-        select_image:    'mask/select_color.png',
-        un_select_image: 'mask/select_color.png',
+        select_image:    'mask/select.png',
+        un_select_image: 'mask/select.png',
         default_type: defaultType,
         optional_types: colorOptionalArray,
         count: colorOptionalArray.length,
