@@ -252,6 +252,18 @@ export function getColorFromType(typeId) {
   return entry ? entry.color : null
 }
 
+// optional_types for the HOUR color group — preview shows "undici" in each color
+export const hourColorOptionalArray = [
+  { type: NO_OVERRIDE_TYPE, preview: 'bg/color/hour_prev_0.png', title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
+  ...ALL_COLORS.map(c => ({
+    type:     c.type,
+    preview:  'bg/color/hour_prev_' + c.id + '.png',
+    title_en: c.name,
+    title_sc: c.name,
+    title_tc: c.name,
+  }))
+]
+
 // edit_id values for the 3 color selector groups (must not clash with 101/110/111/112)
 export const COLOR_EDIT_ID = {
   HOUR:   120,

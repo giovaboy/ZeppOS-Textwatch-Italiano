@@ -7,7 +7,7 @@ import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { themes } from './themes.js'
 import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE } from './editTypesUtil.js'
-import { colorOptionalArray, getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE } from './colorSelector.js'
+import { colorOptionalArray, hourColorOptionalArray, getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE } from './colorSelector.js'
 
 try {
   (() => {
@@ -170,21 +170,15 @@ WatchFace({
     minuteAODColor = 0xffffff;
 
     // ── Color zone selectors ──────────────────────────────────────────────────
-    // Placed between the health row and the date row (y≈390), where the circular
-    // screen is wide enough to fit all 4 groups (verified: corners at (89,426) and
-    // (391,426) are within the 240-radius circle).
-    // Invisible in normal mode — accessible only via the watchface edit UI.
-    const CS_HW = px(92);
-
-    function _makeColorGroup(editId, x, y, defaultType) {
+    function _makeColorGroup(editId, x, y, w, h, optArray, selectImg) {
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
         edit_id: editId,
-        x, y, w: CS_HW, h: CS_HW,
-        select_image:    'mask/select.png',
-        un_select_image: 'mask/select.png',
-        default_type: defaultType,
-        optional_types: colorOptionalArray,
-        count: colorOptionalArray.length,
+        x, y, w, h,
+        select_image:    selectImg,
+        un_select_image: selectImg,
+        default_type: NO_OVERRIDE_TYPE,
+        optional_types: optArray,
+        count: optArray.length,
         tips_BG:    'mask/tips.png',
         tips_x:     -px(44),
         tips_y:     -px(40),
@@ -197,17 +191,14 @@ WatchFace({
           list_tips_text_align_h:   align.LEFT,
         }
       })
-      const override = getColorFromType(grp.getProperty(prop.CURRENT_TYPE))
-      return { grp, override }
+      return { grp }
     }
 
-    // Ogni pallino colore è allineato verticalmente al proprio testo (lato destro x=340).
-    // Ore:    centro testo y=150 → y=132;  fondo y=168  — dentro il cerchio ✓
-    // Minuti: centro testo y=230 → y=212;  fondo y=248  — dentro il cerchio ✓
-    // Data:   centro testo y=417 → y=399;  fondo y=435  — dentro il cerchio ✓
-    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(340), px(132), NO_OVERRIDE_TYPE)
-    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(340), px(212), NO_OVERRIDE_TYPE)
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(340), px(399), NO_OVERRIDE_TYPE)
+    // Ore: rettangolo largo, sovrapposto al testo ore (y=110, h=80)
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  hourColorOptionalArray, 'mask/select.png')
+    // Minuti e data: quadrati 92×92 (temporaneamente, in attesa di preview dedicate)
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(340), px(212), px(92),  px(92),  colorOptionalArray,     'mask/select.png')
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(340), px(399), px(92),  px(92),  colorOptionalArray,     'mask/select.png')
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
