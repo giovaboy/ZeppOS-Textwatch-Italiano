@@ -131,6 +131,8 @@ let colorGroupHour   = null;
 let colorGroupMinute = null;
 let colorGroupDate   = null;
 
+let editBgWidget = null;
+
 
 WatchFace({
   //https://github.com/zepp-health/zeppos-samples/blob/main/application/3.0/3.0-feature/app-service/time_service.js
@@ -143,7 +145,7 @@ WatchFace({
       color: aodBgColor, show_level: show_level.ONAL_AOD
     });
 
-    const editBg = createWidget(widget.WATCHFACE_EDIT_BG, {
+    editBgWidget = createWidget(widget.WATCHFACE_EDIT_BG, {
       edit_id: 101,
       x: px(0), y: px(0),show_level: show_level.ONLY_NORMAL | show_level.ONLY_EDIT,
       bg_config: themes,
@@ -154,7 +156,7 @@ WatchFace({
       tips_bg: 'mask/tips.png'
     });
 
-    currentIdTheme = editBg.getProperty(prop.CURRENT_TYPE);
+    currentIdTheme = editBgWidget.getProperty(prop.CURRENT_TYPE);
 
     if ( currentIdTheme === undefined ) {//in AOD this will be undefined
       currentIdTheme = localStorage.getItem( 'currentIdTheme', 0 )
@@ -220,9 +222,15 @@ WatchFace({
     if (csDate.override   !== null) dateColor   = csDate.override
 
     function _refreshColors() {
-      hourColor   = getColorFromType(colorGroupHour.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(tc.hour)
-      minuteColor = getColorFromType(colorGroupMinute.getProperty(prop.CURRENT_TYPE)) ?? getColorFromType(tc.minute)
-      dateColor   = getColorFromType(colorGroupDate.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(tc.date)
+      const newTheme = editBgWidget.getProperty(prop.CURRENT_TYPE)
+      if (newTheme !== undefined) {
+        currentIdTheme = newTheme
+        localStorage.setItem('currentIdTheme', currentIdTheme)
+      }
+      const ntc = themes[currentIdTheme].colors
+      hourColor   = getColorFromType(colorGroupHour.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(ntc.hour)
+      minuteColor = getColorFromType(colorGroupMinute.getProperty(prop.CURRENT_TYPE)) ?? getColorFromType(ntc.minute)
+      dateColor   = getColorFromType(colorGroupDate.getProperty(prop.CURRENT_TYPE))   ?? getColorFromType(ntc.date)
     }
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -528,6 +536,7 @@ WatchFace({
     deleteWidget(colorGroupMinute);
     deleteWidget(colorGroupDate);
 
+    editBgWidget = null;
     dateTextWidget = null;
     hourTextWidgetA = null;
     hourTextWidgetB = null;
@@ -544,6 +553,7 @@ WatchFace({
     colorGroupHour   = null;
     colorGroupMinute = null;
     colorGroupDate   = null;
+    editBgWidget     = null;
 
   },
 })

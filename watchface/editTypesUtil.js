@@ -5,8 +5,7 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN } from '@zos/router'
 import { Weather, Time, Pai } from '@zos/sensor'
-import { px, log } from '@zos/utils'
-const logger = log.getLogger('editTypesUtil')
+import { px } from '@zos/utils'
 
 // ─── Path constants ───────────────────────────────────────────────────────────
 const numPath     = 'numbers_28/'
@@ -286,12 +285,7 @@ export default class EditTypesUtil {
 
         // barre attive — inizializzate vuote, aggiornate subito e al resume
         let paiSensor = null
-        try {
-          paiSensor = new Pai()
-          logger.log('PAI sensor created ok')
-        } catch (e) {
-          logger.log('PAI sensor creation FAILED: ' + e)
-        }
+        try { paiSensor = new Pai() } catch (_) {}
 
         const barWidgets = barXCoords.map(bx => {
           const bar = createWidget(widget.FILL_RECT, {
@@ -304,11 +298,9 @@ export default class EditTypesUtil {
         })
 
         function _updatePaiBars() {
-          if (!paiSensor) { logger.log('_updatePaiBars: paiSensor is null, skip'); return }
+          if (!paiSensor) return
           // getLastWeek(): index 0 = oggi, index 6 = 6 giorni fa → invertiamo per barre cronologiche (sx=vecchio, dx=oggi)
-          const raw = paiSensor.getLastWeek() || []
-          const week = [...raw].reverse()
-          logger.log('PAI today=' + paiSensor.getToday() + ' total=' + paiSensor.getTotal() + ' week=' + JSON.stringify(week))
+          const week = [...(paiSensor.getLastWeek() || [])].reverse()
           const maxVal = 75
           barWidgets.forEach((bar, i) => {
             const height = Math.round((week[i] / maxVal) * BAR_H)
