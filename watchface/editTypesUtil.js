@@ -309,9 +309,9 @@ export default class EditTypesUtil {
           const raw = paiSensor.getLastWeek() || []
           const week = [...raw].reverse()
           logger.log('PAI today=' + paiSensor.getToday() + ' total=' + paiSensor.getTotal() + ' week=' + JSON.stringify(week))
-          const maxVal = 100
+          const maxVal = 75
           barWidgets.forEach((bar, i) => {
-            const height = Math.max(1, Math.round((week[i] / maxVal) * BAR_H))
+            const height = Math.round((week[i] / maxVal) * BAR_H)
             bar.setProperty(prop.MORE, {
               x: barXCoords[i], y: barBaseY + BAR_H - height,
               w: BAR_W, h: height,
