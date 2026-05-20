@@ -13,7 +13,8 @@
     "description": "TextWatch in Italiano"
   },
   "permissions": [
-    "device:os.local_storage"
+    "device:os.local_storage",
+    "data:user.hd.pai"
   ],
   "runtime": {
     "apiVersion": {
