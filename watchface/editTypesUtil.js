@@ -5,7 +5,8 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN } from '@zos/router'
 import { Weather, Time } from '@zos/sensor'
-import { px } from '@zos/utils'
+import { px, log } from '@zos/utils'
+const logger = log.getLogger('editTypesUtil')
 
 // ─── Path constants ───────────────────────────────────────────────────────────
 const numPath     = 'numbers_28/'
@@ -67,11 +68,11 @@ const WIDGET_DEFS = {
   // ── speciali ──────────────────────────────────────────────────────────────
   [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           invalid:true },
   [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
-  [edit_type.MOON]:              { r:'moon',     dt: data_type.MOON,                                                 app:SYSTEM_APP_SUN_AND_MOON },
+  [edit_type.MOON]:              { r:'moon',     dt: data_type.MOON,                                                app:SYSTEM_APP_SUN_AND_MOON },
   [edit_type.WEATHER]:           { r:'weather',  dt: data_type.WEATHER_CURRENT,                     bg:'weather',   app:SYSTEM_APP_WEATHER,      unit:'degree', neg:true, invalid:'w' },
   // ── nuovi ─────────────────────────────────────────────────────────────────
   [edit_type.PAI_WEEKLY]:        { r:'paiWeekly',                                                                   app:SYSTEM_APP_PAI },
-  [edit_type.SUN]:               { r:'sun',                                                                          app:SYSTEM_APP_SUN_AND_MOON },
+  [edit_type.SUN]:               { r:'sun',                                                                         app:SYSTEM_APP_SUN_AND_MOON },
 }
 
 // Custom type for blank/empty slot
@@ -264,11 +265,6 @@ export default class EditTypesUtil {
         )
         const barBaseY = cy - Math.round(BAR_H / 2)
 
-        /*createWidget(widget.IMG, {
-          x: bgx, y: bgy, w: bgw, h: bgw, src: iconBg + 'pai.png',
-          show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
-*/
         createWidget(widget.TEXT_IMG, {
           x: sx, y: sy + px(6), w: bgw, h: px(22),
           type: data_type.PAI_WEEKLY, font_array: numArray, h_space: 0,
@@ -286,23 +282,27 @@ export default class EditTypesUtil {
           x: bx, y: barBaseY, w: BAR_W, h: BAR_H,
           radius: Math.round(BAR_W / 2), color: 0x4a1048,
           show_level: show_level.ONLY_NORMAL,
-        }))
+        }).addEventListener(event.CLICK_DOWN, launch))
 
         // barre attive — inizializzate vuote, aggiornate subito e al resume
         let paiSensor = null
-        try { paiSensor = hmSensor.createSensor(hmSensor.id.PAI) } catch (_) {}
+        try {
+          paiSensor = hmSensor.createSensor(hmSensor.id.PAI)
+          logger.log('PAI sensor created: ' + JSON.stringify(paiSensor))
+        } catch (e) {
+          logger.log('PAI sensor creation FAILED: ' + e)
+        }
 
         const barWidgets = barXCoords.map(bx => createWidget(widget.FILL_RECT, {
           x: bx, y: barBaseY + BAR_H - 1, w: BAR_W, h: 1,
           radius: Math.round(BAR_W / 2), color: 0xd612c0,
           show_level: show_level.ONLY_NORMAL,
-        }))
+        }).addEventListener(event.CLICK_DOWN, launch))
 
         function _updatePaiBars() {
-          if (!paiSensor) return
-          // prepai0 = 6 giorni fa … prepai6 = oggi (API watchface hmSensor)
-          // PAI_DAILY range: [0, 75] → usiamo 75 come massimo fisso
+          if (!paiSensor) { logger.log('_updatePaiBars: paiSensor is null, skip'); return }
           const week = Array.from({ length: 7 }, (_, i) => paiSensor[`prepai${i}`] || 0)
+          logger.log('PAI daily=' + paiSensor.dailypai + ' total=' + paiSensor.totalpai + ' week=' + JSON.stringify(week))
           const maxVal = 75
           barWidgets.forEach((bar, i) => {
             const height = Math.max(1, Math.round((week[i] / maxVal) * BAR_H))
