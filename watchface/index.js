@@ -180,7 +180,7 @@ WatchFace({
         optional_types: optArray,
         count: optArray.length,
         tips_BG:    'mask/tips.png',
-        tips_x:     -px(44),
+        tips_x:     Math.round((w - px(124)) / 2),
         tips_y:     -px(40),
         tips_width: px(124),
         select_list: {
@@ -194,8 +194,8 @@ WatchFace({
       return { grp }
     }
 
-    // Ore: rettangolo largo, sovrapposto al testo ore (y=110, h=80)
-    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  hourColorOptionalArray, 'mask/select.png')
+    // Ore: rettangolo 400×80, centrato orizzontalmente, sovrapposto al testo ore (y=110, h=80)
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  hourColorOptionalArray, 'mask/select_rect.png')
     // Minuti e data: quadrati 92×92 (temporaneamente, in attesa di preview dedicate)
     const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(340), px(212), px(92),  px(92),  colorOptionalArray,     'mask/select.png')
     const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(340), px(399), px(92),  px(92),  colorOptionalArray,     'mask/select.png')
