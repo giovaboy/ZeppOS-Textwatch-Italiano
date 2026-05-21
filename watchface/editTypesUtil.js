@@ -28,13 +28,13 @@ function _makeReader(def) {
         return (v != null && g != null) ? `${v}/${g}` : '--'
       }
       if (dt === data_type.DISTANCE)  { const d = _sen('step',    Step   )?.getDistance?.();  return d != null ? (d/1000).toFixed(2) : '--' }
-      if (dt === data_type.SPO2)      { const v = _sen('spo2',    BloodOxygen)?.getCurrent?.(); return v != null ? v + '%' : '--' }
-      if (dt === data_type.HEART)     { const v = _sen('hr',      HeartRate  )?.getCurrent?.(); return v != null ? String(v) : '--' }
-      if (dt === data_type.STRESS)    { const v = _sen('stress',  Stress )?.getCurrent?.();   return v != null ? String(v) : '--' }
-      if (dt === data_type.ALTIMETER) { const v = _sen('baro',    Barometer)?.getAltitude?.(); return v != null ? String(Math.round(v)) : '--' }
+      if (dt === data_type.SPO2)      { const v = _sen('spo2',   BloodOxygen)?.getCurrent?.()?.value; return v != null ? v + '%' : '--' }
+      if (dt === data_type.HEART)     { const v = _sen('hr',     HeartRate  )?.getLast?.();             return v != null ? String(v) : '--' }
+      if (dt === data_type.STRESS)    { const v = _sen('stress', Stress     )?.getCurrent?.()?.value;  return v != null ? String(v) : '--' }
+      if (dt === data_type.ALTIMETER) { const v = _sen('baro',   Barometer  )?.getAltitude?.();         return v != null ? String(Math.round(v)) : '--' }
       if (dt === data_type.SLEEP)     {
         const info = _sen('sleep', Sleep)?.getInfo?.()
-        const mins = info?.sleepTime
+        const mins = info?.totalTime
         return mins != null ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
       }
       if (dt === data_type.WIND)      {
