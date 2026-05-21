@@ -16,7 +16,8 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(python3)",
       "Bash(ls /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/default-target.r/bg/color/prev_*.png)",
-      "Bash(curl -s \"https://docs.zepp.com/docs/reference/related-resources/device-list/\")"
+      "Bash(curl -s \"https://docs.zepp.com/docs/reference/related-resources/device-list/\")",
+      "Bash(python3 -c \"from PIL import Image; img=Image.open\\('/home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/default-target.r/bg/color/hour_prev_1.png'\\); print\\(img.size, img.mode\\)\")"
     ]
   }
 }
