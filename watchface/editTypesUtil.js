@@ -323,7 +323,6 @@ export default class EditTypesUtil {
       case 'sun': {
         const ARC_RADIUS = 35
         const ARC_LINE_W = 8
-        const DOT_SIZE   = px(14)
         const DOT_OVER   = px(1)
         const dotArea    = px(92) + 2 * DOT_OVER
 
@@ -344,14 +343,18 @@ export default class EditTypesUtil {
         })
 
         // punto rotante sulla posizione del sole
+        const DOT_CX = Math.round(dotArea / 2)
+        const DOT_CY = Math.round(dotArea / 2)
+        // p.png is 12×80: white dot at y=0..7 (center ~y=4), transparent rest
+        // pos_x centers the 12px image at DOT_CX; pos_y places dot center at ARC_RADIUS from rotation center
         const dotWidget = createWidget(widget.IMG, {
           x: sx - DOT_OVER, y: sy - DOT_OVER,
           w: dotArea, h: dotArea,
-          pos_x: Math.round(dotArea / 2 - DOT_SIZE / 2),
-          pos_y: 0,
-          center_x: Math.round(dotArea / 2),
-          center_y: Math.round(dotArea / 2),
-          angle: 0, src: 'widget/dot.png',
+          pos_x: DOT_CX - 6,
+          pos_y: DOT_CY - ARC_RADIUS - 4,
+          center_x: DOT_CX,
+          center_y: DOT_CY,
+          angle: 0, src: numPath + 'p.png',
           show_level: show_level.ONLY_NORMAL,
         })
 
