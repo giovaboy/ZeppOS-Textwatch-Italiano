@@ -360,7 +360,7 @@ export default class EditTypesUtil {
 
         // icona (alba / tramonto)
         const sunIconW = createWidget(widget.IMG, {
-          x: cx - px(12), y: cy - px(24),
+          x: cx - px(16), y: cy - px(24),
           src: 'xicon/sunrise.png', show_level: show_level.ONLY_NORMAL,
         })
         sunIconW.addEventListener(event.CLICK_DOWN, launch)
@@ -420,6 +420,7 @@ export default class EditTypesUtil {
           sunIconW.setProperty(prop.MORE, { src: `xicon/${evType}.png` })
         }
 
+        _updateSun()
         createWidget(widget.WIDGET_DELEGATE, {
           resume_call: () => { _updateSun() }
         })
