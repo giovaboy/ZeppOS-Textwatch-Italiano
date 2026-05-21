@@ -22,7 +22,7 @@ function _makeReader(def) {
       const dt = def.dt
       if (dt === data_type.STEP)      { const v = _sen('step',  Step    )?.getCurrent?.();        return v > 0 ? String(v)               : '--' }
       if (dt === data_type.CAL)       { const v = _sen('cal',   Calorie )?.getCurrent?.();        return v > 0 ? String(v)               : '--' }
-      if (dt === data_type.BATTERY)   { const v = _sen('bat',   Battery )?.getLevel?.();          return v != null ? v + '%'             : '--' }
+      if (dt === data_type.BATTERY)   { const v = _sen('bat',   Battery )?.getCurrent?.();        return v != null ? v + '%'             : '--' }
       if (dt === data_type.STAND)     {
         const s = _sen('stand', Stand)
         const v = s?.getCurrent?.(), g = s?.getTarget?.()
@@ -31,12 +31,14 @@ function _makeReader(def) {
       if (dt === data_type.DISTANCE)  { const d = _sen('dist',  Distance)?.getCurrent?.();        return d > 0 ? (d/1000).toFixed(2)     : '--' }
       if (dt === data_type.FAT_BURN)  { const v = _sen('fat',   FatBurning)?.getCurrent?.();      return v > 0 ? String(v)               : '--' }
       if (dt === data_type.SPO2)      {
-        const s = _sen('spo2', BloodOxygen)
-        const cur = s?.getCurrent?.()
-        const lastDay = s?.getLastDay?.() || []
-        console.log('[sensor] spo2 getCurrent:', JSON.stringify(cur))
-        console.log('[sensor] spo2 getLastDay (last 5):', JSON.stringify(lastDay.slice(-5)))
-        const v = (cur?.retCode === 2) ? cur.value : lastDay.filter(x => x > 0).pop()
+        if (!_sc['spo2_hm']) {
+          try { _sc['spo2_hm'] = hmSensor.createSensor(hmSensor.id.SPO2) } catch(_) { _sc['spo2_hm'] = null }
+        }
+        const s = _sc['spo2_hm']
+        const hourAvg = s?.hourAvgofDay || []
+        console.log('[sensor] spo2 retcode:', s?.retcode, 'current:', s?.current)
+        console.log('[sensor] spo2 hourAvgofDay (last 5):', JSON.stringify(hourAvg.slice(-5)))
+        const v = (s?.retcode === 2) ? s.current : hourAvg.filter(x => x > 0).pop()
         return v != null ? v + '%' : '--'
       }
       if (dt === data_type.HEART)     {
@@ -216,7 +218,7 @@ export default class EditTypesUtil {
     function drawIconText(getValue) {
       const tw = createWidget(widget.TEXT, {
         x: numX, y: numY, w: bgw, h: numH,
-        text: getValue(), text_size: px(18), color: 0xffffff,
+        text: getValue(), text_size: px(20), color: 0xffffff,
         align_h: align.CENTER_H, align_v: align.CENTER_V,
         show_level: show_level.ONLY_NORMAL,
       })
@@ -251,7 +253,7 @@ export default class EditTypesUtil {
         const getVal = _makeReader(def)
         const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(18), color: 0xffffff,
+          text: getVal(), text_size: px(20), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -316,7 +318,7 @@ export default class EditTypesUtil {
         const getVal = _makeReader(def)
         const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(18), color: 0xffffff,
+          text: getVal(), text_size: px(20), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -343,7 +345,7 @@ export default class EditTypesUtil {
 
         const paiTextW = createWidget(widget.TEXT, {
           x: sx, y: sy + px(6), w: bgw, h: px(22),
-          text: '--', text_size: px(18), color: 0xffffff,
+          text: '--', text_size: px(20), color: 0xffffff,
           align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
         })
         paiTextW.addEventListener(event.CLICK_DOWN, launch)
@@ -447,7 +449,7 @@ export default class EditTypesUtil {
         // orario prossimo evento
         const sunTextW = createWidget(widget.TEXT, {
           x: sx, y: cy + px(8), w: bgw, h: px(22),
-          text: '--:--', text_size: px(18), color: 0xffffff,
+          text: '--:--', text_size: px(20), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
