@@ -4,8 +4,59 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_PRESSURE, SYSTEM_APP_WEATHER, SYSTEM_APP_ALTIMETER,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN } from '@zos/router'
-import { Weather, Time, Pai } from '@zos/sensor'
+import { Weather, Time, Pai, Step, Battery, HeartRate, BloodOxygen, Stress, Sleep, Barometer } from '@zos/sensor'
 import { px } from '@zos/utils'
+
+// ─── Sensor cache (module-level, shared across all slots) ─────────────────────
+const _sc = {}
+function _sen(key, Cls) {
+  if (!(key in _sc)) { try { _sc[key] = new Cls() } catch(_) { _sc[key] = null } }
+  return _sc[key]
+}
+
+// Returns a function () → formatted string for a given widget def
+function _makeReader(def) {
+  return () => {
+    try {
+      const dt = def.dt
+      if (dt === data_type.STEP)      { const v = _sen('step',    Step   )?.getCurrent?.();   return v != null ? String(v) : '--' }
+      if (dt === data_type.CAL)       { const v = _sen('step',    Step   )?.getCalorie?.();   return v != null ? String(v) : '--' }
+      if (dt === data_type.BATTERY)   { const v = _sen('bat',     Battery)?.getLevel?.();     return v != null ? v + '%'   : '--' }
+      if (dt === data_type.STAND)     {
+        const s = _sen('step', Step)
+        const v = s?.getStand?.(), g = s?.getStandGoal?.()
+        return (v != null && g != null) ? `${v}/${g}` : '--'
+      }
+      if (dt === data_type.DISTANCE)  { const d = _sen('step',    Step   )?.getDistance?.();  return d != null ? (d/1000).toFixed(2) : '--' }
+      if (dt === data_type.SPO2)      { const v = _sen('spo2',    BloodOxygen)?.getCurrent?.(); return v != null ? v + '%' : '--' }
+      if (dt === data_type.HEART)     { const v = _sen('hr',      HeartRate  )?.getCurrent?.(); return v != null ? String(v) : '--' }
+      if (dt === data_type.STRESS)    { const v = _sen('stress',  Stress )?.getCurrent?.();   return v != null ? String(v) : '--' }
+      if (dt === data_type.ALTIMETER) { const v = _sen('baro',    Barometer)?.getAltitude?.(); return v != null ? String(Math.round(v)) : '--' }
+      if (dt === data_type.SLEEP)     {
+        const info = _sen('sleep', Sleep)?.getInfo?.()
+        const mins = info?.sleepTime
+        return mins != null ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
+      }
+      if (dt === data_type.WIND)      {
+        const w = _sen('wx', Weather)?.getWeatherInfo?.()
+        const v = w?.current?.wind ?? w?.wind
+        return v != null ? String(v) : '--'
+      }
+      if (dt === data_type.WEATHER_CURRENT) {
+        const w = _sen('wx', Weather)?.getWeatherInfo?.()
+        const v = w?.current?.temp ?? w?.temp
+        return v != null ? (v < 0 ? '-' + Math.abs(v) : String(v)) + '°' : '--'
+      }
+      if (dt === data_type.UVI)       {
+        const w = _sen('wx', Weather)?.getWeatherInfo?.()
+        const v = w?.current?.uvi ?? w?.uvi
+        return v != null ? String(v) : '--'
+      }
+      if (dt === data_type.PAI_WEEKLY){ const v = _sen('pai',  Pai)?.getTotal?.(); return v != null ? String(v) : '--' }
+    } catch (_) {}
+    return '--'
+  }
+}
 
 // ─── Path constants ───────────────────────────────────────────────────────────
 const numPath     = 'numbers_28/'
@@ -145,24 +196,24 @@ export default class EditTypesUtil {
       }).addEventListener(event.CLICK_DOWN, launch)
     }
 
-    // Numero (TEXT_IMG) + icona piccola — usato da arc, heart, uvi, moon, pointer
-    // withDot=true aggiunge isCharacter e dot_image (usato da tutti tranne temperature)
-    function drawIconText(withDot = true) {
-      createWidget(widget.TEXT_IMG, {
+    // Numero (TEXT) + icona piccola — usato da arc, heart, uvi, moon, pointer
+    function drawIconText(getValue) {
+      const tw = createWidget(widget.TEXT, {
         x: numX, y: numY, w: bgw, h: numH,
-        type: def.dt, font_array: numArray, h_space: 0,
-        align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
-        unit_sc: unitImg, unit_en: unitImg, unit_tc: unitImg,
-        invalid_image: invalidImg, negative_image: negImg,
-        ...(withDot && { isCharacter: true, dot_image: dotImg }),
-      }).addEventListener(event.CLICK_DOWN, launch)
-
+        text: getValue(), text_size: px(16), color: 0xffffff,
+        align_h: align.CENTER_H, align_v: align.CENTER_V,
+        show_level: show_level.ONLY_NORMAL,
+      })
+      tw.addEventListener(event.CLICK_DOWN, launch)
       if (iconPath) {
         createWidget(widget.IMG, {
           x: iconX, y: iconY, src: iconPath,
           show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
       }
+      createWidget(widget.WIDGET_DELEGATE, {
+        resume_call: () => tw.setProperty(prop.MORE, { text: getValue() })
+      })
     }
 
     switch (def.r) {
@@ -176,23 +227,28 @@ export default class EditTypesUtil {
           line_width: 8, color: def.color, type: def.dt,
           show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
-        drawIconText()
+        drawIconText(_makeReader(def))
         break
 
-      case 'numeric':
+      case 'numeric': {
         drawBg()
-        createWidget(widget.TEXT_IMG, {
+        const getVal = _makeReader(def)
+        const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          type: def.dt, font_array: numArray, h_space: 0,
-          align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
-          unit_sc: unitImg, unit_en: unitImg, unit_tc: unitImg,
-          invalid_image: invalidImg, dot_image: dotImg, negative_image: negImg,
-        }).addEventListener(event.CLICK_DOWN, launch)
+          text: getVal(), text_size: px(16), color: 0xffffff,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        })
+        tw.addEventListener(event.CLICK_DOWN, launch)
         createWidget(widget.IMG, {
           x: iconX, y: iconY - px(5), src: iconPath,
           show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
+        createWidget(widget.WIDGET_DELEGATE, {
+          resume_call: () => tw.setProperty(prop.MORE, { text: getVal() })
+        })
         break
+      }
 
       case 'pointer':
       case 'pointerT':
@@ -204,7 +260,7 @@ export default class EditTypesUtil {
           type: def.dt, start_angle: -135, end_angle: 135,
           show_level: show_level.ONLY_NORMAL,
         })
-        drawIconText(def.r === 'pointer')
+        drawIconText(_makeReader(def))
         break
 
       case 'heart':
@@ -216,7 +272,7 @@ export default class EditTypesUtil {
           x: bgx, y: bgy, image_array: heartArray, image_length: heartArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
-        drawIconText()
+        drawIconText(_makeReader(def))
         break
 
       case 'uvi':
@@ -228,7 +284,7 @@ export default class EditTypesUtil {
           x: bgx, y: bgy, image_array: uviArray, image_length: uviArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
-        drawIconText()
+        drawIconText(_makeReader(def))
         break
 
       case 'moon':
@@ -236,24 +292,29 @@ export default class EditTypesUtil {
           x: bgx, y: bgy, image_array: moonArray, image_length: moonArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
         })
-        drawIconText()
+        drawIconText(_makeReader(def))
         break
 
-      case 'weather':
+      case 'weather': {
         drawBg()
-        createWidget(widget.TEXT_IMG, {
+        const getVal = _makeReader(def)
+        const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          type: def.dt, font_array: numArray, h_space: 0,
-          align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
-          unit_sc: unitImg, unit_en: unitImg, unit_tc: unitImg,
-          invalid_image: invalidImg, negative_image: negImg,
-        }).addEventListener(event.CLICK_DOWN, launch)
+          text: getVal(), text_size: px(16), color: 0xffffff,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        })
+        tw.addEventListener(event.CLICK_DOWN, launch)
         createWidget(widget.IMG_LEVEL, {
           x: iconX, y: iconY - px(5),
           image_array: weatherArray, image_length: weatherArray.length,
           type: data_type.WEATHER, show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
+        createWidget(widget.WIDGET_DELEGATE, {
+          resume_call: () => tw.setProperty(prop.MORE, { text: getVal() })
+        })
         break
+      }
 
       case 'paiWeekly': {
         const BAR_W   = px(8)
