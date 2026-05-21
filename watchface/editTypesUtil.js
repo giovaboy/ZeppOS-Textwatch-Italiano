@@ -33,8 +33,10 @@ function _makeReader(def) {
       if (dt === data_type.SPO2)      {
         const s = _sen('spo2', BloodOxygen)
         const cur = s?.getCurrent?.()
+        const lastDay = s?.getLastDay?.() || []
         console.log('[sensor] spo2 getCurrent:', JSON.stringify(cur))
-        const v = (cur?.retCode === 2) ? cur.value : (s?.getLastDay?.() || []).filter(x => x > 0).pop()
+        console.log('[sensor] spo2 getLastDay (last 5):', JSON.stringify(lastDay.slice(-5)))
+        const v = (cur?.retCode === 2) ? cur.value : lastDay.filter(x => x > 0).pop()
         return v != null ? v + '%' : '--'
       }
       if (dt === data_type.HEART)     {
@@ -54,9 +56,10 @@ function _makeReader(def) {
         return mins > 0 ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
       }
       if (def.bodyTemp) {
-        const v = _sen('bodyT', BodyTemperature)?.getCurrent?.()?.current
-        console.log('[sensor] bodyTemp getCurrent:', JSON.stringify(_sen('bodyT', BodyTemperature)?.getCurrent?.()))
-        return (v != null && v > 0) ? v.toFixed(1) + '°' : '--'
+        const cur = _sen('bodyT', BodyTemperature)?.getCurrent?.()
+        console.log('[sensor] bodyTemp getCurrent:', JSON.stringify(cur))
+        const v = cur?.value
+        return (v != null && v > 0) ? (v / 100).toFixed(1) + '°' : '--'
       }
       if (dt === data_type.WIND) {
         const fc = _sen('wx', Weather)?.getForecast?.()
@@ -80,7 +83,7 @@ function _makeReader(def) {
 }
 
 // ─── Path constants ───────────────────────────────────────────────────────────
-const numPath     = 'numbers_28/'
+const numPath     = 'numbers_28/' // solo p.png è ancora usato (IMG_POINTER)
 const iconBg      = 'iconbg/'
 const XicPath     = 'xicon/'
 const previewPath = 'preview/'
@@ -88,7 +91,6 @@ const heartPath   = 'heart/'
 const UVIPath     = 'UVI/'
 
 // ─── Image arrays ─────────────────────────────────────────────────────────────
-const numArray     = Array.from({ length: 10 }, (_, i) => `${numPath}${i}.png`)
 const weatherArray = Array.from({ length: 29 }, (_, i) => `weather/${i}.png`)
 const moonArray    = Array.from({ length: 29 }, (_, i) => `moon/${i + 1}.png`)
 const heartArray   = Array.from({ length: 6 },  (_, i) => `${heartPath}${i + 1}.png`)
@@ -202,13 +204,6 @@ export default class EditTypesUtil {
     const launch     = () => launchApp({ appId: def.app, native: true, params: def.params })
     const iconPath   = def.icon    ? XicPath + def.icon + '.png' : null
     const bgImg      = def.bg      ? iconBg  + def.bg  + '.png' : null
-    const unitImg    = def.unit    ? numPath + def.unit + '.png' : null
-    const dotImg     = def.dot     ? numPath + def.dot  + '.png' : null
-    const negImg     = def.neg     ? numPath + 'negative.png'    : null
-    const invalidImg = def.invalid === 'w' ? numPath + 'wnone.png'
-                     : def.invalid          ? numPath + 'none.png'
-                     : null
-
     // Sfondo quadrato con tap
     function drawBg() {
       createWidget(widget.IMG, {
