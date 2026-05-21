@@ -15,7 +15,8 @@
       "Bash(/usr/lib/code-server/lib/node -e ':*)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(python3)",
-      "Bash(ls /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/default-target.r/bg/color/prev_*.png)"
+      "Bash(ls /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/default-target.r/bg/color/prev_*.png)",
+      "Bash(curl -s \"https://docs.zepp.com/docs/reference/related-resources/device-list/\")"
     ]
   }
 }

@@ -34,10 +34,97 @@
           "hightCost": 0
         }
       },
-      "platforms": [
-        {
-          "st": "r"
+      "platforms": [{ "st": "r" }],
+      "designWidth": 480
+    },
+    "target-466": {
+      "module": {
+        "watchface": {
+          "path": "watchface/index",
+          "main": 1,
+          "editable": 1,
+          "lockscreen": 1,
+          "hightCost": 0
         }
+      },
+      "platforms": [
+        { "deviceSource": 7930112 },
+        { "deviceSource": 7930113 },
+        { "deviceSource": 7864577 },
+        { "deviceSource": 8913152 },
+        { "deviceSource": 8913153 },
+        { "deviceSource": 8913155 },
+        { "deviceSource": 8913159 },
+        { "deviceSource": 10092800 },
+        { "deviceSource": 10092801 },
+        { "deviceSource": 10092803 },
+        { "deviceSource": 10092807 },
+        { "deviceSource": 10944768 },
+        { "deviceSource": 10944769 },
+        { "deviceSource": 10944771 },
+        { "deviceSource": 10948867 },
+        { "deviceSource": 11010304 },
+        { "deviceSource": 11010305 },
+        { "deviceSource": 11010307 },
+        { "deviceSource": 10682624 },
+        { "deviceSource": 10682625 },
+        { "deviceSource": 10682627 }
+      ],
+      "designWidth": 480
+    },
+    "target-454": {
+      "module": {
+        "watchface": {
+          "path": "watchface/index",
+          "main": 1,
+          "editable": 1,
+          "lockscreen": 1,
+          "hightCost": 0
+        }
+      },
+      "platforms": [
+        { "deviceSource": 226 },
+        { "deviceSource": 227 },
+        { "deviceSource": 6553856 },
+        { "deviceSource": 6553857 },
+        { "deviceSource": 8192256 },
+        { "deviceSource": 8192257 },
+        { "deviceSource": 418 },
+        { "deviceSource": 419 }
+      ],
+      "designWidth": 480
+    },
+    "target-416": {
+      "module": {
+        "watchface": {
+          "path": "watchface/index",
+          "main": 1,
+          "editable": 1,
+          "lockscreen": 1,
+          "hightCost": 0
+        }
+      },
+      "platforms": [
+        { "deviceSource": 250 },
+        { "deviceSource": 251 },
+        { "deviceSource": 414 },
+        { "deviceSource": 415 }
+      ],
+      "designWidth": 480
+    },
+    "target-360": {
+      "module": {
+        "watchface": {
+          "path": "watchface/index",
+          "main": 1,
+          "editable": 1,
+          "lockscreen": 1,
+          "hightCost": 0
+        }
+      },
+      "platforms": [
+        { "deviceSource": 8388864 },
+        { "deviceSource": 8388865 }
       ],
       "designWidth": 480
     }

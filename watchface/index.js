@@ -50,7 +50,7 @@ const MbX = HbX;
 const HaY = px(110);
 const HbY = HaY;
 //minutes Y
-const MaY = px(240)-((HaH)/2)-10;//px(196);
+const MaY = px(240)-((HaH)/2)-px(10);//px(196);
 const MbY = MaY;
 
 const HaW = px(540);
@@ -198,8 +198,8 @@ WatchFace({
     const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  hourColorOptionalArray, 'mask/select_rect.png')
     // Minuti: rettangolo 400×80, centrato, sovrapposto al testo minuti
     const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(40),  MaY,       px(400), px(80), minuteColorOptionalArray, 'mask/select_rect.png', true)
-    // Data: rettangolo 380×35, centrato (x=50), sovrapposto al testo data
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(50),  dateY,     px(380), dateH,  dateColorOptionalArray,   'mask/select_date.png')
+    // Data: rettangolo 280×35, centrato (x=100), sovrapposto al testo data
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(100), dateY,     px(280), dateH,  dateColorOptionalArray,   'mask/select_date.png', true)
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
