@@ -265,7 +265,7 @@ export default class EditTypesUtil {
         const barBaseY = cy - Math.round(BAR_H / 2)
 
         createWidget(widget.TEXT_IMG, {
-          x: sx, y: sy + px(8), w: bgw, h: px(24),
+          x: sx, y: sy + px(7), w: bgw, h: px(24),
           type: data_type.PAI_WEEKLY, font_array: numArray, h_space: 0,
           align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
           invalid_image: numPath + 'none.png',
