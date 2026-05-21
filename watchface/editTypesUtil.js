@@ -53,8 +53,12 @@ function _makeReader(def) {
       }
       if (dt === data_type.ALTIMETER) { const v = _sen('baro',   Barometer)?.getAltitude?.();      return v != null ? String(Math.round(v)) : '--' }
       if (dt === data_type.SLEEP)     {
-        const info = _sen('sleep', Sleep)?.getInfo?.()
-        const mins = info?.totalTime
+        if (!_sc['sleep_hm']) {
+          try { _sc['sleep_hm'] = hmSensor.createSensor(hmSensor.id.SLEEP) } catch(_) { _sc['sleep_hm'] = null }
+        }
+        const s = _sc['sleep_hm']
+        s?.updateInfo?.()
+        const mins = s?.getTotalTime?.()
         return mins > 0 ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
       }
       if (def.bodyTemp) {
