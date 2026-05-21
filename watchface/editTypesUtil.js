@@ -121,7 +121,7 @@ const WIDGET_DEFS = {
   [edit_type.STEP]:              { r:'arc',      dt: data_type.STEP,              icon:'step',      bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS },
   [edit_type.CAL]:               { r:'arc',      dt: data_type.CAL,               icon:'kcal',      bg:'cal',       color:0xdf4f26, app:SYSTEM_APP_STATUS },
   [edit_type.PAI]:               { r:'arc',      dt: data_type.PAI_WEEKLY,        icon:'Pai',       bg:'pai',       color:0xd612c0, app:SYSTEM_APP_PAI },
-  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_BATTERY },
+  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_STATUS },
   [edit_type.STAND]:             { r:'arc',      dt: data_type.STAND,             icon:'stand',     bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS,       dot:'slash' },
   [edit_type.RECOVERY_TIME]:     { r:'arc',      dt: data_type.RECOVERY_TIME,     icon:'recovery',  bg:'recovery',  color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS },
   [edit_type.VO2MAX]:            { r:'arc',      dt: data_type.VO2MAX,            icon:'vo2',       bg:'vo2',       color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS, params:{page:1} },
@@ -139,7 +139,7 @@ const WIDGET_DEFS = {
   // ── puntatore rotante ─────────────────────────────────────────────────────
   [edit_type.SPO2]:              { r:'pointer',  dt: data_type.SPO2,              icon:'spo2',      bg:'spo2',      app:SYSTEM_APP_SPO2,         unit:'percent', invalid:true },
   [edit_type.WIND]:              { r:'pointer',  dt: data_type.WIND,              icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
-  [edit_type.TEMPERATURE]:       { r:'numeric',  bodyTemp: true,                  icon:'T',         bg:'t',         app:SYSTEM_APP_THERMOMETER,  invalid:true },
+  [edit_type.TEMPERATURE]:       { r:'pointerT', bodyTemp: true, dt: data_type.WEATHER_CURRENT, icon:'T', bg:'t', app:SYSTEM_APP_THERMOMETER, invalid:true },
   // ── speciali ──────────────────────────────────────────────────────────────
   [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           invalid:true },
   [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
