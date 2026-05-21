@@ -7,7 +7,7 @@ import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { backgrounds } from './themes.js'
 import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE } from './editTypesUtil.js'
-import { getLanguage } from '@zos/i18n'
+import { getLanguage } from '@zos/settings'
 import {
   hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray,
   hourColorOptionalArrayEn, minuteColorOptionalArrayEn, dateColorOptionalArrayEn,
@@ -190,7 +190,7 @@ WatchFace({
     }
 
     // Scegli array preview in base alla lingua del dispositivo
-    const _isEn = (getLanguage() || '').startsWith('en')
+    const _isEn = (() => { try { return getLanguage() === 2 } catch(_) { return false } })()
     const _hourArr   = _isEn ? hourColorOptionalArrayEn   : hourColorOptionalArray
     const _minuteArr = _isEn ? minuteColorOptionalArrayEn : minuteColorOptionalArray
     const _dateArr   = _isEn ? dateColorOptionalArrayEn   : dateColorOptionalArray
