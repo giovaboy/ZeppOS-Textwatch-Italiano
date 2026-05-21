@@ -16,6 +16,8 @@
     "device:os.local_storage",
     "device:os.barometer",
     "data:user.hd.step",
+    "data:user.hd.distance",
+    "data:user.hd.stand",
     "data:user.hd.spo2",
     "data:user.hd.body_temp",
     "data:user.hd.calorie",

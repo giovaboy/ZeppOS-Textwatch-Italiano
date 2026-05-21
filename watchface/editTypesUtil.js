@@ -4,7 +4,7 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_PRESSURE, SYSTEM_APP_WEATHER, SYSTEM_APP_ALTIMETER,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN } from '@zos/router'
-import { Weather, Time, Pai, Step, Battery, HeartRate, BloodOxygen, Stress, Sleep, Barometer } from '@zos/sensor'
+import { Weather, Time, Pai, Step, Battery, HeartRate, BloodOxygen, Stress, Sleep, Barometer, Stand, Distance, Calorie, FatBurning } from '@zos/sensor'
 import { px } from '@zos/utils'
 
 // ─── Sensor cache (module-level, shared across all slots) ─────────────────────
@@ -19,23 +19,29 @@ function _makeReader(def) {
   return () => {
     try {
       const dt = def.dt
-      if (dt === data_type.STEP)      { const v = _sen('step',    Step   )?.getCurrent?.();   return v != null ? String(v) : '--' }
-      if (dt === data_type.CAL)       { const v = _sen('step',    Step   )?.getCalorie?.();   return v != null ? String(v) : '--' }
-      if (dt === data_type.BATTERY)   { const v = _sen('bat',     Battery)?.getLevel?.();     return v != null ? v + '%'   : '--' }
+      if (dt === data_type.STEP)      { const v = _sen('step',  Step    )?.getCurrent?.();        return v > 0 ? String(v)               : '--' }
+      if (dt === data_type.CAL)       { const v = _sen('cal',   Calorie )?.getCurrent?.();        return v > 0 ? String(v)               : '--' }
+      if (dt === data_type.BATTERY)   { const v = _sen('bat',   Battery )?.getLevel?.();          return v != null ? v + '%'             : '--' }
       if (dt === data_type.STAND)     {
-        const s = _sen('step', Step)
-        const v = s?.getStand?.(), g = s?.getStandGoal?.()
+        const s = _sen('stand', Stand)
+        const v = s?.getCurrent?.(), g = s?.getTarget?.()
         return (v != null && g != null) ? `${v}/${g}` : '--'
       }
-      if (dt === data_type.DISTANCE)  { const d = _sen('step',    Step   )?.getDistance?.();  return d != null ? (d/1000).toFixed(2) : '--' }
-      if (dt === data_type.SPO2)      { const v = _sen('spo2',   BloodOxygen)?.getCurrent?.()?.value; return v != null ? v + '%' : '--' }
-      if (dt === data_type.HEART)     { const v = _sen('hr',     HeartRate  )?.getLast?.();             return v != null ? String(v) : '--' }
-      if (dt === data_type.STRESS)    { const v = _sen('stress', Stress     )?.getCurrent?.()?.value;  return v != null ? String(v) : '--' }
-      if (dt === data_type.ALTIMETER) { const v = _sen('baro',   Barometer  )?.getAltitude?.();         return v != null ? String(Math.round(v)) : '--' }
+      if (dt === data_type.DISTANCE)  { const d = _sen('dist',  Distance)?.getCurrent?.();        return d > 0 ? (d/1000).toFixed(2)     : '--' }
+      if (dt === data_type.FAT_BURN)  { const v = _sen('fat',   FatBurning)?.getCurrent?.();      return v > 0 ? String(v)               : '--' }
+      if (dt === data_type.SPO2)      {
+        const s = _sen('spo2', BloodOxygen)
+        const cur = s?.getCurrent?.()
+        const v = (cur?.retCode === 2) ? cur.value : (s?.getLastDay?.() || []).filter(x => x > 0).pop()
+        return v != null ? v + '%' : '--'
+      }
+      if (dt === data_type.HEART)     { const v = _sen('hr',     HeartRate)?.getLast?.();          return v > 0 ? String(v)               : '--' }
+      if (dt === data_type.STRESS)    { const v = _sen('stress', Stress   )?.getCurrent?.()?.value; return v > 0 ? String(v)              : '--' }
+      if (dt === data_type.ALTIMETER) { const v = _sen('baro',   Barometer)?.getAltitude?.();      return v != null ? String(Math.round(v)) : '--' }
       if (dt === data_type.SLEEP)     {
         const info = _sen('sleep', Sleep)?.getInfo?.()
         const mins = info?.totalTime
-        return mins != null ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
+        return mins > 0 ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
       }
       if (dt === data_type.WIND)      {
         const w = _sen('wx', Weather)?.getWeatherInfo?.()
