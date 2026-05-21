@@ -5,9 +5,14 @@ import { Time } from '@zos/sensor'
 import { launchApp, SYSTEM_APP_CALENDAR } from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
-import { themes } from './themes.js'
+import { backgrounds } from './themes.js'
 import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE } from './editTypesUtil.js'
-import { hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray, getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE } from './colorSelector.js'
+import { getLanguage } from '@zos/i18n'
+import {
+  hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray,
+  hourColorOptionalArrayEn, minuteColorOptionalArrayEn, dateColorOptionalArrayEn,
+  getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE,
+} from './colorSelector.js'
 
 try {
   (() => {
@@ -69,7 +74,7 @@ const editableWidgetsHW = px(92);
 const animDuration = 1000;
 const animFps = 25;
 
-let currentIdTheme = 0;
+const DEFAULT_TEXT_COLOR = 0xffffff;
 
 const aodBgColor = 0x000000;
 
@@ -147,24 +152,14 @@ WatchFace({
 
     editBgWidget = createWidget(widget.WATCHFACE_EDIT_BG, {
       edit_id: 101,
-      x: px(0), y: px(0),show_level: show_level.ONLY_NORMAL | show_level.ONLY_EDIT,
-      bg_config: themes,
-      count: themes.length,
+      x: px(0), y: px(0), show_level: show_level.ONLY_NORMAL | show_level.ONLY_EDIT,
+      bg_config: backgrounds,
+      count: backgrounds.length,
       default_id: 0,
       fg: 'mask/fg_x.png',
       tips_x: px(178), tips_y: px(20),
       tips_bg: 'mask/tips.png'
     });
-
-    currentIdTheme = editBgWidget.getProperty(prop.CURRENT_TYPE);
-
-    if ( currentIdTheme === undefined ) {//in AOD this will be undefined
-      currentIdTheme = localStorage.getItem( 'currentIdTheme', 0 )
-    } else {
-      localStorage.setItem( 'currentIdTheme', currentIdTheme )
-    };
-
-    if ( DEBUG ) logger.log( 'currentThemeId: ' + currentIdTheme );
 
     hourAODColor   = 0xffffff;
     minuteAODColor = 0xffffff;
@@ -194,33 +189,33 @@ WatchFace({
       return { grp }
     }
 
+    // Scegli array preview in base alla lingua del dispositivo
+    const _isEn = (getLanguage() || '').startsWith('en')
+    const _hourArr   = _isEn ? hourColorOptionalArrayEn   : hourColorOptionalArray
+    const _minuteArr = _isEn ? minuteColorOptionalArrayEn : minuteColorOptionalArray
+    const _dateArr   = _isEn ? dateColorOptionalArrayEn   : dateColorOptionalArray
+
     // Ore: rettangolo 400×80, centrato orizzontalmente, sovrapposto al testo ore (y=110, h=80)
-    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  hourColorOptionalArray, 'mask/select_rect.png')
+    const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  _hourArr,   'mask/select_rect.png')
     // Minuti: rettangolo 400×80, centrato, sovrapposto al testo minuti
-    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(40),  MaY,       px(400), px(80), minuteColorOptionalArray, 'mask/select_rect.png', true)
+    const csMinute = _makeColorGroup(COLOR_EDIT_ID.MINUTE, px(40),  MaY,     px(400), px(80),  _minuteArr, 'mask/select_rect.png', true)
     // Data: rettangolo 280×35, centrato (x=100), sovrapposto al testo data
-    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(100), dateY,     px(280), dateH,  dateColorOptionalArray,   'mask/select_date.png', true)
+    const csDate   = _makeColorGroup(COLOR_EDIT_ID.DATE,   px(100), dateY,   px(280), dateH,   _dateArr,   'mask/select_date.png', true)
 
     colorGroupHour   = csHour.grp
     colorGroupMinute = csMinute.grp
     colorGroupDate   = csDate.grp
 
-    function _colorForZone(groupWidget, themeType) {
+    function _colorForZone(groupWidget) {
       const sel = groupWidget.getProperty(prop.CURRENT_TYPE)
-      if (sel === NO_OVERRIDE_TYPE || sel === undefined) return getColorFromType(themeType)
-      return getColorFromType(sel) ?? getColorFromType(themeType)
+      if (sel === NO_OVERRIDE_TYPE || sel === undefined) return DEFAULT_TEXT_COLOR
+      return getColorFromType(sel) ?? DEFAULT_TEXT_COLOR
     }
 
     function _refreshColors() {
-      const newTheme = editBgWidget.getProperty(prop.CURRENT_TYPE)
-      if (newTheme !== undefined) {
-        currentIdTheme = newTheme
-        localStorage.setItem('currentIdTheme', currentIdTheme)
-      }
-      const ntc = themes[currentIdTheme].colors
-      hourColor   = _colorForZone(colorGroupHour,   ntc.hour)
-      minuteColor = _colorForZone(colorGroupMinute, ntc.minute)
-      dateColor   = _colorForZone(colorGroupDate,   ntc.date)
+      hourColor   = _colorForZone(colorGroupHour)
+      minuteColor = _colorForZone(colorGroupMinute)
+      dateColor   = _colorForZone(colorGroupDate)
     }
 
     _refreshColors()

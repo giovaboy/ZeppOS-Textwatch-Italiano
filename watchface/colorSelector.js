@@ -236,41 +236,22 @@ export function getColorFromType(typeId) {
   return entry ? entry.color : null
 }
 
-// optional_types for the HOUR color group — preview shows "undici" in each color
-export const hourColorOptionalArray = [
-  { type: NO_OVERRIDE_TYPE, preview: 'bg/color/hour_prev_0.png', title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
-  ...ALL_COLORS.map(c => ({
-    type:     c.type,
-    preview:  'bg/color/hour_prev_' + c.id + '.png',
-    title_en: c.name,
-    title_sc: c.name,
-    title_tc: c.name,
-  }))
-]
+function _makeOptionalArray(sentinel, entries) {
+  return [
+    { type: NO_OVERRIDE_TYPE, preview: sentinel, title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
+    ...ALL_COLORS.map(c => ({ type: c.type, preview: entries(c.id), title_en: c.name, title_sc: c.name, title_tc: c.name }))
+  ]
+}
 
-// optional_types for the MINUTE color group — preview shows "venti" in each color
-export const minuteColorOptionalArray = [
-  { type: NO_OVERRIDE_TYPE, preview: 'bg/color/minute_prev_0.png', title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
-  ...ALL_COLORS.map(c => ({
-    type:     c.type,
-    preview:  'bg/color/minute_prev_' + c.id + '.png',
-    title_en: c.name,
-    title_sc: c.name,
-    title_tc: c.name,
-  }))
-]
+// Italiano — preview shows "undici" / "e venti" / "lunedì 01 gennaio"
+export const hourColorOptionalArray   = _makeOptionalArray('bg/color/hour_prev_0.png',   id => `bg/color/hour_prev_${id}.png`)
+export const minuteColorOptionalArray = _makeOptionalArray('bg/color/minute_prev_0.png', id => `bg/color/minute_prev_${id}.png`)
+export const dateColorOptionalArray   = _makeOptionalArray('bg/color/date_prev_0.png',   id => `bg/color/date_prev_${id}.png`)
 
-// optional_types for the DATE color group — preview shows "lunedì 01 gennaio" in each color
-export const dateColorOptionalArray = [
-  { type: NO_OVERRIDE_TYPE, preview: 'bg/color/date_prev_0.png', title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
-  ...ALL_COLORS.map(c => ({
-    type:     c.type,
-    preview:  'bg/color/date_prev_' + c.id + '.png',
-    title_en: c.name,
-    title_sc: c.name,
-    title_tc: c.name,
-  }))
-]
+// English — preview shows "eleven" / "and twenty" / "monday 01 january"
+export const hourColorOptionalArrayEn   = _makeOptionalArray('bg/color/hour_prev_en_0.png',   id => `bg/color/hour_prev_en_${id}.png`)
+export const minuteColorOptionalArrayEn = _makeOptionalArray('bg/color/minute_prev_en_0.png', id => `bg/color/minute_prev_en_${id}.png`)
+export const dateColorOptionalArrayEn   = _makeOptionalArray('bg/color/date_prev_en_0.png',   id => `bg/color/date_prev_en_${id}.png`)
 
 // edit_id values for the 3 color selector groups (must not clash with 101/110/111/112)
 export const COLOR_EDIT_ID = {
