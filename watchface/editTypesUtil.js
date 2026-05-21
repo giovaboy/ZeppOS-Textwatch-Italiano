@@ -264,12 +264,12 @@ export default class EditTypesUtil {
         )
         const barBaseY = cy - Math.round(BAR_H / 2)
 
-        createWidget(widget.TEXT_IMG, {
-          x: sx, y: sy + px(7), w: bgw, h: px(24),
-          type: data_type.PAI_WEEKLY, font_array: numArray, h_space: 0,
+        const paiTextW = createWidget(widget.TEXT, {
+          x: sx, y: sy + px(6), w: bgw, h: px(22),
+          text: '--', text_size: px(18), color: 0xffffff,
           align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
-          invalid_image: numPath + 'none.png',
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
+        paiTextW.addEventListener(event.CLICK_DOWN, launch)
 
         createWidget(widget.IMG, {
           x: iconX, y: iconY, src: XicPath + 'Pai.png',
@@ -299,6 +299,8 @@ export default class EditTypesUtil {
 
         function _updatePaiBars() {
           if (!paiSensor) return
+          const total = paiSensor.getTotal()
+          paiTextW.setProperty(prop.MORE, { text: total != null ? String(total) : '--' })
           // getLastWeek(): index 0 = oggi, index 6 = 6 giorni fa → invertiamo per barre cronologiche (sx=vecchio, dx=oggi)
           const week = [...(paiSensor.getLastWeek() || [])].reverse()
           const maxVal = 75
