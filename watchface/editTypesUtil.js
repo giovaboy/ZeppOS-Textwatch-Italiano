@@ -3,8 +3,9 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_BATTERY, SYSTEM_APP_SLEEP, SYSTEM_APP_SPO2, SYSTEM_APP_STATUS,
          SYSTEM_APP_PRESSURE, SYSTEM_APP_WEATHER, SYSTEM_APP_ALTIMETER,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
-         SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN } from '@zos/router'
-import { Weather, Time, Pai, Step, Battery, HeartRate, BloodOxygen, Stress, Sleep, Barometer, Stand, Distance, Calorie, FatBurning } from '@zos/sensor'
+         SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN,
+         SYSTEM_APP_THERMOMETER } from '@zos/router'
+import { Weather, Time, Pai, Step, Battery, HeartRate, BloodOxygen, Stress, Sleep, Barometer, Stand, Distance, Calorie, FatBurning, BodyTemperature } from '@zos/sensor'
 import { px } from '@zos/utils'
 
 // ─── Sensor cache (module-level, shared across all slots) ─────────────────────
@@ -32,31 +33,45 @@ function _makeReader(def) {
       if (dt === data_type.SPO2)      {
         const s = _sen('spo2', BloodOxygen)
         const cur = s?.getCurrent?.()
+        console.log('[sensor] spo2 getCurrent:', JSON.stringify(cur))
         const v = (cur?.retCode === 2) ? cur.value : (s?.getLastDay?.() || []).filter(x => x > 0).pop()
         return v != null ? v + '%' : '--'
       }
-      if (dt === data_type.HEART)     { const v = _sen('hr',     HeartRate)?.getLast?.();          return v > 0 ? String(v)               : '--' }
-      if (dt === data_type.STRESS)    { const v = _sen('stress', Stress   )?.getCurrent?.()?.value; return v > 0 ? String(v)              : '--' }
+      if (dt === data_type.HEART)     {
+        const v = _sen('hr', HeartRate)?.getLast?.()
+        console.log('[sensor] heart getLast:', v)
+        return v > 0 ? String(v) : '--'
+      }
+      if (dt === data_type.STRESS)    {
+        const v = _sen('stress', Stress)?.getCurrent?.()?.value
+        console.log('[sensor] stress getCurrent:', v)
+        return v > 0 ? String(v) : '--'
+      }
       if (dt === data_type.ALTIMETER) { const v = _sen('baro',   Barometer)?.getAltitude?.();      return v != null ? String(Math.round(v)) : '--' }
       if (dt === data_type.SLEEP)     {
         const info = _sen('sleep', Sleep)?.getInfo?.()
         const mins = info?.totalTime
         return mins > 0 ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
       }
-      if (dt === data_type.WIND)      {
-        const w = _sen('wx', Weather)?.getWeatherInfo?.()
-        const v = w?.current?.wind ?? w?.wind
-        return v != null ? String(v) : '--'
+      if (def.bodyTemp) {
+        const v = _sen('bodyT', BodyTemperature)?.getCurrent?.()?.current
+        console.log('[sensor] bodyTemp getCurrent:', JSON.stringify(_sen('bodyT', BodyTemperature)?.getCurrent?.()))
+        return (v != null && v > 0) ? v.toFixed(1) + '°' : '--'
+      }
+      if (dt === data_type.WIND) {
+        const fc = _sen('wx', Weather)?.getForecast?.()
+        console.log('[sensor] weather getForecast wind:', JSON.stringify(fc?.forecastData?.data?.[0]))
+        return '--' // wind not available in ZeppOS Weather API
       }
       if (dt === data_type.WEATHER_CURRENT) {
-        const w = _sen('wx', Weather)?.getWeatherInfo?.()
-        const v = w?.current?.temp ?? w?.temp
-        return v != null ? (v < 0 ? '-' + Math.abs(v) : String(v)) + '°' : '--'
+        const fc = _sen('wx', Weather)?.getForecast?.()
+        console.log('[sensor] weather getForecast:', JSON.stringify(fc?.forecastData?.data?.[0]))
+        const day = fc?.forecastData?.data?.[0]
+        return day != null ? `${day.high}/${day.low}°` : '--'
       }
-      if (dt === data_type.UVI)       {
-        const w = _sen('wx', Weather)?.getWeatherInfo?.()
-        const v = w?.current?.uvi ?? w?.uvi
-        return v != null ? String(v) : '--'
+      if (dt === data_type.UVI) {
+        const fc = _sen('wx', Weather)?.getForecast?.()
+        return '--' // UVI not available in ZeppOS Weather API
       }
       if (dt === data_type.PAI_WEEKLY){ const v = _sen('pai',  Pai)?.getTotal?.(); return v != null ? String(v) : '--' }
     } catch (_) {}
@@ -120,7 +135,7 @@ const WIDGET_DEFS = {
   // ── puntatore rotante ─────────────────────────────────────────────────────
   [edit_type.SPO2]:              { r:'pointer',  dt: data_type.SPO2,              icon:'spo2',      bg:'spo2',      app:SYSTEM_APP_SPO2,         unit:'percent', invalid:true },
   [edit_type.WIND]:              { r:'pointer',  dt: data_type.WIND,              icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
-  [edit_type.TEMPERATURE]:       { r:'pointerT', dt: data_type.WEATHER_CURRENT,   icon:'T',         bg:'t',         app:SYSTEM_APP_WEATHER,      unit:'degree', neg:true, invalid:true },
+  [edit_type.TEMPERATURE]:       { r:'numeric',  bodyTemp: true,                  icon:'T',         bg:'t',         app:SYSTEM_APP_THERMOMETER,  invalid:true },
   // ── speciali ──────────────────────────────────────────────────────────────
   [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           invalid:true },
   [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
@@ -206,7 +221,7 @@ export default class EditTypesUtil {
     function drawIconText(getValue) {
       const tw = createWidget(widget.TEXT, {
         x: numX, y: numY, w: bgw, h: numH,
-        text: getValue(), text_size: px(16), color: 0xffffff,
+        text: getValue(), text_size: px(18), color: 0xffffff,
         align_h: align.CENTER_H, align_v: align.CENTER_V,
         show_level: show_level.ONLY_NORMAL,
       })
@@ -241,7 +256,7 @@ export default class EditTypesUtil {
         const getVal = _makeReader(def)
         const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(16), color: 0xffffff,
+          text: getVal(), text_size: px(18), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -306,7 +321,7 @@ export default class EditTypesUtil {
         const getVal = _makeReader(def)
         const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(16), color: 0xffffff,
+          text: getVal(), text_size: px(18), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -437,7 +452,7 @@ export default class EditTypesUtil {
         // orario prossimo evento
         const sunTextW = createWidget(widget.TEXT, {
           x: sx, y: cy + px(8), w: bgw, h: px(22),
-          text: '--:--', text_size: px(16), color: 0xffffff,
+          text: '--:--', text_size: px(18), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
