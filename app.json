@@ -14,6 +14,15 @@
   },
   "permissions": [
     "device:os.local_storage",
+    "device:os.barometer",
+    "data:user.hd.step",
+    "data:user.hd.spo2",
+    "data:user.hd.body_temp",
+    "data:user.hd.calorie",
+    "data:user.hd.heart_rate",
+    "data:user.hd.fat_burning",
+    "data:user.hd.stress",
+    "data:user.hd.sleep",
     "data:user.hd.pai"
   ],
   "runtime": {
