@@ -5,7 +5,7 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN,
          SYSTEM_APP_THERMOMETER } from '@zos/router'
-import { Sleep, Stand, BodyTemperature, Pai } from '@zos/sensor'
+import { Sleep, Stand, BodyTemperature, Pai, Weather, Time } from '@zos/sensor'
 import { px } from '@zos/utils'
 
 // ─── Sensor cache (module-level, shared across all slots) ─────────────────────
@@ -431,9 +431,8 @@ export default class EditTypesUtil {
         })
 
         function _updatePaiBars() {
-          if (!paiSensor) { console.log('[pai] sensor null'); return }
+          if (!paiSensor) return
           const total = paiSensor.getTotal()
-          console.log('[pai] total:', total, 'week:', JSON.stringify(paiSensor.getLastWeek()))
           paiTextW.setProperty(prop.MORE, { text: total != null ? String(total) : '--' })
           // getLastWeek(): index 0 = oggi, index 6 = 6 giorni fa → invertiamo per barre sx=vecchio, dx=oggi
           const week = [...(paiSensor.getLastWeek() || [])].reverse()
