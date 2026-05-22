@@ -111,7 +111,7 @@ const WIDGET_DEFS = {
   [edit_type.STEP]:              { r:'arc',      dt: data_type.STEP,              icon:'step',      bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS },
   [edit_type.CAL]:               { r:'arc',      dt: data_type.CAL,               icon:'kcal',      bg:'cal',       color:0xdf4f26, app:SYSTEM_APP_STATUS },
   [edit_type.PAI]:               { r:'arc',      dt: data_type.PAI_WEEKLY,        icon:'Pai',       bg:'pai',       color:0xd612c0, app:SYSTEM_APP_PAI },
-  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_BATTERY },
+  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_STATUS, sysText:true, unit:true },
   [edit_type.STAND]:             { r:'arc',      dt: data_type.STAND,             icon:'stand',     bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS,       dot:'slash' },
   [edit_type.RECOVERY_TIME]:     { r:'arc',      dt: data_type.RECOVERY_TIME,     icon:'recovery',  bg:'recovery',  color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS },
   [edit_type.VO2MAX]:            { r:'arc',      dt: data_type.VO2MAX,            icon:'vo2',       bg:'vo2',       color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS, params:{page:1} },
@@ -235,7 +235,23 @@ export default class EditTypesUtil {
           line_width: 8, color: def.color, type: def.dt,
           show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
-        drawIconText(_makeReader(def))
+        if (def.sysText) {
+          createWidget(widget.TEXT_FONT, {
+            x: numX, y: numY, w: bgw, h: numH,
+            type: def.dt, unit_type: def.unit ? 1 : 0,
+            text_size: px(26), color: 0xffffff,
+            align_h: align.CENTER_H, align_v: align.CENTER_V,
+            show_level: show_level.ONLY_NORMAL,
+          }).addEventListener(event.CLICK_DOWN, launch)
+          if (iconPath) {
+            createWidget(widget.IMG, {
+              x: iconX, y: iconY, src: iconPath,
+              show_level: show_level.ONLY_NORMAL,
+            }).addEventListener(event.CLICK_DOWN, launch)
+          }
+        } else {
+          drawIconText(_makeReader(def))
+        }
         break
 
       case 'numeric': {
