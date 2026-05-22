@@ -77,12 +77,12 @@ const animFps = 25;
 const DEFAULT_TEXT_COLOR = 0xffffff;
 
 const aodBgColor = 0x000000;
+const hourAODColor   = 0xffffff;
+const minuteAODColor = 0xffffff;
 
 let dateColor;
 let hourColor;
 let minuteColor;
-let hourAODColor;
-let minuteAODColor;
 
 const dummyCharsetMinute = 'acdegimnopqrstuv';
 const dummyCharsetHour = 'acdegimnopqrstuvz';
@@ -161,9 +161,6 @@ WatchFace({
       tips_bg: 'mask/tips.png'
     });
 
-    hourAODColor   = 0xffffff;
-    minuteAODColor = 0xffffff;
-
     // ── Color zone selectors ──────────────────────────────────────────────────
     function _makeColorGroup(editId, x, y, w, h, optArray, selectImg, tipsBelow = false) {
       const grp = createWidget(widget.WATCHFACE_EDIT_GROUP, {
@@ -177,14 +174,7 @@ WatchFace({
         tips_BG:    'mask/tips.png',
         tips_x:     Math.round((w - px(124)) / 2),
         tips_y:     tipsBelow ? h + px(8) : -px(40),
-        tips_width: px(124),
-        /*select_list: {
-          title_font_size:          34,
-          title_align_h:            align.CENTER_H,
-          list_item_vspace:         8,
-          list_tips_text_font_size: 32,
-          list_tips_text_align_h:   align.LEFT,
-        }*/
+        tips_width: px(124)
       })
       return { grp }
     }
@@ -223,28 +213,6 @@ WatchFace({
 
     let screenType = getScene();
 
-    if ( DEBUG ) {
-      secondTextWidget = createWidget(widget.TEXT, {
-        x: px(0),y: px(2),w: px(480), h: px(10), text_size: px(10),
-        align_h: align.CENTER_H, align_v: align.CENTER_V,
-        color: 0xffffff,
-        show_level: show_level.ONLY_NORMAL,
-        text: String(timeSensor.getSeconds())
-      });
-    };
-
-    /* DATE */
-    dateTextWidget = createWidget(widget.TEXT,{ font: dateFont, text: dummyCharsetDate,
-      x: dateX, y: dateY, w: dateW, h: dateH,
-      text_size: dateTextSize, color: dateColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS
-    });
-
-    updateDateWidget();
-
-    dateTextWidget.addEventListener(event.CLICK_DOWN, (info) => {
-      launchApp({ appId: SYSTEM_APP_CALENDAR, native: true })
-    });
-
     /* HOURS */
     hourTextWidgetA = createWidget(widget.TEXT, { font: hourNormalFont, text: dummyCharsetHour,
       x: HaX, y: HaY, w: HaW, h: HaH, text_size: hourTextSize, color: hourColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS })
@@ -281,7 +249,7 @@ WatchFace({
       }
     });
 
-    /* MINUTES */
+    /* MINUTES — create immediately after hours for render priority */
     minuteTextWidgetA = createWidget(widget.TEXT, { font: minuteNormalFont, text: dummyCharsetMinute,
       show_level: show_level.ONLY_NORMAL, x: MaX, y: MaY, w: MaW, h: MaH, color: minuteColor, text_size: minuteTextSize, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS });
     minuteTextWidgetB = createWidget(widget.TEXT, { font: minuteNormalFont, text: dummyCharsetMinute,
@@ -316,6 +284,28 @@ WatchFace({
         minuteTextWidgetB.setProperty(prop.MORE, {text: '', x: MbX });
       }
     });
+
+    /* DATE */
+    dateTextWidget = createWidget(widget.TEXT,{ font: dateFont, text: dummyCharsetDate,
+      x: dateX, y: dateY, w: dateW, h: dateH,
+      text_size: dateTextSize, color: dateColor, show_level: show_level.ONLY_NORMAL, align_h: align.CENTER_H, align_v: align.CENTER_V, text_style: text_style.ELLIPSIS
+    });
+
+    updateDateWidget();
+
+    dateTextWidget.addEventListener(event.CLICK_DOWN, (info) => {
+      launchApp({ appId: SYSTEM_APP_CALENDAR, native: true })
+    });
+
+    if ( DEBUG ) {
+      secondTextWidget = createWidget(widget.TEXT, {
+        x: px(0),y: px(2),w: px(480), h: px(10), text_size: px(10),
+        align_h: align.CENTER_H, align_v: align.CENTER_V,
+        color: 0xffffff,
+        show_level: show_level.ONLY_NORMAL,
+        text: String(timeSensor.getSeconds())
+      });
+    };
 
     /* 1 - HEART EDITABLE GROUP */
     editGroup1 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
