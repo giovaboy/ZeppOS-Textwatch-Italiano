@@ -418,8 +418,7 @@ export default class EditTypesUtil {
         }).addEventListener(event.CLICK_DOWN, launch))
 
         // barre attive — inizializzate vuote, aggiornate subito e al resume
-        let paiSensor = null
-        try { paiSensor = new Pai() } catch (_) {}
+        const paiSensor = _sen('pai', Pai)
 
         const barWidgets = barXCoords.map(bx => {
           const bar = createWidget(widget.FILL_RECT, {
@@ -432,8 +431,9 @@ export default class EditTypesUtil {
         })
 
         function _updatePaiBars() {
-          if (!paiSensor) return
+          if (!paiSensor) { console.log('[pai] sensor null'); return }
           const total = paiSensor.getTotal()
+          console.log('[pai] total:', total, 'week:', JSON.stringify(paiSensor.getLastWeek()))
           paiTextW.setProperty(prop.MORE, { text: total != null ? String(total) : '--' })
           // getLastWeek(): index 0 = oggi, index 6 = 6 giorni fa → invertiamo per barre sx=vecchio, dx=oggi
           const week = [...(paiSensor.getLastWeek() || [])].reverse()
