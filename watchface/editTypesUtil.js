@@ -5,7 +5,7 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN,
          SYSTEM_APP_THERMOMETER } from '@zos/router'
-import { HeartRate, Stress, Sleep, Barometer, Stand, BodyTemperature } from '@zos/sensor'
+import { Sleep, Stand, BodyTemperature } from '@zos/sensor'
 import { px } from '@zos/utils'
 
 // ─── Sensor cache (module-level, shared across all slots) ─────────────────────
@@ -25,9 +25,6 @@ function _makeReader(def) {
         const v = s?.getCurrent?.(), g = s?.getTarget?.()
         return (v != null && g != null) ? `${v}/${g}` : '--'
       }
-      if (dt === data_type.HEART)     { const v = _sen('hr', HeartRate)?.getLast?.();              return v > 0 ? String(v) : '--' }
-      if (dt === data_type.STRESS)    { const v = _sen('stress', Stress)?.getCurrent?.()?.value;   return v > 0 ? String(v) : '--' }
-      if (dt === data_type.ALTIMETER) { const v = _sen('baro', Barometer)?.getAirPressure?.();     return v != null ? String(Math.round(v)) : '--' }
       if (dt === data_type.SLEEP)     {
         const info = _sen('sleep', Sleep)?.getInfo?.()
         const mins = info?.totalTime
@@ -88,9 +85,10 @@ const WIDGET_DEFS = {
   // ── sfondo + numero + icona ───────────────────────────────────────────────
   [edit_type.DISTANCE]:          { r:'numeric',  dt: data_type.DISTANCE,          icon:'dis',       bg:'dis',       app:SYSTEM_APP_STATUS,       sysText:true },
   [edit_type.SLEEP]:             { r:'numeric',  dt: data_type.SLEEP,             icon:'sleep',     bg:'sleep',     app:SYSTEM_APP_SLEEP,        dot:'point', invalid:true },
-  [edit_type.STRESS]:            { r:'numeric',  dt: data_type.STRESS,            icon:'pressure',  bg:'kpa',       app:SYSTEM_APP_PRESSURE,     invalid:true },
+  [edit_type.STRESS]:            { r:'numeric',  dt: data_type.STRESS,            icon:'pressure',  bg:'kpa',       app:SYSTEM_APP_PRESSURE,     sysText:true },
   [edit_type.FAT_BURN]:          { r:'numeric',  dt: data_type.FAT_BURN,          icon:'sport',     bg:'sport',     app:SYSTEM_APP_STATUS,       sysText:true },
-  [edit_type.ALTIMETER]:         { r:'numeric',  dt: data_type.ALTIMETER,         icon:'Kpa',       bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    invalid:true },
+  [edit_type.ALTIMETER]:         { r:'numeric',  dt: data_type.ALTIMETER,         icon:'Kpa',       bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    sysText:true },
+  [edit_type.ALTITUDE]:          { r:'numeric',  dt: data_type.ALTITUDE,          icon:'Kpa',       bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    sysText:true },
   [edit_type.STOP_WATCH]:        { r:'numeric',  dt: data_type.STOP_WATCH,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_STOP_WATCH,   sysText:true },
   [edit_type.ALARM_CLOCK]:       { r:'numeric',  dt: data_type.ALARM_CLOCK,       icon:'alarm',     bg:'dis',       app:SYSTEM_APP_ALARM,        sysText:true, padding:true },
   [edit_type.COUNT_DOWN]:        { r:'numeric',  dt: data_type.COUNT_DOWN,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_COUNTDOWN,    sysText:true },
@@ -101,7 +99,7 @@ const WIDGET_DEFS = {
   [edit_type.WIND]:              { r:'wind',                                      icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
   [edit_type.TEMPERATURE]:       { r:'pointerT', dt: data_type.WEATHER_CURRENT,   icon:'T',         bg:'t',         app:SYSTEM_APP_THERMOMETER,  invalid:true, bodyTemp: true },
   // ── speciali ──────────────────────────────────────────────────────────────
-  [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           invalid:true },
+  [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           sysText:true },
   [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
   [edit_type.MOON]:              { r:'moon',     dt: data_type.MOON,                                                app:SYSTEM_APP_SUN_AND_MOON },
   [edit_type.WEATHER]:           { r:'weather',  dt: data_type.WEATHER_CURRENT,                     bg:'weather',   app:SYSTEM_APP_WEATHER,      unit:'degree', neg:true, invalid:'w' },
@@ -134,6 +132,7 @@ export const widgetOptionalArray = [
   { type: edit_type.TEMPERATURE,  preview: previewPath + 'T.png'        },
   { type: edit_type.FAT_BURN,     preview: previewPath + 'sport.png'    },
   { type: edit_type.ALTIMETER,    preview: previewPath + 'Kpa.png'      },
+  { type: edit_type.ALTITUDE,     preview: previewPath + 'Kpa.png'      },
   { type: edit_type.MOON,         preview: previewPath + 'moon.png'     },
   { type: edit_type.PAI_WEEKLY,   preview: previewPath + 'Pai.png'      },
   { type: edit_type.SUN,          preview: previewPath + 'sun.png'      },
@@ -327,7 +326,18 @@ export default class EditTypesUtil {
           x: bgx, y: bgy, image_array: heartArray, image_length: heartArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
-        drawIconText(_makeReader(def))
+        createWidget(widget.TEXT_FONT, {
+          x: numX, y: numY, w: bgw, h: numH,
+          type: def.dt, text_size: px(26), color: 0xffffff,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        if (iconPath) {
+          createWidget(widget.IMG, {
+            x: iconX, y: iconY, src: iconPath,
+            show_level: show_level.ONLY_NORMAL,
+          }).addEventListener(event.CLICK_DOWN, launch)
+        }
         break
 
       case 'uvi':
