@@ -5,7 +5,7 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN,
          SYSTEM_APP_THERMOMETER } from '@zos/router'
-import { Weather, Time, Pai, Step, Battery, HeartRate, BloodOxygen, Stress, Sleep, Barometer, Stand, Distance, Calorie, FatBurning, BodyTemperature } from '@zos/sensor'
+import { HeartRate, Stress, Sleep, Barometer, Stand, BodyTemperature } from '@zos/sensor'
 import { px } from '@zos/utils'
 
 // ─── Sensor cache (module-level, shared across all slots) ─────────────────────
@@ -20,27 +20,14 @@ function _makeReader(def) {
   return () => {
     try {
       const dt = def.dt
-      if (dt === data_type.STEP)      { const v = _sen('step',  Step    )?.getCurrent?.();        return v > 0 ? String(v)               : '--' }
-      if (dt === data_type.CAL)       { const v = _sen('cal',   Calorie )?.getCurrent?.();        return v > 0 ? String(v)               : '--' }
-      if (dt === data_type.BATTERY)   { const v = _sen('bat',   Battery )?.getCurrent?.();        return v != null ? v + '%'             : '--' }
       if (dt === data_type.STAND)     {
         const s = _sen('stand', Stand)
         const v = s?.getCurrent?.(), g = s?.getTarget?.()
         return (v != null && g != null) ? `${v}/${g}` : '--'
       }
-      if (dt === data_type.DISTANCE)  { const d = _sen('dist',  Distance)?.getCurrent?.();        return d > 0 ? (d/1000).toFixed(2)     : '--' }
-      if (dt === data_type.FAT_BURN)  { const v = _sen('fat',   FatBurning)?.getCurrent?.();      return v > 0 ? String(v)               : '--' }
-      if (dt === data_type.HEART)     {
-        const v = _sen('hr', HeartRate)?.getLast?.()
-        console.log('[sensor] heart getLast:', v)
-        return v > 0 ? String(v) : '--'
-      }
-      if (dt === data_type.STRESS)    {
-        const v = _sen('stress', Stress)?.getCurrent?.()?.value
-        console.log('[sensor] stress getCurrent:', v)
-        return v > 0 ? String(v) : '--'
-      }
-      if (dt === data_type.ALTIMETER) { const v = _sen('baro',   Barometer)?.getAirPressure?.();      return v != null ? String(Math.round(v)) : '--' }
+      if (dt === data_type.HEART)     { const v = _sen('hr', HeartRate)?.getLast?.();              return v > 0 ? String(v) : '--' }
+      if (dt === data_type.STRESS)    { const v = _sen('stress', Stress)?.getCurrent?.()?.value;   return v > 0 ? String(v) : '--' }
+      if (dt === data_type.ALTIMETER) { const v = _sen('baro', Barometer)?.getAirPressure?.();     return v != null ? String(Math.round(v)) : '--' }
       if (dt === data_type.SLEEP)     {
         const info = _sen('sleep', Sleep)?.getInfo?.()
         const mins = info?.totalTime
@@ -48,26 +35,9 @@ function _makeReader(def) {
       }
       if (def.bodyTemp) {
         const cur = _sen('bodyT', BodyTemperature)?.getCurrent?.()
-        console.log('[sensor] bodyTemp getCurrent:', JSON.stringify(cur))
         const v = cur?.value
         return (v != null && v > 0) ? (v / 100).toFixed(1) + '°' : '--'
       }
-      if (dt === data_type.WIND) {
-        const fc = _sen('wx', Weather)?.getForecast?.()
-        console.log('[sensor] weather getForecast wind:', JSON.stringify(fc?.forecastData?.data?.[0]))
-        return '--' // wind not available in ZeppOS Weather API
-      }
-      if (dt === data_type.WEATHER_CURRENT) {
-        const fc = _sen('wx', Weather)?.getForecast?.()
-        console.log('[sensor] weather getForecast:', JSON.stringify(fc?.forecastData?.data?.[0]))
-        const day = fc?.forecastData?.data?.[0]
-        return day != null ? `${day.high}/${day.low}°` : '--'
-      }
-      if (dt === data_type.UVI) {
-        const fc = _sen('wx', Weather)?.getForecast?.()
-        return '--' // UVI not available in ZeppOS Weather API
-      }
-      if (dt === data_type.PAI_WEEKLY){ const v = _sen('pai',  Pai)?.getTotal?.(); return v != null ? String(v) : '--' }
     } catch (_) {}
     return '--'
   }
@@ -108,24 +78,24 @@ const SLOT_Y = 290
 // params:  parametri opzionali per launchApp
 const WIDGET_DEFS = {
   // ── arco + numero + icona ──────────────────────────────────────────────────
-  [edit_type.STEP]:              { r:'arc',      dt: data_type.STEP,              icon:'step',      bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS },
-  [edit_type.CAL]:               { r:'arc',      dt: data_type.CAL,               icon:'kcal',      bg:'cal',       color:0xdf4f26, app:SYSTEM_APP_STATUS },
-  [edit_type.PAI]:               { r:'arc',      dt: data_type.PAI_WEEKLY,        icon:'Pai',       bg:'pai',       color:0xd612c0, app:SYSTEM_APP_PAI },
-  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_STATUS, sysText:true, unit:true },
-  [edit_type.STAND]:             { r:'arc',      dt: data_type.STAND,             icon:'stand',     bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS,       dot:'slash' },
-  [edit_type.RECOVERY_TIME]:     { r:'arc',      dt: data_type.RECOVERY_TIME,     icon:'recovery',  bg:'recovery',  color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS },
-  [edit_type.VO2MAX]:            { r:'arc',      dt: data_type.VO2MAX,            icon:'vo2',       bg:'vo2',       color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS, params:{page:1} },
+  [edit_type.STEP]:              { r:'arc',      dt: data_type.STEP,              icon:'step',      bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS,       sysText:true },
+  [edit_type.CAL]:               { r:'arc',      dt: data_type.CAL,               icon:'kcal',      bg:'cal',       color:0xdf4f26, app:SYSTEM_APP_STATUS,       sysText:true },
+  [edit_type.PAI]:               { r:'arc',      dt: data_type.PAI_WEEKLY,        icon:'Pai',       bg:'pai',       color:0xd612c0, app:SYSTEM_APP_PAI,          sysText:true },
+  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_STATUS,       sysText:true, unit:true },
+  [edit_type.STAND]:             { r:'arc',      dt: data_type.STAND,             icon:'stand',     bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS,       sysText:true },
+  [edit_type.RECOVERY_TIME]:     { r:'arc',      dt: data_type.RECOVERY_TIME,     icon:'recovery',  bg:'recovery',  color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS, sysText:true },
+  [edit_type.VO2MAX]:            { r:'arc',      dt: data_type.VO2MAX,            icon:'vo2',       bg:'vo2',       color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS, sysText:true, params:{page:1} },
   // ── sfondo + numero + icona ───────────────────────────────────────────────
-  [edit_type.DISTANCE]:          { r:'numeric',  dt: data_type.DISTANCE,          icon:'dis',       bg:'dis',       app:SYSTEM_APP_STATUS,       dot:'point', invalid:true },
+  [edit_type.DISTANCE]:          { r:'numeric',  dt: data_type.DISTANCE,          icon:'dis',       bg:'dis',       app:SYSTEM_APP_STATUS,       sysText:true },
   [edit_type.SLEEP]:             { r:'numeric',  dt: data_type.SLEEP,             icon:'sleep',     bg:'sleep',     app:SYSTEM_APP_SLEEP,        dot:'point', invalid:true },
   [edit_type.STRESS]:            { r:'numeric',  dt: data_type.STRESS,            icon:'pressure',  bg:'kpa',       app:SYSTEM_APP_PRESSURE,     invalid:true },
-  [edit_type.FAT_BURN]:          { r:'numeric',  dt: data_type.FAT_BURN,          icon:'sport',     bg:'sport',     app:SYSTEM_APP_STATUS,       dot:'point', invalid:true },
+  [edit_type.FAT_BURN]:          { r:'numeric',  dt: data_type.FAT_BURN,          icon:'sport',     bg:'sport',     app:SYSTEM_APP_STATUS,       sysText:true },
   [edit_type.ALTIMETER]:         { r:'numeric',  dt: data_type.ALTIMETER,         icon:'Kpa',       bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    invalid:true },
   [edit_type.STOP_WATCH]:        { r:'numeric',  dt: data_type.STOP_WATCH,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_STOP_WATCH,   sysText:true },
   [edit_type.ALARM_CLOCK]:       { r:'numeric',  dt: data_type.ALARM_CLOCK,       icon:'alarm',     bg:'dis',       app:SYSTEM_APP_ALARM,        sysText:true, padding:true },
   [edit_type.COUNT_DOWN]:        { r:'numeric',  dt: data_type.COUNT_DOWN,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_COUNTDOWN,    sysText:true },
-  [edit_type.TRAINING_LOAD]:     { r:'numeric',  dt: data_type.TRAINING_LOAD,     icon:'recovery',  bg:'recovery',  app:SYSTEM_APP_SPORT_STATUS, invalid:true },
-  [edit_type.MONTH_RUN_DISTANCE]:{ r:'numeric',  dt: data_type.MONTH_RUN_DISTANCE,icon:'run',       bg:'recovery',  app:SYSTEM_APP_SPORT_HISTORY,invalid:true },
+  [edit_type.TRAINING_LOAD]:     { r:'numeric',  dt: data_type.TRAINING_LOAD,     icon:'recovery',  bg:'recovery',  app:SYSTEM_APP_SPORT_STATUS, sysText:true },
+  [edit_type.MONTH_RUN_DISTANCE]:{ r:'numeric',  dt: data_type.MONTH_RUN_DISTANCE,icon:'run',       bg:'recovery',  app:SYSTEM_APP_SPORT_HISTORY,sysText:true },
   // ── puntatore rotante ─────────────────────────────────────────────────────
   [edit_type.SPO2]:              { r:'pointer',  dt: data_type.SPO2,              icon:'spo2',      bg:'spo2',      app:SYSTEM_APP_SPO2,         unit:'percent', invalid:true },
   [edit_type.WIND]:              { r:'wind',                                      icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
@@ -394,22 +364,18 @@ export default class EditTypesUtil {
 
       case 'weather': {
         drawBg()
-        const getVal = _makeReader(def)
-        const tw = createWidget(widget.TEXT, {
+        createWidget(widget.TEXT_FONT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(26), color: 0xffffff,
+          type: data_type.WEATHER_CURRENT, unit_type: 1,
+          text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
-        })
-        tw.addEventListener(event.CLICK_DOWN, launch)
+        }).addEventListener(event.CLICK_DOWN, launch)
         createWidget(widget.IMG_LEVEL, {
           x: iconX, y: iconY - px(5),
           image_array: weatherArray, image_length: weatherArray.length,
           type: data_type.WEATHER, show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
-        createWidget(widget.WIDGET_DELEGATE, {
-          resume_call: () => tw.setProperty(prop.MORE, { text: getVal() })
-        })
         break
       }
 
