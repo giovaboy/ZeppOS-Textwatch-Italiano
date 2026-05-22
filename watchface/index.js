@@ -5,7 +5,7 @@ import { Time } from '@zos/sensor'
 import { launchApp, SYSTEM_APP_CALENDAR } from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
-import { backgrounds } from './themes.js'
+import { backgrounds } from './backgrounds.js'
 import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE } from './editTypesUtil.js'
 import { getLanguage } from '@zos/settings'
 import {

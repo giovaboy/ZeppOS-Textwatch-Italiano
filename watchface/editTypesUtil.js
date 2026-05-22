@@ -53,6 +53,7 @@ const weatherArray  = Array.from({ length: 29 }, (_, i) => `weather/${i}.png`)
 const moonArray     = Array.from({ length: 29 }, (_, i) => `moon/${i + 1}.png`)
 const heartArray    = Array.from({ length: 6 },  (_, i) => `${heartPath}${i + 1}.png`)
 const uviArray      = Array.from({ length: 5 },  (_, i) => `${UVIPath}${i + 1}.png`)
+const aqiArray      = Array.from({ length: 6 },  (_, i) => `aqi/${i + 1}.png`)
 const windDirArray  = Array.from({ length: 8 },  (_, i) => `wind/wind_${i}.png`)
 
 // ─── Slot geometry ────────────────────────────────────────────────────────────
@@ -101,6 +102,7 @@ const WIDGET_DEFS = {
   // ── speciali ──────────────────────────────────────────────────────────────
   [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           sysText:true },
   [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
+  [edit_type.AQI]:               { r:'aqi',      dt: data_type.AQI,               icon:'aqi',                       app:SYSTEM_APP_WEATHER,      invalid:true },
   [edit_type.MOON]:              { r:'moon',     dt: data_type.MOON,                                                app:SYSTEM_APP_SUN_AND_MOON },
   [edit_type.WEATHER]:           { r:'weather',  dt: data_type.WEATHER_CURRENT,                     bg:'weather',   app:SYSTEM_APP_WEATHER,      unit:'degree', neg:true, invalid:'w' },
   // ── nuovi ─────────────────────────────────────────────────────────────────
@@ -121,6 +123,7 @@ export const widgetOptionalArray = [
   { type: edit_type.BATTERY,      preview: previewPath + 'bat.png'      },
   { type: edit_type.HEART,        preview: previewPath + 'heart.png'    },
   { type: edit_type.UVI,          preview: previewPath + 'UVI.png'      },
+  { type: edit_type.AQI,          preview: previewPath + 'aqi.png'      },
   { type: edit_type.PAI,          preview: previewPath + 'Pai.png'      },
   { type: edit_type.DISTANCE,     preview: previewPath + 'dis.png'      },
   { type: edit_type.STAND,        preview: previewPath + 'stand.png'    },
@@ -350,6 +353,29 @@ export default class EditTypesUtil {
           type: def.dt, show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
         // indice UVI gestito dal sistema via TEXT_FONT
+        createWidget(widget.TEXT_FONT, {
+          x: numX, y: numY, w: bgw, h: numH,
+          type: def.dt, text_size: px(26), color: 0xffffff,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        if (iconPath) {
+          createWidget(widget.IMG, {
+            x: iconX, y: iconY, src: iconPath,
+            show_level: show_level.ONLY_NORMAL,
+          }).addEventListener(event.CLICK_DOWN, launch)
+        }
+        break
+
+      case 'aqi':
+        createWidget(widget.IMG, {
+          x: bgx, y: bgy, alpha: 255, src: 'aqi/aqi0.png',
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        createWidget(widget.IMG_LEVEL, {
+          x: bgx, y: bgy, image_array: aqiArray, image_length: aqiArray.length,
+          type: def.dt, show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
           type: def.dt, text_size: px(26), color: 0xffffff,

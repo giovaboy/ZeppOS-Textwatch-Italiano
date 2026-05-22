@@ -7,7 +7,7 @@ const BASE = 0x186a0
 export const NO_OVERRIDE_TYPE = BASE + 0
 
 // ── Named color constants ─────────────────────────────────────────────────────
-// Use these in themes.js for readable references: COLOR.WARM_GOLD, COLOR.CORAL, …
+// Use these in backgrounds.js for readable references: COLOR.WARM_GOLD, COLOR.CORAL, …
 export const COLOR = {
   // ── Curated override palette (IDs 1-12, shown in per-zone picker) ──────────
   WHITE:             BASE +  1,
