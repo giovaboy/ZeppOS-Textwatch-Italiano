@@ -92,7 +92,7 @@ const WIDGET_DEFS = {
   // ── puntatore rotante ─────────────────────────────────────────────────────
   [edit_type.SPO2]:              { r:'pointer',  dt: data_type.SPO2,              icon:'spo2',      bg:'spo2',      app:SYSTEM_APP_SPO2,         unit:'percent', invalid:true },
   [edit_type.WIND]:              { r:'wind',                                      icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
-  [edit_type.BODY_TEMP]:         { r:'pointerT', dt: data_type.WEATHER_CURRENT,   icon:'T',         bg:'t',         app:SYSTEM_APP_THERMOMETER,  sysText:true, unit:true },
+  [edit_type.TEMPERATURE]:       { r:'pointerT', dt: data_type.WEATHER_CURRENT,   icon:'T',         bg:'t',         app:SYSTEM_APP_THERMOMETER,  sysText:true, unit:true },
   // ── speciali ──────────────────────────────────────────────────────────────
   [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           sysText:true },
   [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
@@ -124,7 +124,7 @@ export const widgetOptionalArray = [
   { type: edit_type.SLEEP,        preview: previewPath + 'sleep.png'    },
   { type: edit_type.WIND,         preview: previewPath + 'wind.png'     },
   { type: edit_type.WEATHER,      preview: previewPath + 'weather.png'  },
-  { type: edit_type.BODY_TEMP,    preview: previewPath + 'T.png'        },
+  { type: edit_type.TEMPERATURE,    preview: previewPath + 'T.png'        },
   { type: edit_type.FAT_BURN,     preview: previewPath + 'sport.png'    },
   { type: edit_type.ALTIMETER,    preview: previewPath + 'Kpa.png'      },
   { type: edit_type.ALTITUDE,     preview: previewPath + 'Kpa.png'      },
@@ -285,7 +285,7 @@ export default class EditTypesUtil {
         })
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
-          type: edit_type.BODY_TEMP, unit_type: def.unit ? 1 : 0,
+          type: edit_type.TEMPERATURE, unit_type: def.unit ? 1 : 0,
           text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
