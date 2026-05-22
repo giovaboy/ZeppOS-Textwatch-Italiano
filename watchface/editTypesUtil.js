@@ -5,7 +5,7 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN,
          SYSTEM_APP_THERMOMETER } from '@zos/router'
-import { Sleep, Stand, BodyTemperature } from '@zos/sensor'
+import { Sleep, Stand, BodyTemperature, Pai } from '@zos/sensor'
 import { px } from '@zos/utils'
 
 // ─── Sensor cache (module-level, shared across all slots) ─────────────────────
@@ -419,7 +419,7 @@ export default class EditTypesUtil {
 
         // barre attive — inizializzate vuote, aggiornate subito e al resume
         let paiSensor = null
-        try { paiSensor = hmSensor.createSensor(hmSensor.id.PAI) } catch (_) {}
+        try { paiSensor = new Pai() } catch (_) {}
 
         const barWidgets = barXCoords.map(bx => {
           const bar = createWidget(widget.FILL_RECT, {
@@ -432,14 +432,11 @@ export default class EditTypesUtil {
         })
 
         function _updatePaiBars() {
-          if (!paiSensor) { console.log('[pai] sensor null'); return }
-          const total = paiSensor.totalpai
-          console.log('[pai] totalpai:', total, 'dailypai:', paiSensor.dailypai)
-          console.log('[pai] prepai0-6:', paiSensor.prepai0, paiSensor.prepai1, paiSensor.prepai2, paiSensor.prepai3, paiSensor.prepai4, paiSensor.prepai5, paiSensor.prepai6)
+          if (!paiSensor) return
+          const total = paiSensor.getTotal()
           paiTextW.setProperty(prop.MORE, { text: total != null ? String(total) : '--' })
-          // prepai0 = oggi, prepai6 = 6 giorni fa → barre sx=vecchio, dx=oggi
-          const week = [paiSensor.prepai6, paiSensor.prepai5, paiSensor.prepai4,
-                        paiSensor.prepai3, paiSensor.prepai2, paiSensor.prepai1, paiSensor.prepai0]
+          // getLastWeek(): index 0 = oggi, index 6 = 6 giorni fa → invertiamo per barre sx=vecchio, dx=oggi
+          const week = [...(paiSensor.getLastWeek() || [])].reverse()
           const maxVal = 75
           barWidgets.forEach((bar, i) => {
             const height = Math.round(((week[i] || 0) / maxVal) * BAR_H)
