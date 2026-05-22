@@ -51,14 +51,10 @@ function _makeReader(def) {
         console.log('[sensor] stress getCurrent:', v)
         return v > 0 ? String(v) : '--'
       }
-      if (dt === data_type.ALTIMETER) { const v = _sen('baro',   Barometer)?.getAltitude?.();      return v != null ? String(Math.round(v)) : '--' }
+      if (dt === data_type.ALTIMETER) { const v = _sen('baro',   Barometer)?.getAirPressure?.();      return v != null ? String(Math.round(v)) : '--' }
       if (dt === data_type.SLEEP)     {
-        if (!_sc['sleep_hm']) {
-          try { _sc['sleep_hm'] = hmSensor.createSensor(hmSensor.id.SLEEP) } catch(_) { _sc['sleep_hm'] = null }
-        }
-        const s = _sc['sleep_hm']
-        s?.updateInfo?.()
-        const mins = s?.getTotalTime?.()
+        const info = _sen('sleep', Sleep)?.getInfo?.()
+        const mins = info?.totalTime
         return mins > 0 ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
       }
       if (def.bodyTemp) {
@@ -125,7 +121,7 @@ const WIDGET_DEFS = {
   [edit_type.STEP]:              { r:'arc',      dt: data_type.STEP,              icon:'step',      bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS },
   [edit_type.CAL]:               { r:'arc',      dt: data_type.CAL,               icon:'kcal',      bg:'cal',       color:0xdf4f26, app:SYSTEM_APP_STATUS },
   [edit_type.PAI]:               { r:'arc',      dt: data_type.PAI_WEEKLY,        icon:'Pai',       bg:'pai',       color:0xd612c0, app:SYSTEM_APP_PAI },
-  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_STATUS },
+  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_BATTERY },
   [edit_type.STAND]:             { r:'arc',      dt: data_type.STAND,             icon:'stand',     bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS,       dot:'slash' },
   [edit_type.RECOVERY_TIME]:     { r:'arc',      dt: data_type.RECOVERY_TIME,     icon:'recovery',  bg:'recovery',  color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS },
   [edit_type.VO2MAX]:            { r:'arc',      dt: data_type.VO2MAX,            icon:'vo2',       bg:'vo2',       color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS, params:{page:1} },
@@ -222,7 +218,7 @@ export default class EditTypesUtil {
     function drawIconText(getValue) {
       const tw = createWidget(widget.TEXT, {
         x: numX, y: numY, w: bgw, h: numH,
-        text: getValue(), text_size: px(20), color: 0xffffff,
+        text: getValue(), text_size: px(28), color: 0xffffff,
         align_h: align.CENTER_H, align_v: align.CENTER_V,
         show_level: show_level.ONLY_NORMAL,
       })
@@ -257,7 +253,7 @@ export default class EditTypesUtil {
         const getVal = _makeReader(def)
         const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(20), color: 0xffffff,
+          text: getVal(), text_size: px(28), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -322,7 +318,7 @@ export default class EditTypesUtil {
         const getVal = _makeReader(def)
         const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(20), color: 0xffffff,
+          text: getVal(), text_size: px(28), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -349,7 +345,7 @@ export default class EditTypesUtil {
 
         const paiTextW = createWidget(widget.TEXT, {
           x: sx, y: sy + px(6), w: bgw, h: px(22),
-          text: '--', text_size: px(20), color: 0xffffff,
+          text: '--', text_size: px(28), color: 0xffffff,
           align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
         })
         paiTextW.addEventListener(event.CLICK_DOWN, launch)
@@ -453,7 +449,7 @@ export default class EditTypesUtil {
         // orario prossimo evento
         const sunTextW = createWidget(widget.TEXT, {
           x: sx, y: cy + px(8), w: bgw, h: px(22),
-          text: '--:--', text_size: px(20), color: 0xffffff,
+          text: '--:--', text_size: px(28), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
