@@ -121,9 +121,9 @@ const WIDGET_DEFS = {
   [edit_type.STRESS]:            { r:'numeric',  dt: data_type.STRESS,            icon:'pressure',  bg:'kpa',       app:SYSTEM_APP_PRESSURE,     invalid:true },
   [edit_type.FAT_BURN]:          { r:'numeric',  dt: data_type.FAT_BURN,          icon:'sport',     bg:'sport',     app:SYSTEM_APP_STATUS,       dot:'point', invalid:true },
   [edit_type.ALTIMETER]:         { r:'numeric',  dt: data_type.ALTIMETER,         icon:'Kpa',       bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    invalid:true },
-  [edit_type.STOP_WATCH]:        { r:'numeric',  dt: data_type.STOP_WATCH,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_STOP_WATCH,   dot:'point', invalid:true },
-  [edit_type.ALARM_CLOCK]:       { r:'numeric',  dt: data_type.ALARM_CLOCK,       icon:'alarm',     bg:'dis',       app:SYSTEM_APP_ALARM,        dot:'point', invalid:true },
-  [edit_type.COUNT_DOWN]:        { r:'numeric',  dt: data_type.COUNT_DOWN,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_COUNTDOWN,    dot:'point', invalid:true },
+  [edit_type.STOP_WATCH]:        { r:'numeric',  dt: data_type.STOP_WATCH,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_STOP_WATCH,   sysText:true },
+  [edit_type.ALARM_CLOCK]:       { r:'numeric',  dt: data_type.ALARM_CLOCK,       icon:'alarm',     bg:'dis',       app:SYSTEM_APP_ALARM,        sysText:true, padding:true },
+  [edit_type.COUNT_DOWN]:        { r:'numeric',  dt: data_type.COUNT_DOWN,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_COUNTDOWN,    sysText:true },
   [edit_type.TRAINING_LOAD]:     { r:'numeric',  dt: data_type.TRAINING_LOAD,     icon:'recovery',  bg:'recovery',  app:SYSTEM_APP_SPORT_STATUS, invalid:true },
   [edit_type.MONTH_RUN_DISTANCE]:{ r:'numeric',  dt: data_type.MONTH_RUN_DISTANCE,icon:'run',       bg:'recovery',  app:SYSTEM_APP_SPORT_HISTORY,invalid:true },
   // ── puntatore rotante ─────────────────────────────────────────────────────
@@ -240,21 +240,32 @@ export default class EditTypesUtil {
 
       case 'numeric': {
         drawBg()
-        const getVal = _makeReader(def)
-        const tw = createWidget(widget.TEXT, {
-          x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(26), color: 0xffffff,
-          align_h: align.CENTER_H, align_v: align.CENTER_V,
-          show_level: show_level.ONLY_NORMAL,
-        })
-        tw.addEventListener(event.CLICK_DOWN, launch)
+        if (def.sysText) {
+          // valore gestito dal sistema via TEXT_FONT (countdown, stopwatch, alarm)
+          createWidget(widget.TEXT_FONT, {
+            x: numX, y: numY - px(6), w: bgw, h: numH,
+            type: def.dt, padding: def.padding || false,
+            text_size: px(26), color: 0xffffff,
+            align_h: align.CENTER_H, align_v: align.CENTER_V,
+            show_level: show_level.ONLY_NORMAL,
+          }).addEventListener(event.CLICK_DOWN, launch)
+        } else {
+          const getVal = _makeReader(def)
+          const tw = createWidget(widget.TEXT, {
+            x: numX, y: numY - px(6), w: bgw, h: numH,
+            text: getVal(), text_size: px(26), color: 0xffffff,
+            align_h: align.CENTER_H, align_v: align.CENTER_V,
+            show_level: show_level.ONLY_NORMAL,
+          })
+          tw.addEventListener(event.CLICK_DOWN, launch)
+          createWidget(widget.WIDGET_DELEGATE, {
+            resume_call: () => tw.setProperty(prop.MORE, { text: getVal() })
+          })
+        }
         createWidget(widget.IMG, {
           x: iconX, y: iconY - px(5), src: iconPath,
           show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
-        createWidget(widget.WIDGET_DELEGATE, {
-          resume_call: () => tw.setProperty(prop.MORE, { text: getVal() })
-        })
         break
       }
 
@@ -270,7 +281,7 @@ export default class EditTypesUtil {
         // valore gestito dal sistema via TEXT_FONT — nessuna lettura manuale
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
-          type: def.dt,
+          type: def.dt, unit_type: def.unit ? 1 : 0,
           text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
@@ -342,7 +353,19 @@ export default class EditTypesUtil {
           x: bgx, y: bgy, image_array: uviArray, image_length: uviArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
-        drawIconText(_makeReader(def))
+        // indice UVI gestito dal sistema via TEXT_FONT
+        createWidget(widget.TEXT_FONT, {
+          x: numX, y: numY, w: bgw, h: numH,
+          type: def.dt, text_size: px(26), color: 0xffffff,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        if (iconPath) {
+          createWidget(widget.IMG, {
+            x: iconX, y: iconY, src: iconPath,
+            show_level: show_level.ONLY_NORMAL,
+          }).addEventListener(event.CLICK_DOWN, launch)
+        }
         break
 
       case 'moon':
