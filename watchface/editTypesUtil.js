@@ -274,7 +274,7 @@ export default class EditTypesUtil {
         }
         break
 
-      case 'pointerT':
+      case 'pointerT': {
         drawBg()
         createWidget(widget.IMG_POINTER, {
           src: numPath + 'p.png',
@@ -283,13 +283,24 @@ export default class EditTypesUtil {
           type: def.dt, start_angle: -135, end_angle: 135,
           show_level: show_level.ONLY_NORMAL,
         })
-        createWidget(widget.TEXT_FONT, {
+        console.log('[bodyTemp] edit_type.TEMPERATURE:', edit_type.TEMPERATURE, 'BODY_TEMP:', edit_type.BODY_TEMP)
+        const tfT = createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
           type: edit_type.TEMPERATURE, unit_type: def.unit ? 1 : 0,
           text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
+        tfT.addEventListener(event.CLICK_DOWN, launch)
+        console.log('[bodyTemp] TEXT_FONT(TEMPERATURE) text:', tfT.getProperty(prop.TEXT))
+        const tfB = createWidget(widget.TEXT_FONT, {
+          x: numX, y: numY + px(30), w: bgw, h: numH,
+          type: edit_type.BODY_TEMP, unit_type: 1,
+          text_size: px(20), color: 0xffff00,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        })
+        console.log('[bodyTemp] TEXT_FONT(BODY_TEMP) text:', tfB.getProperty(prop.TEXT))
         if (iconPath) {
           createWidget(widget.IMG, {
             x: iconX, y: iconY, src: iconPath,
@@ -297,6 +308,7 @@ export default class EditTypesUtil {
           }).addEventListener(event.CLICK_DOWN, launch)
         }
         break
+      }
 
       case 'wind': {
         drawBg()
