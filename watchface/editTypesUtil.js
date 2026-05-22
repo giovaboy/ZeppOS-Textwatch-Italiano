@@ -5,7 +5,7 @@ import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
          SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
          SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN,
          SYSTEM_APP_THERMOMETER } from '@zos/router'
-import { Sleep, Stand, BodyTemperature } from '@zos/sensor'
+import { Sleep, Stand } from '@zos/sensor'
 import { px } from '@zos/utils'
 
 // ─── Sensor cache (module-level, shared across all slots) ─────────────────────
@@ -29,11 +29,6 @@ function _makeReader(def) {
         const info = _sen('sleep', Sleep)?.getInfo?.()
         const mins = info?.totalTime
         return mins > 0 ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
-      }
-      if (def.bodyTemp) {
-        const cur = _sen('bodyT', BodyTemperature)?.getCurrent?.()
-        const v = cur?.value
-        return (v != null && v > 0) ? (v / 100).toFixed(1) + '°' : '--'
       }
     } catch (_) {}
     return '--'
@@ -88,7 +83,7 @@ const WIDGET_DEFS = {
   [edit_type.STRESS]:            { r:'numeric',  dt: data_type.STRESS,            icon:'pressure',  bg:'kpa',       app:SYSTEM_APP_PRESSURE,     sysText:true },
   [edit_type.FAT_BURN]:          { r:'numeric',  dt: data_type.FAT_BURN,          icon:'sport',     bg:'sport',     app:SYSTEM_APP_STATUS,       sysText:true },
   [edit_type.ALTIMETER]:         { r:'numeric',  dt: data_type.ALTIMETER,         icon:'Kpa',       bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    sysText:true },
-  [edit_type.ALTITUDE]:          { r:'numeric',  dt: data_type.ALTITUDE,          icon:'Kpa',       bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    sysText:true },
+  [edit_type.ALTITUDE]:          { r:'numeric',  dt: data_type.ALTITUDE,          icon:'altitude',  bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    sysText:true },
   [edit_type.STOP_WATCH]:        { r:'numeric',  dt: data_type.STOP_WATCH,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_STOP_WATCH,   sysText:true },
   [edit_type.ALARM_CLOCK]:       { r:'numeric',  dt: data_type.ALARM_CLOCK,       icon:'alarm',     bg:'dis',       app:SYSTEM_APP_ALARM,        sysText:true, padding:true },
   [edit_type.COUNT_DOWN]:        { r:'numeric',  dt: data_type.COUNT_DOWN,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_COUNTDOWN,    sysText:true },
@@ -97,7 +92,7 @@ const WIDGET_DEFS = {
   // ── puntatore rotante ─────────────────────────────────────────────────────
   [edit_type.SPO2]:              { r:'pointer',  dt: data_type.SPO2,              icon:'spo2',      bg:'spo2',      app:SYSTEM_APP_SPO2,         unit:'percent', invalid:true },
   [edit_type.WIND]:              { r:'wind',                                      icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
-  [edit_type.TEMPERATURE]:       { r:'pointerT', dt: data_type.WEATHER_CURRENT,   icon:'T',         bg:'t',         app:SYSTEM_APP_THERMOMETER,  invalid:true, bodyTemp: true },
+  [edit_type.BODY_TEMP]:         { r:'pointerT', dt: data_type.WEATHER_CURRENT,   icon:'T',         bg:'t',         app:SYSTEM_APP_THERMOMETER,  sysText:true, unit:true },
   // ── speciali ──────────────────────────────────────────────────────────────
   [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           sysText:true },
   [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
@@ -129,7 +124,7 @@ export const widgetOptionalArray = [
   { type: edit_type.SLEEP,        preview: previewPath + 'sleep.png'    },
   { type: edit_type.WIND,         preview: previewPath + 'wind.png'     },
   { type: edit_type.WEATHER,      preview: previewPath + 'weather.png'  },
-  { type: edit_type.TEMPERATURE,  preview: previewPath + 'T.png'        },
+  { type: edit_type.BODY_TEMP,    preview: previewPath + 'T.png'        },
   { type: edit_type.FAT_BURN,     preview: previewPath + 'sport.png'    },
   { type: edit_type.ALTIMETER,    preview: previewPath + 'Kpa.png'      },
   { type: edit_type.ALTITUDE,     preview: previewPath + 'Kpa.png'      },
@@ -288,7 +283,19 @@ export default class EditTypesUtil {
           type: def.dt, start_angle: -135, end_angle: 135,
           show_level: show_level.ONLY_NORMAL,
         })
-        drawIconText(_makeReader(def))
+        createWidget(widget.TEXT_FONT, {
+          x: numX, y: numY, w: bgw, h: numH,
+          type: edit_type.BODY_TEMP, unit_type: def.unit ? 1 : 0,
+          text_size: px(26), color: 0xffffff,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        if (iconPath) {
+          createWidget(widget.IMG, {
+            x: iconX, y: iconY, src: iconPath,
+            show_level: show_level.ONLY_NORMAL,
+          }).addEventListener(event.CLICK_DOWN, launch)
+        }
         break
 
       case 'wind': {
