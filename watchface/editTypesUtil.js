@@ -368,8 +368,7 @@ export default class EditTypesUtil {
         createWidget(widget.IMG_LEVEL, {
           x: bgx, y: bgy, image_array: moonArray, image_length: moonArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
-        })
-        drawIconText(_makeReader(def))
+        }).addEventListener(event.CLICK_DOWN, launch)
         break
 
       case 'weather': {
@@ -398,13 +397,6 @@ export default class EditTypesUtil {
         )
         const barBaseY = cy - Math.round(BAR_H / 2)
 
-        const paiTextW = createWidget(widget.TEXT, {
-          x: sx, y: sy + px(6), w: bgw, h: px(22),
-          text: '--', text_size: px(26), color: 0xffffff,
-          align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
-        })
-        paiTextW.addEventListener(event.CLICK_DOWN, launch)
-
         createWidget(widget.IMG, {
           x: iconX, y: iconY, src: XicPath + 'Pai.png',
           show_level: show_level.ONLY_NORMAL,
@@ -429,6 +421,14 @@ export default class EditTypesUtil {
           bar.addEventListener(event.CLICK_DOWN, launch)
           return bar
         })
+
+        // testo totale PAI — creato dopo le barre per stare sopra (z-order)
+        const paiTextW = createWidget(widget.TEXT, {
+          x: sx, y: sy + px(6), w: bgw, h: px(22),
+          text: '--', text_size: px(26), color: 0xffffff,
+          align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
+        })
+        paiTextW.addEventListener(event.CLICK_DOWN, launch)
 
         function _updatePaiBars() {
           if (!paiSensor) return
