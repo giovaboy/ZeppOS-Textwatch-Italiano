@@ -432,8 +432,10 @@ export default class EditTypesUtil {
         })
 
         function _updatePaiBars() {
-          if (!paiSensor) return
+          if (!paiSensor) { console.log('[pai] sensor null'); return }
           const total = paiSensor.totalpai
+          console.log('[pai] totalpai:', total, 'dailypai:', paiSensor.dailypai)
+          console.log('[pai] prepai0-6:', paiSensor.prepai0, paiSensor.prepai1, paiSensor.prepai2, paiSensor.prepai3, paiSensor.prepai4, paiSensor.prepai5, paiSensor.prepai6)
           paiTextW.setProperty(prop.MORE, { text: total != null ? String(total) : '--' })
           // prepai0 = oggi, prepai6 = 6 giorni fa → barre sx=vecchio, dx=oggi
           const week = [paiSensor.prepai6, paiSensor.prepai5, paiSensor.prepai4,
