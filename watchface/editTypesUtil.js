@@ -419,7 +419,7 @@ export default class EditTypesUtil {
 
         // barre attive — inizializzate vuote, aggiornate subito e al resume
         let paiSensor = null
-        try { paiSensor = new Pai() } catch (_) {}
+        try { paiSensor = hmSensor.createSensor(hmSensor.id.PAI) } catch (_) {}
 
         const barWidgets = barXCoords.map(bx => {
           const bar = createWidget(widget.FILL_RECT, {
@@ -433,13 +433,14 @@ export default class EditTypesUtil {
 
         function _updatePaiBars() {
           if (!paiSensor) return
-          const total = paiSensor.getTotal()
+          const total = paiSensor.totalpai
           paiTextW.setProperty(prop.MORE, { text: total != null ? String(total) : '--' })
-          // getLastWeek(): index 0 = oggi, index 6 = 6 giorni fa → invertiamo per barre cronologiche (sx=vecchio, dx=oggi)
-          const week = [...(paiSensor.getLastWeek() || [])].reverse()
+          // prepai0 = oggi, prepai6 = 6 giorni fa → barre sx=vecchio, dx=oggi
+          const week = [paiSensor.prepai6, paiSensor.prepai5, paiSensor.prepai4,
+                        paiSensor.prepai3, paiSensor.prepai2, paiSensor.prepai1, paiSensor.prepai0]
           const maxVal = 75
           barWidgets.forEach((bar, i) => {
-            const height = Math.round((week[i] / maxVal) * BAR_H)
+            const height = Math.round(((week[i] || 0) / maxVal) * BAR_H)
             bar.setProperty(prop.MORE, {
               x: barXCoords[i], y: barBaseY + BAR_H - height,
               w: BAR_W, h: height,
