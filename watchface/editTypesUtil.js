@@ -1,10 +1,4 @@
-import { createWidget, widget, align, show_level, data_type, event, edit_type, prop } from '@zos/ui'
-import { launchApp, SYSTEM_APP_SUN_AND_MOON, SYSTEM_APP_PAI, SYSTEM_APP_HR,
-         SYSTEM_APP_BATTERY, SYSTEM_APP_SLEEP, SYSTEM_APP_SPO2, SYSTEM_APP_STATUS,
-         SYSTEM_APP_PRESSURE, SYSTEM_APP_WEATHER, SYSTEM_APP_ALTIMETER,
-         SYSTEM_APP_SPORT_STATUS, SYSTEM_APP_SPORT_HISTORY,
-         SYSTEM_APP_STOP_WATCH, SYSTEM_APP_ALARM, SYSTEM_APP_COUNTDOWN,
-         SYSTEM_APP_THERMOMETER } from '@zos/router'
+import { createWidget, widget, align, show_level, data_type, edit_type, prop } from '@zos/ui'
 import { Sleep, Stand, BodyTemperature, Pai, Weather, Time } from '@zos/sensor'
 import { px } from '@zos/utils'
 
@@ -20,12 +14,12 @@ function _makeReader(def) {
   return () => {
     try {
       const dt = def.dt
-      if (dt === data_type.STAND)     {
+      if (dt === data_type.STAND) {
         const s = _sen('stand', Stand)
         const v = s?.getCurrent?.(), g = s?.getTarget?.()
         return (v != null && g != null) ? `${v}/${g}` : '--'
       }
-      if (dt === data_type.SLEEP)     {
+      if (dt === data_type.SLEEP) {
         const info = _sen('sleep', Sleep)?.getInfo?.()
         const mins = info?.totalTime
         return mins > 0 ? `${Math.floor(mins/60)}.${String(mins%60).padStart(2,'0')}` : '--'
@@ -49,63 +43,59 @@ const heartPath   = 'heart/'
 const UVIPath     = 'UVI/'
 
 // ─── Image arrays ─────────────────────────────────────────────────────────────
-const weatherArray  = Array.from({ length: 29 }, (_, i) => `weather/${i}.png`)
-const moonArray     = Array.from({ length: 29 }, (_, i) => `moon/${i + 1}.png`)
-const heartArray    = Array.from({ length: 6 },  (_, i) => `${heartPath}${i + 1}.png`)
-const uviArray      = Array.from({ length: 5 },  (_, i) => `${UVIPath}${i + 1}.png`)
-const windDirArray  = Array.from({ length: 8 },  (_, i) => `wind/wind_${i}.png`)
+const weatherArray = Array.from({ length: 29 }, (_, i) => `weather/${i}.png`)
+const moonArray    = Array.from({ length: 29 }, (_, i) => `moon/${i + 1}.png`)
+const heartArray   = Array.from({ length: 6 },  (_, i) => `${heartPath}${i + 1}.png`)
+const uviArray     = Array.from({ length: 5 },  (_, i) => `${UVIPath}${i + 1}.png`)
+const windDirArray = Array.from({ length: 8 },  (_, i) => `wind/wind_${i}.png`)
 
 // ─── Slot geometry ────────────────────────────────────────────────────────────
-// Associa edit_id → x di partenza; y è comune a tutti e tre gli slot
 const SLOT_X = { 110: 42, 111: 194, 112: 346 }
 const SLOT_Y = 290
 
 // ─── Widget definitions ───────────────────────────────────────────────────────
-// r:       renderer ('arc' | 'numeric' | 'pointer' | 'pointerT' |
-//                    'heart' | 'uvi' | 'moon' | 'weather' | 'paiWeekly' | 'sun')
-// dt:      data_type per TEXT_IMG / ARC_PROGRESS / IMG_POINTER
-// icon:    stem per xicon/  (es. 'step' → xicon/step.png)
-// bg:      stem per iconbg/ (es. 'step' → iconbg/step.png)
-// color:   colore arco (solo renderer 'arc')
-// app:     appId per launchApp
-// unit:    stem unità misura in numPath (es. 'degree', 'percent')
-// dot:     stem punto decimale in numPath (es. 'point', 'slash')
-// neg:     true → usa numPath/negative.png
-// invalid: true → none.png | 'w' → wnone.png
-// params:  parametri opzionali per launchApp
+// r:        renderer
+// dt:       data_type per TEXT_FONT / ARC_PROGRESS / IMG_POINTER / IMG_LEVEL
+// jumpType: data_type per IMG_CLICK (navigazione app di sistema)
+// icon:     stem per xicon/
+// bg:       stem per iconbg/
+// color:    colore arco (solo renderer 'arc')
+// unit:     true → unit_type:1 su TEXT_FONT (aggiunge simbolo unità)
+// padding:  true → padding su TEXT_FONT (solo alarm)
 const WIDGET_DEFS = {
   // ── arco + numero + icona ──────────────────────────────────────────────────
-  [edit_type.STEP]:              { r:'arc',      dt: data_type.STEP,              icon:'step',      bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS,       sysText:true },
-  [edit_type.CAL]:               { r:'arc',      dt: data_type.CAL,               icon:'kcal',      bg:'cal',       color:0xdf4f26, app:SYSTEM_APP_STATUS,       sysText:true },
-  [edit_type.PAI]:               { r:'arc',      dt: data_type.PAI_WEEKLY,        icon:'Pai',       bg:'pai',       color:0xd612c0, app:SYSTEM_APP_PAI,          sysText:true },
-  [edit_type.BATTERY]:           { r:'arc',      dt: data_type.BATTERY,           icon:'bat',       bg:'bat',       color:0x06c18a, app:SYSTEM_APP_STATUS,       sysText:true, unit:true },
-  [edit_type.STAND]:             { r:'arc',      dt: data_type.STAND,             icon:'stand',     bg:'step',      color:0x06a5ff, app:SYSTEM_APP_STATUS,       sysText:true },
-  [edit_type.RECOVERY_TIME]:     { r:'arc',      dt: data_type.RECOVERY_TIME,     icon:'recovery',  bg:'recovery',  color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS, sysText:true },
-  [edit_type.VO2MAX]:            { r:'arc',      dt: data_type.VO2MAX,            icon:'vo2',       bg:'vo2',       color:0x06a5ff, app:SYSTEM_APP_SPORT_STATUS, sysText:true, params:{page:1} },
+  [edit_type.STEP]:               { r:'arc',      dt: data_type.STEP,               icon:'step',      bg:'step',      color:0x06a5ff, jumpType: data_type.STEP,               sysText:true },
+  [edit_type.CAL]:                { r:'arc',      dt: data_type.CAL,                icon:'kcal',      bg:'cal',       color:0xdf4f26, jumpType: data_type.CAL,                sysText:true },
+  [edit_type.PAI]:                { r:'arc',      dt: data_type.PAI_WEEKLY,         icon:'Pai',       bg:'pai',       color:0xd612c0, jumpType: data_type.PAI_WEEKLY,         sysText:true },
+  [edit_type.BATTERY]:            { r:'arc',      dt: data_type.BATTERY,            icon:'bat',       bg:'bat',       color:0x06c18a, jumpType: data_type.BATTERY,            sysText:true, unit:true },
+  [edit_type.STAND]:              { r:'arc',      dt: data_type.STAND,              icon:'stand',     bg:'step',      color:0x06a5ff, jumpType: data_type.STAND,              sysText:true },
+  [edit_type.RECOVERY_TIME]:      { r:'arc',      dt: data_type.RECOVERY_TIME,      icon:'recovery',  bg:'recovery',  color:0x06a5ff, jumpType: data_type.RECOVERY_TIME,      sysText:true },
+  [edit_type.VO2MAX]:             { r:'arc',      dt: data_type.VO2MAX,             icon:'vo2',       bg:'vo2',       color:0x06a5ff, jumpType: data_type.VO2MAX,             sysText:true },
   // ── sfondo + numero + icona ───────────────────────────────────────────────
-  [edit_type.DISTANCE]:          { r:'numeric',  dt: data_type.DISTANCE,          icon:'dis',       bg:'dis',       app:SYSTEM_APP_STATUS,       sysText:true },
-  [edit_type.SLEEP]:             { r:'numeric',  dt: data_type.SLEEP,             icon:'sleep',     bg:'sleep',     app:SYSTEM_APP_SLEEP,        dot:'point', invalid:true },
-  [edit_type.STRESS]:            { r:'numeric',  dt: data_type.STRESS,            icon:'pressure',  bg:'kpa',       app:SYSTEM_APP_PRESSURE,     sysText:true },
-  [edit_type.FAT_BURN]:          { r:'numeric',  dt: data_type.FAT_BURN,          icon:'sport',     bg:'sport',     app:SYSTEM_APP_STATUS,       sysText:true },
-  [edit_type.ALTIMETER]:         { r:'numeric',  dt: data_type.ALTIMETER,         icon:'Kpa',       bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    sysText:true },
-  [edit_type.ALTITUDE]:          { r:'numeric',  dt: data_type.ALTITUDE,          icon:'altitude',  bg:'kpa',       app:SYSTEM_APP_ALTIMETER,    sysText:true },
-  [edit_type.STOP_WATCH]:        { r:'numeric',  dt: data_type.STOP_WATCH,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_STOP_WATCH,   sysText:true },
-  [edit_type.ALARM_CLOCK]:       { r:'numeric',  dt: data_type.ALARM_CLOCK,       icon:'alarm',     bg:'dis',       app:SYSTEM_APP_ALARM,        sysText:true, padding:true },
-  [edit_type.COUNT_DOWN]:        { r:'numeric',  dt: data_type.COUNT_DOWN,        icon:'stopwatch', bg:'dis',       app:SYSTEM_APP_COUNTDOWN,    sysText:true },
-  [edit_type.TRAINING_LOAD]:     { r:'numeric',  dt: data_type.TRAINING_LOAD,     icon:'recovery',  bg:'recovery',  app:SYSTEM_APP_SPORT_STATUS, sysText:true },
-  [edit_type.MONTH_RUN_DISTANCE]:{ r:'numeric',  dt: data_type.MONTH_RUN_DISTANCE,icon:'run',       bg:'recovery',  app:SYSTEM_APP_SPORT_HISTORY,sysText:true },
+  [edit_type.DISTANCE]:           { r:'numeric',  dt: data_type.DISTANCE,           icon:'dis',       bg:'dis',                       jumpType: data_type.DISTANCE,           sysText:true },
+  [edit_type.SLEEP]:              { r:'numeric',  dt: data_type.SLEEP,              icon:'sleep',     bg:'sleep',                     jumpType: data_type.SLEEP,              dot:'point', invalid:true },
+  [edit_type.STRESS]:             { r:'numeric',  dt: data_type.STRESS,             icon:'pressure',  bg:'kpa',                       jumpType: data_type.STRESS,             sysText:true },
+  [edit_type.FAT_BURN]:           { r:'numeric',  dt: data_type.FAT_BURN,           icon:'sport',     bg:'sport',                     jumpType: data_type.FAT_BURNING,        sysText:true },
+  [edit_type.HUMIDITY]:           { r:'numeric',  dt: data_type.HUMIDITY,           icon:'humidity',  bg:'kpa',                       jumpType: data_type.HUMIDITY,           sysText:true, unit:true },
+  [edit_type.ALTIMETER]:          { r:'numeric',  dt: data_type.ALTIMETER,          icon:'Kpa',       bg:'kpa',                       jumpType: data_type.ALTIMETER,          sysText:true },
+  [edit_type.ALTITUDE]:           { r:'numeric',  dt: data_type.ALTITUDE,           icon:'altitude',  bg:'kpa',                       jumpType: data_type.ALTITUDE,           sysText:true },
+  [edit_type.STOP_WATCH]:         { r:'numeric',  dt: data_type.STOP_WATCH,         icon:'stopwatch', bg:'dis',                       jumpType: data_type.STOP_WATCH,         sysText:true },
+  [edit_type.ALARM_CLOCK]:        { r:'numeric',  dt: data_type.ALARM_CLOCK,        icon:'alarm',     bg:'dis',                       jumpType: data_type.ALARM_CLOCK,        sysText:true, padding:true },
+  [edit_type.COUNT_DOWN]:         { r:'numeric',  dt: data_type.COUNT_DOWN,         icon:'stopwatch', bg:'dis',                       jumpType: data_type.COUNT_DOWN,         sysText:true },
+  [edit_type.TRAINING_LOAD]:      { r:'numeric',  dt: data_type.TRAINING_LOAD,      icon:'recovery',  bg:'recovery',                  jumpType: data_type.TRAINING_LOAD,      sysText:true },
+  [edit_type.MONTH_RUN_DISTANCE]: { r:'numeric',  dt: data_type.MONTH_RUN_DISTANCE, icon:'run',       bg:'recovery',                  jumpType: data_type.MONTH_RUN_DISTANCE, sysText:true },
   // ── puntatore rotante ─────────────────────────────────────────────────────
-  [edit_type.SPO2]:              { r:'pointer',  dt: data_type.SPO2,              icon:'spo2',      bg:'spo2',      app:SYSTEM_APP_SPO2,         unit:'percent', invalid:true },
-  [edit_type.WIND]:              { r:'wind',                                      icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
-  [edit_type.TEMPERATURE]:       { r:'pointerT', dt: data_type.WEATHER_CURRENT,   icon:'T',         bg:'t',         app:SYSTEM_APP_THERMOMETER,  bodyTemp:true },
+  [edit_type.SPO2]:               { r:'pointer',  dt: data_type.SPO2,               icon:'spo2',      bg:'spo2',                      jumpType: data_type.SPO2,               unit:'percent', invalid:true },
+  [edit_type.WIND]:               { r:'wind',                                        icon:'wind',      bg:'wind',                      jumpType: data_type.WIND,               invalid:true },
+  [edit_type.TEMPERATURE]:        { r:'pointerT', dt: data_type.WEATHER_CURRENT,    icon:'T',         bg:'t',                         jumpType: data_type.WEATHER_CURRENT,    bodyTemp:true },
   // ── speciali ──────────────────────────────────────────────────────────────
-  [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           sysText:true },
-  [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
-  [edit_type.MOON]:              { r:'moon',     dt: data_type.MOON,                                                app:SYSTEM_APP_SUN_AND_MOON },
-  [edit_type.WEATHER]:           { r:'weather',  dt: data_type.WEATHER_CURRENT,                     bg:'weather',   app:SYSTEM_APP_WEATHER,      unit:'degree', neg:true, invalid:'w' },
+  [edit_type.HEART]:              { r:'heart',    dt: data_type.HEART,              icon:'heart',                                     jumpType: data_type.HEART,              sysText:true },
+  [edit_type.UVI]:                { r:'uvi',      dt: data_type.UVI,                icon:'UVI',                                       jumpType: data_type.UVI,                invalid:true },
+  [edit_type.MOON]:               { r:'moon',     dt: data_type.MOON,                                                                 jumpType: data_type.MOON },
+  [edit_type.WEATHER]:            { r:'weather',  dt: data_type.WEATHER_CURRENT,                      bg:'weather',                   jumpType: data_type.WEATHER,            unit:'degree', neg:true, invalid:'w' },
   // ── nuovi ─────────────────────────────────────────────────────────────────
-  [edit_type.PAI_WEEKLY]:        { r:'paiWeekly',                                                                   app:SYSTEM_APP_PAI },
-  [edit_type.SUN]:               { r:'sun',                                                                         app:SYSTEM_APP_SUN_AND_MOON },
+  [edit_type.PAI_WEEKLY]:         { r:'paiWeekly',                                                                                    jumpType: data_type.PAI_WEEKLY },
+  [edit_type.SUN]:                { r:'sun',                                                                                          jumpType: data_type.MOON },
 }
 
 // Custom type for blank/empty slot
@@ -113,29 +103,30 @@ export const BLANK_TYPE = 0x186b0
 
 // ─── Optional widget list (menu di modifica) ──────────────────────────────────
 export const widgetOptionalArray = [
-  { type: BLANK_TYPE,             preview: 'bg/color/prev_blank.png', title_en: 'Empty', title_sc: 'Vuoto', title_tc: 'Vuoto' },
-  { type: edit_type.ALARM_CLOCK,  preview: previewPath + 'step.png'     },
-  { type: edit_type.COUNT_DOWN,   preview: previewPath + 'step.png'     },
-  { type: edit_type.STEP,         preview: previewPath + 'step.png'     },
-  { type: edit_type.CAL,          preview: previewPath + 'kcal.png'     },
-  { type: edit_type.BATTERY,      preview: previewPath + 'bat.png'      },
-  { type: edit_type.HEART,        preview: previewPath + 'heart.png'    },
-  { type: edit_type.UVI,          preview: previewPath + 'UVI.png'      },
-  { type: edit_type.PAI,          preview: previewPath + 'Pai.png'      },
-  { type: edit_type.DISTANCE,     preview: previewPath + 'dis.png'      },
-  { type: edit_type.STAND,        preview: previewPath + 'stand.png'    },
-  { type: edit_type.SPO2,         preview: previewPath + 'spo2.png'     },
-  { type: edit_type.STRESS,       preview: previewPath + 'pressure.png' },
-  { type: edit_type.SLEEP,        preview: previewPath + 'sleep.png'    },
-  { type: edit_type.WIND,         preview: previewPath + 'wind.png'     },
-  { type: edit_type.WEATHER,      preview: previewPath + 'weather.png'  },
-  { type: edit_type.TEMPERATURE,    preview: previewPath + 'T.png'        },
-  { type: edit_type.FAT_BURN,     preview: previewPath + 'sport.png'    },
-  { type: edit_type.ALTIMETER,    preview: previewPath + 'Kpa.png'      },
-  { type: edit_type.ALTITUDE,     preview: previewPath + 'Kpa.png'      },
-  { type: edit_type.MOON,         preview: previewPath + 'moon.png'     },
-  { type: edit_type.PAI_WEEKLY,   preview: previewPath + 'Pai.png'      },
-  { type: edit_type.SUN,          preview: previewPath + 'sun.png'      },
+  { type: BLANK_TYPE,              preview: 'bg/color/prev_blank.png', title_en: 'Empty', title_sc: 'Vuoto', title_tc: 'Vuoto' },
+  { type: edit_type.ALARM_CLOCK,   preview: previewPath + 'step.png'     },
+  { type: edit_type.COUNT_DOWN,    preview: previewPath + 'step.png'     },
+  { type: edit_type.STEP,          preview: previewPath + 'step.png'     },
+  { type: edit_type.CAL,           preview: previewPath + 'kcal.png'     },
+  { type: edit_type.BATTERY,       preview: previewPath + 'bat.png'      },
+  { type: edit_type.HEART,         preview: previewPath + 'heart.png'    },
+  { type: edit_type.UVI,           preview: previewPath + 'UVI.png'      },
+  { type: edit_type.PAI,           preview: previewPath + 'Pai.png'      },
+  { type: edit_type.DISTANCE,      preview: previewPath + 'dis.png'      },
+  { type: edit_type.STAND,         preview: previewPath + 'stand.png'    },
+  { type: edit_type.SPO2,          preview: previewPath + 'spo2.png'     },
+  { type: edit_type.STRESS,        preview: previewPath + 'pressure.png' },
+  { type: edit_type.SLEEP,         preview: previewPath + 'sleep.png'    },
+  { type: edit_type.HUMIDITY,      preview: previewPath + 'humidity.png' },
+  { type: edit_type.WIND,          preview: previewPath + 'wind.png'     },
+  { type: edit_type.WEATHER,       preview: previewPath + 'weather.png'  },
+  { type: edit_type.TEMPERATURE,   preview: previewPath + 'T.png'        },
+  { type: edit_type.FAT_BURN,      preview: previewPath + 'sport.png'    },
+  { type: edit_type.ALTIMETER,     preview: previewPath + 'Kpa.png'      },
+  { type: edit_type.ALTITUDE,      preview: previewPath + 'Kpa.png'      },
+  { type: edit_type.MOON,          preview: previewPath + 'moon.png'     },
+  { type: edit_type.PAI_WEEKLY,    preview: previewPath + 'Pai.png'      },
+  { type: edit_type.SUN,           preview: previewPath + 'sun.png'      },
 ]
 
 // ─── Renderer ─────────────────────────────────────────────────────────────────
@@ -161,19 +152,26 @@ export default class EditTypesUtil {
     const cx = sx + px(46)
     const cy = sy + px(46)
 
-    // Asset derivati dalla definizione
-    const launch     = () => launchApp({ appId: def.app, native: true, params: def.params })
-    const iconPath   = def.icon    ? XicPath + def.icon + '.png' : null
-    const bgImg      = def.bg      ? iconBg  + def.bg  + '.png' : null
-    // Sfondo quadrato con tap
+    const iconPath = def.icon ? XicPath + def.icon + '.png' : null
+    const bgImg    = def.bg   ? iconBg  + def.bg  + '.png' : null
+
+    // Navigazione nativa via IMG_CLICK — creato sempre per ultimo (z-order sopra tutto)
+    function addJump() {
+      createWidget(widget.IMG_CLICK, {
+        x: bgx, y: bgy, w: bgw, h: bgw,
+        type: def.jumpType,
+        show_level: show_level.ONLY_NORMAL,
+      })
+    }
+
     function drawBg() {
       createWidget(widget.IMG, {
         x: bgx, y: bgy, w: bgw, h: bgw, src: bgImg,
         show_level: show_level.ONLY_NORMAL,
-      }).addEventListener(event.CLICK_DOWN, launch)
+      })
     }
 
-    // Numero (TEXT) + icona piccola — usato da arc, heart, uvi, moon, pointer
+    // Numero (TEXT) + icona — renderer manuali (pointerT, sleep)
     function drawIconText(getValue) {
       const tw = createWidget(widget.TEXT, {
         x: numX, y: numY, w: bgw, h: numH,
@@ -181,12 +179,11 @@ export default class EditTypesUtil {
         align_h: align.CENTER_H, align_v: align.CENTER_V,
         show_level: show_level.ONLY_NORMAL,
       })
-      tw.addEventListener(event.CLICK_DOWN, launch)
       if (iconPath) {
         createWidget(widget.IMG, {
           x: iconX, y: iconY, src: iconPath,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
       }
       createWidget(widget.WIDGET_DELEGATE, {
         resume_call: () => tw.setProperty(prop.MORE, { text: getValue() })
@@ -203,7 +200,7 @@ export default class EditTypesUtil {
           radius: 35, start_angle: -139, end_angle: 139,
           line_width: 8, color: def.color, type: def.dt,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
         if (def.sysText) {
           createWidget(widget.TEXT_FONT, {
             x: numX, y: numY, w: bgw, h: numH,
@@ -211,29 +208,29 @@ export default class EditTypesUtil {
             text_size: px(26), color: 0xffffff,
             align_h: align.CENTER_H, align_v: align.CENTER_V,
             show_level: show_level.ONLY_NORMAL,
-          }).addEventListener(event.CLICK_DOWN, launch)
+          })
           if (iconPath) {
             createWidget(widget.IMG, {
               x: iconX, y: iconY, src: iconPath,
               show_level: show_level.ONLY_NORMAL,
-            }).addEventListener(event.CLICK_DOWN, launch)
+            })
           }
         } else {
           drawIconText(_makeReader(def))
         }
+        addJump()
         break
 
       case 'numeric': {
         drawBg()
         if (def.sysText) {
-          // valore gestito dal sistema via TEXT_FONT (countdown, stopwatch, alarm)
           createWidget(widget.TEXT_FONT, {
             x: numX, y: numY - px(6), w: bgw, h: numH,
-            type: def.dt, padding: def.padding || false,
+            type: def.dt, padding: def.padding || false, unit_type: def.unit ? 1 : 0,
             text_size: px(26), color: 0xffffff,
             align_h: align.CENTER_H, align_v: align.CENTER_V,
             show_level: show_level.ONLY_NORMAL,
-          }).addEventListener(event.CLICK_DOWN, launch)
+          })
         } else {
           const getVal = _makeReader(def)
           const tw = createWidget(widget.TEXT, {
@@ -242,7 +239,6 @@ export default class EditTypesUtil {
             align_h: align.CENTER_H, align_v: align.CENTER_V,
             show_level: show_level.ONLY_NORMAL,
           })
-          tw.addEventListener(event.CLICK_DOWN, launch)
           createWidget(widget.WIDGET_DELEGATE, {
             resume_call: () => tw.setProperty(prop.MORE, { text: getVal() })
           })
@@ -250,7 +246,8 @@ export default class EditTypesUtil {
         createWidget(widget.IMG, {
           x: iconX, y: iconY - px(5), src: iconPath,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
+        addJump()
         break
       }
 
@@ -263,20 +260,20 @@ export default class EditTypesUtil {
           type: def.dt, start_angle: -135, end_angle: 135,
           show_level: show_level.ONLY_NORMAL,
         })
-        // valore gestito dal sistema via TEXT_FONT — nessuna lettura manuale
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
           type: def.dt, unit_type: def.unit ? 1 : 0,
           text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
         if (iconPath) {
           createWidget(widget.IMG, {
             x: iconX, y: iconY, src: iconPath,
             show_level: show_level.ONLY_NORMAL,
-          }).addEventListener(event.CLICK_DOWN, launch)
+          })
         }
+        addJump()
         break
 
       case 'pointerT':
@@ -289,31 +286,31 @@ export default class EditTypesUtil {
           show_level: show_level.ONLY_NORMAL,
         })
         drawIconText(_makeReader(def))
+        addJump()
         break
 
       case 'wind': {
         drawBg()
-        // direzione vento — 8 icone gestite dal sistema
         createWidget(widget.IMG_LEVEL, {
           x: cx - px(44), y: cy - px(44), w: px(88), h: px(88),
           image_array: windDirArray, image_length: windDirArray.length,
           type: data_type.WIND_DIRECTION,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
-        // velocità vento — TEXT_FONT guidato dal sistema (no lettura manuale)
+        })
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
           type: data_type.WIND,
           text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
         if (iconPath) {
           createWidget(widget.IMG, {
             x: iconX, y: iconY, src: iconPath,
             show_level: show_level.ONLY_NORMAL,
-          }).addEventListener(event.CLICK_DOWN, launch)
+          })
         }
+        addJump()
         break
       }
 
@@ -321,61 +318,56 @@ export default class EditTypesUtil {
         createWidget(widget.IMG, {
           x: bgx, y: bgy, alpha: 255, src: heartPath + 'heart0.png',
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
         createWidget(widget.IMG_LEVEL, {
           x: bgx, y: bgy, image_array: heartArray, image_length: heartArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
           type: def.dt, text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
         if (iconPath) {
           createWidget(widget.IMG, {
             x: iconX, y: iconY, src: iconPath,
             show_level: show_level.ONLY_NORMAL,
-          }).addEventListener(event.CLICK_DOWN, launch)
+          })
         }
+        addJump()
         break
 
       case 'uvi':
         createWidget(widget.IMG, {
           x: bgx, y: bgy, alpha: 255, src: UVIPath + 'uvi0.png',
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
         createWidget(widget.IMG_LEVEL, {
           x: bgx, y: bgy, image_array: uviArray, image_length: uviArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
-        // indice UVI gestito dal sistema via TEXT_FONT
+        })
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
           type: def.dt, text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
         if (iconPath) {
           createWidget(widget.IMG, {
             x: iconX, y: iconY, src: iconPath,
             show_level: show_level.ONLY_NORMAL,
-          }).addEventListener(event.CLICK_DOWN, launch)
+          })
         }
+        addJump()
         break
-
 
       case 'moon':
         createWidget(widget.IMG_LEVEL, {
           x: bgx, y: bgy, image_array: moonArray, image_length: moonArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
         })
-        // IMG_LEVEL non propaga click in modo affidabile — overlay trasparente per catturare il tap
-        createWidget(widget.FILL_RECT, {
-          x: bgx, y: bgy, w: bgw, h: bgw,
-          color: 0x000000, alpha: 0,
-          show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        addJump()
         break
 
       case 'weather': {
@@ -386,12 +378,13 @@ export default class EditTypesUtil {
           text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
         createWidget(widget.IMG_LEVEL, {
           x: iconX, y: iconY - px(5),
           image_array: weatherArray, image_length: weatherArray.length,
           type: data_type.WEATHER, show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
+        addJump()
         break
       }
 
@@ -407,27 +400,23 @@ export default class EditTypesUtil {
         createWidget(widget.IMG, {
           x: iconX, y: iconY, src: XicPath + 'Pai.png',
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch)
+        })
 
         // barre di sfondo
         barXCoords.forEach(bx => createWidget(widget.FILL_RECT, {
           x: bx, y: barBaseY, w: BAR_W, h: BAR_H,
           radius: Math.round(BAR_W / 2), color: 0x4a1048,
           show_level: show_level.ONLY_NORMAL,
-        }).addEventListener(event.CLICK_DOWN, launch))
+        }))
 
         // barre attive — inizializzate vuote, aggiornate subito e al resume
         const paiSensor = _sen('pai', Pai)
 
-        const barWidgets = barXCoords.map(bx => {
-          const bar = createWidget(widget.FILL_RECT, {
-            x: bx, y: barBaseY + BAR_H - 1, w: BAR_W, h: 1,
-            radius: Math.round(BAR_W / 2), color: 0xd612c0,
-            show_level: show_level.ONLY_NORMAL,
-          })
-          bar.addEventListener(event.CLICK_DOWN, launch)
-          return bar
-        })
+        const barWidgets = barXCoords.map(bx => createWidget(widget.FILL_RECT, {
+          x: bx, y: barBaseY + BAR_H - 1, w: BAR_W, h: 1,
+          radius: Math.round(BAR_W / 2), color: 0xd612c0,
+          show_level: show_level.ONLY_NORMAL,
+        }))
 
         // testo totale PAI — creato dopo le barre per stare sopra (z-order)
         const paiTextW = createWidget(widget.TEXT, {
@@ -436,15 +425,12 @@ export default class EditTypesUtil {
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
-        paiTextW.addEventListener(event.CLICK_DOWN, launch)
 
         function _updatePaiBars() {
           if (!paiSensor) return
           const total = paiSensor.getTotal()
-          // getLastWeek(): index 0 = oggi, index 6 = 6 giorni fa → invertiamo per barre sx=vecchio, dx=oggi
           const week = [...(paiSensor.getLastWeek() || [])].reverse()
           const maxVal = 75
-          // barre prima — il testo viene aggiornato dopo per restare in cima (z-order)
           barWidgets.forEach((bar, i) => {
             const height = Math.round(((week[i] || 0) / maxVal) * BAR_H)
             bar.setProperty(prop.MORE, {
@@ -457,10 +443,8 @@ export default class EditTypesUtil {
         }
 
         _updatePaiBars()
-
-        createWidget(widget.WIDGET_DELEGATE, {
-          resume_call: () => { _updatePaiBars() }
-        })
+        createWidget(widget.WIDGET_DELEGATE, { resume_call: () => _updatePaiBars() })
+        addJump()
         break
       }
 
@@ -470,7 +454,6 @@ export default class EditTypesUtil {
         const DOT_OVER   = px(1)
         const dotArea    = px(92) + 2 * DOT_OVER
 
-        // arco sfondo (cerchio completo, dimmed)
         createWidget(widget.ARC_PROGRESS, {
           center_x: cx, center_y: cy,
           radius: ARC_RADIUS, start_angle: 0, end_angle: 360,
@@ -478,7 +461,6 @@ export default class EditTypesUtil {
           level: 100, corner_flag: 0, show_level: show_level.ONLY_NORMAL,
         })
 
-        // arco attivo (alba → tramonto)
         const dayArc = createWidget(widget.ARC_PROGRESS, {
           center_x: cx, center_y: cy,
           radius: ARC_RADIUS, start_angle: 0, end_angle: 0,
@@ -486,11 +468,8 @@ export default class EditTypesUtil {
           level: 100, corner_flag: 0, show_level: show_level.ONLY_NORMAL,
         })
 
-        // punto rotante sulla posizione del sole
         const DOT_CX = Math.round(dotArea / 2)
         const DOT_CY = Math.round(dotArea / 2)
-        // p.png is 12×80: white dot at y=0..7 (center ~y=4), transparent rest
-        // pos_x centers the 12px image at DOT_CX; pos_y places dot center at ARC_RADIUS from rotation center
         const dotWidget = createWidget(widget.IMG, {
           x: sx - DOT_OVER, y: sy - DOT_OVER,
           w: dotArea, h: dotArea,
@@ -502,26 +481,21 @@ export default class EditTypesUtil {
           show_level: show_level.ONLY_NORMAL,
         })
 
-        // icona (alba / tramonto)
         const sunIconW = createWidget(widget.IMG, {
           x: cx - px(16), y: cy - px(24),
           src: 'xicon/sunrise.png', show_level: show_level.ONLY_NORMAL,
         })
-        sunIconW.addEventListener(event.CLICK_DOWN, launch)
 
-        // orario prossimo evento
         const sunTextW = createWidget(widget.TEXT, {
           x: sx, y: cy + px(8), w: bgw, h: px(22),
           text: '--:--', text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
-        sunTextW.addEventListener(event.CLICK_DOWN, launch)
 
         const sunWeather = new Weather()
         const sunTime    = new Time()
 
-        // Legge i dati meteo una sola volta; null se non disponibili
         function _getTideDay() {
           try {
             const td = sunWeather.getForecast().tideData
@@ -535,26 +509,22 @@ export default class EditTypesUtil {
         function _updateSun() {
           const day = _getTideDay()
           if (!day) return
-
           const riseMins  = day.sunrise.hour * 60 + day.sunrise.minute
           const setMins   = day.sunset.hour  * 60 + day.sunset.minute
           const dayDur    = setMins >= riseMins ? setMins - riseMins : (24 * 60 - riseMins + setMins)
           const halfAngle = (360 * dayDur / (24 * 60)) / 2
-
           dayArc.setProperty(prop.MORE, {
             center_x: cx, center_y: cy,
             radius: ARC_RADIUS, start_angle: -halfAngle, end_angle: halfAngle,
             color: 0xffaa00, line_width: ARC_LINE_W,
             level: 100, corner_flag: 0, show_level: show_level.ONLY_NORMAL,
           })
-
           const noon     = (riseMins + dayDur / 2) % (24 * 60)
           const midnight = (noon + 12 * 60) % (24 * 60)
           const nowMins  = sunTime.getHours() * 60 + sunTime.getMinutes()
           let diff = nowMins - midnight
           if (diff < 0) diff += 24 * 60
           dotWidget.setProperty(prop.MORE, { angle: diff / (24 * 60) * 360 - 180 })
-
           const isDay  = nowMins >= riseMins && nowMins <= setMins
           const evType = isDay ? 'sunset' : 'sunrise'
           const obj    = isDay ? day.sunset : day.sunrise
@@ -565,9 +535,8 @@ export default class EditTypesUtil {
         }
 
         _updateSun()
-        createWidget(widget.WIDGET_DELEGATE, {
-          resume_call: () => { _updateSun() }
-        })
+        createWidget(widget.WIDGET_DELEGATE, { resume_call: () => _updateSun() })
+        addJump()
         break
       }
     }
