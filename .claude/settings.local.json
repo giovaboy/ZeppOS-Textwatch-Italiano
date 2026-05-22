@@ -18,7 +18,10 @@
       "Bash(ls /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/default-target.r/bg/color/prev_*.png)",
       "Bash(curl -s \"https://docs.zepp.com/docs/reference/related-resources/device-list/\")",
       "Bash(python3 -c \"from PIL import Image; img=Image.open\\('/home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/default-target.r/bg/color/hour_prev_1.png'\\); print\\(img.size, img.mode\\)\")",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(identify /home/giovanni/projects/zeppos/amazfit-watchfaces/src/watchfaces/modular/assets/common.r/wind/wind_0.png)",
+      "Bash(python3 -c \"from PIL import Image; img=Image.open\\('/home/giovanni/projects/zeppos/amazfit-watchfaces/src/watchfaces/modular/assets/common.r/wind/wind_0.png'\\); print\\(img.size, img.mode\\)\")",
+      "Bash(python3 -)"
     ]
   }
 }

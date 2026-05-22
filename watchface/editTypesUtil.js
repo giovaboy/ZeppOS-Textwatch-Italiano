@@ -30,17 +30,6 @@ function _makeReader(def) {
       }
       if (dt === data_type.DISTANCE)  { const d = _sen('dist',  Distance)?.getCurrent?.();        return d > 0 ? (d/1000).toFixed(2)     : '--' }
       if (dt === data_type.FAT_BURN)  { const v = _sen('fat',   FatBurning)?.getCurrent?.();      return v > 0 ? String(v)               : '--' }
-      if (dt === data_type.SPO2)      {
-        if (!_sc['spo2_hm']) {
-          try { _sc['spo2_hm'] = hmSensor.createSensor(hmSensor.id.SPO2) } catch(_) { _sc['spo2_hm'] = null }
-        }
-        const s = _sc['spo2_hm']
-        const hourAvg = s?.hourAvgofDay || []
-        console.log('[sensor] spo2 retcode:', s?.retcode, 'current:', s?.current)
-        console.log('[sensor] spo2 hourAvgofDay (last 5):', JSON.stringify(hourAvg.slice(-5)))
-        const v = (s?.retcode === 2) ? s.current : hourAvg.filter(x => x > 0).pop()
-        return v != null ? v + '%' : '--'
-      }
       if (dt === data_type.HEART)     {
         const v = _sen('hr', HeartRate)?.getLast?.()
         console.log('[sensor] heart getLast:', v)
@@ -93,10 +82,11 @@ const heartPath   = 'heart/'
 const UVIPath     = 'UVI/'
 
 // ─── Image arrays ─────────────────────────────────────────────────────────────
-const weatherArray = Array.from({ length: 29 }, (_, i) => `weather/${i}.png`)
-const moonArray    = Array.from({ length: 29 }, (_, i) => `moon/${i + 1}.png`)
-const heartArray   = Array.from({ length: 6 },  (_, i) => `${heartPath}${i + 1}.png`)
-const uviArray     = Array.from({ length: 5 },   (_, i) => `${UVIPath}${i + 1}.png`)
+const weatherArray  = Array.from({ length: 29 }, (_, i) => `weather/${i}.png`)
+const moonArray     = Array.from({ length: 29 }, (_, i) => `moon/${i + 1}.png`)
+const heartArray    = Array.from({ length: 6 },  (_, i) => `${heartPath}${i + 1}.png`)
+const uviArray      = Array.from({ length: 5 },  (_, i) => `${UVIPath}${i + 1}.png`)
+const windDirArray  = Array.from({ length: 8 },  (_, i) => `wind/wind_${i}.png`)
 
 // ─── Slot geometry ────────────────────────────────────────────────────────────
 // Associa edit_id → x di partenza; y è comune a tutti e tre gli slot
@@ -138,8 +128,8 @@ const WIDGET_DEFS = {
   [edit_type.MONTH_RUN_DISTANCE]:{ r:'numeric',  dt: data_type.MONTH_RUN_DISTANCE,icon:'run',       bg:'recovery',  app:SYSTEM_APP_SPORT_HISTORY,invalid:true },
   // ── puntatore rotante ─────────────────────────────────────────────────────
   [edit_type.SPO2]:              { r:'pointer',  dt: data_type.SPO2,              icon:'spo2',      bg:'spo2',      app:SYSTEM_APP_SPO2,         unit:'percent', invalid:true },
-  [edit_type.WIND]:              { r:'pointer',  dt: data_type.WIND,              icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
-  [edit_type.TEMPERATURE]:       { r:'pointerT', bodyTemp: true, dt: data_type.WEATHER_CURRENT, icon:'T', bg:'t', app:SYSTEM_APP_THERMOMETER, invalid:true },
+  [edit_type.WIND]:              { r:'wind',                                      icon:'wind',      bg:'wind',      app:SYSTEM_APP_WEATHER,      invalid:true },
+  [edit_type.TEMPERATURE]:       { r:'pointerT', dt: data_type.WEATHER_CURRENT,   icon:'T',         bg:'t',         app:SYSTEM_APP_THERMOMETER,  invalid:true, bodyTemp: true },
   // ── speciali ──────────────────────────────────────────────────────────────
   [edit_type.HEART]:             { r:'heart',    dt: data_type.HEART,             icon:'heart',                     app:SYSTEM_APP_HR,           invalid:true },
   [edit_type.UVI]:               { r:'uvi',      dt: data_type.UVI,               icon:'UVI',                       app:SYSTEM_APP_WEATHER,      invalid:true },
@@ -218,7 +208,7 @@ export default class EditTypesUtil {
     function drawIconText(getValue) {
       const tw = createWidget(widget.TEXT, {
         x: numX, y: numY, w: bgw, h: numH,
-        text: getValue(), text_size: px(28), color: 0xffffff,
+        text: getValue(), text_size: px(26), color: 0xffffff,
         align_h: align.CENTER_H, align_v: align.CENTER_V,
         show_level: show_level.ONLY_NORMAL,
       })
@@ -253,7 +243,7 @@ export default class EditTypesUtil {
         const getVal = _makeReader(def)
         const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(28), color: 0xffffff,
+          text: getVal(), text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -269,6 +259,30 @@ export default class EditTypesUtil {
       }
 
       case 'pointer':
+        drawBg()
+        createWidget(widget.IMG_POINTER, {
+          src: numPath + 'p.png',
+          center_x: cx, center_y: cy,
+          x: px(6), y: px(40),
+          type: def.dt, start_angle: -135, end_angle: 135,
+          show_level: show_level.ONLY_NORMAL,
+        })
+        // valore gestito dal sistema via TEXT_FONT — nessuna lettura manuale
+        createWidget(widget.TEXT_FONT, {
+          x: numX, y: numY, w: bgw, h: numH,
+          type: def.dt,
+          text_size: px(26), color: 0xffffff,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        if (iconPath) {
+          createWidget(widget.IMG, {
+            x: iconX, y: iconY, src: iconPath,
+            show_level: show_level.ONLY_NORMAL,
+          }).addEventListener(event.CLICK_DOWN, launch)
+        }
+        break
+
       case 'pointerT':
         drawBg()
         createWidget(widget.IMG_POINTER, {
@@ -280,6 +294,32 @@ export default class EditTypesUtil {
         })
         drawIconText(_makeReader(def))
         break
+
+      case 'wind': {
+        drawBg()
+        // direzione vento — 8 icone gestite dal sistema
+        createWidget(widget.IMG_LEVEL, {
+          x: cx - px(44), y: cy - px(44), w: px(88), h: px(88),
+          image_array: windDirArray, image_length: windDirArray.length,
+          type: data_type.WIND_DIRECTION,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        // velocità vento — TEXT_FONT guidato dal sistema (no lettura manuale)
+        createWidget(widget.TEXT_FONT, {
+          x: numX, y: numY, w: bgw, h: numH,
+          type: data_type.WIND,
+          text_size: px(26), color: 0xffffff,
+          align_h: align.CENTER_H, align_v: align.CENTER_V,
+          show_level: show_level.ONLY_NORMAL,
+        }).addEventListener(event.CLICK_DOWN, launch)
+        if (iconPath) {
+          createWidget(widget.IMG, {
+            x: iconX, y: iconY, src: iconPath,
+            show_level: show_level.ONLY_NORMAL,
+          }).addEventListener(event.CLICK_DOWN, launch)
+        }
+        break
+      }
 
       case 'heart':
         createWidget(widget.IMG, {
@@ -318,7 +358,7 @@ export default class EditTypesUtil {
         const getVal = _makeReader(def)
         const tw = createWidget(widget.TEXT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
-          text: getVal(), text_size: px(28), color: 0xffffff,
+          text: getVal(), text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -345,7 +385,7 @@ export default class EditTypesUtil {
 
         const paiTextW = createWidget(widget.TEXT, {
           x: sx, y: sy + px(6), w: bgw, h: px(22),
-          text: '--', text_size: px(28), color: 0xffffff,
+          text: '--', text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, show_level: show_level.ONLY_NORMAL,
         })
         paiTextW.addEventListener(event.CLICK_DOWN, launch)
@@ -449,7 +489,7 @@ export default class EditTypesUtil {
         // orario prossimo evento
         const sunTextW = createWidget(widget.TEXT, {
           x: sx, y: cy + px(8), w: bgw, h: px(22),
-          text: '--:--', text_size: px(28), color: 0xffffff,
+          text: '--:--', text_size: px(26), color: 0xffffff,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
