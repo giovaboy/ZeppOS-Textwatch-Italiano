@@ -368,6 +368,12 @@ export default class EditTypesUtil {
         createWidget(widget.IMG_LEVEL, {
           x: bgx, y: bgy, image_array: moonArray, image_length: moonArray.length,
           type: def.dt, show_level: show_level.ONLY_NORMAL,
+        })
+        // IMG_LEVEL non propaga click in modo affidabile — overlay trasparente per catturare il tap
+        createWidget(widget.FILL_RECT, {
+          x: bgx, y: bgy, w: bgw, h: bgw,
+          color: 0x000000, alpha: 0,
+          show_level: show_level.ONLY_NORMAL,
         }).addEventListener(event.CLICK_DOWN, launch)
         break
 
@@ -433,10 +439,10 @@ export default class EditTypesUtil {
         function _updatePaiBars() {
           if (!paiSensor) return
           const total = paiSensor.getTotal()
-          paiTextW.setProperty(prop.MORE, { text: total != null ? String(total) : '--' })
           // getLastWeek(): index 0 = oggi, index 6 = 6 giorni fa → invertiamo per barre sx=vecchio, dx=oggi
           const week = [...(paiSensor.getLastWeek() || [])].reverse()
           const maxVal = 75
+          // barre prima — il testo viene aggiornato dopo per restare in cima (z-order)
           barWidgets.forEach((bar, i) => {
             const height = Math.round(((week[i] || 0) / maxVal) * BAR_H)
             bar.setProperty(prop.MORE, {
@@ -445,6 +451,7 @@ export default class EditTypesUtil {
               radius: Math.round(BAR_W / 2), color: 0xd612c0,
             })
           })
+          paiTextW.setProperty(prop.MORE, { text: total != null ? String(total) : '--' })
         }
 
         _updatePaiBars()
