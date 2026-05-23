@@ -87,15 +87,15 @@ const WIDGET_DEFS = {
   // ── puntatore rotante ─────────────────────────────────────────────────────
   [edit_type.SPO2]:               { r:'pointer',  dt: data_type.SPO2,               icon:'spo2',      bg:'spo2',                      jumpType: data_type.SPO2,               unit:'percent', invalid:true },
   [edit_type.WIND]:               { r:'wind',                                        icon:'wind',      bg:'wind',                      jumpType: data_type.WIND,               invalid:true },
-  [edit_type.TEMPERATURE]:        { r:'pointerT', dt: data_type.WEATHER_CURRENT,    icon:'T',         bg:'t',                         jumpType: data_type.WEATHER_CURRENT,    bodyTemp:true },
+  [edit_type.TEMPERATURE]:        { r:'pointerT', dt: data_type.WEATHER_CURRENT,    icon:'T',         bg:'t',                         jumpType: data_type.BODY_TEMP,          bodyTemp:true },
   // ── speciali ──────────────────────────────────────────────────────────────
   [edit_type.HEART]:              { r:'heart',    dt: data_type.HEART,              icon:'heart',                                     jumpType: data_type.HEART,              sysText:true },
   [edit_type.UVI]:                { r:'uvi',      dt: data_type.UVI,                icon:'UVI',                                       jumpType: data_type.UVI,                invalid:true },
-  [edit_type.MOON]:               { r:'moon',     dt: data_type.MOON,                                                                 jumpType: data_type.MOON },
+  [edit_type.MOON]:               { r:'moon',     dt: data_type.MOON,                                                                 jumpType: data_type.MOON_CURRENT },
   [edit_type.WEATHER]:            { r:'weather',  dt: data_type.WEATHER_CURRENT,                      bg:'weather',                   jumpType: data_type.WEATHER,            unit:'degree', neg:true, invalid:'w' },
   // ── nuovi ─────────────────────────────────────────────────────────────────
   [edit_type.PAI_WEEKLY]:         { r:'paiWeekly',                                                                                    jumpType: data_type.PAI_WEEKLY },
-  [edit_type.SUN]:                { r:'sun',                                                                                          jumpType: data_type.MOON },
+  [edit_type.SUN]:                { r:'sun',                                                                                          jumpType: data_type.SUN_CURRENT },
 }
 
 // Custom type for blank/empty slot
