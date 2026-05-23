@@ -128,4 +128,46 @@ rgb = blend(dark,  amber, t_amber)
 rgb = blend(rgb,   ember, t_ember)
 save('BG_braci.png', rgb, mask)
 
+# ── BG_bianco ─────────────────────────────────────────────────────────────────
+# Pure white, circular
+rgb = np.ones((SIZE, SIZE, 3))
+save('BG_bianco.png', rgb, mask)
+
+# ── BG_nebbia ─────────────────────────────────────────────────────────────────
+# Neutral light gray, flat, circular
+base = srgb_to_linear(np.full((SIZE, SIZE, 3), 0.87))
+save('BG_nebbia.png', base, mask)
+
+# ── BG_latte ──────────────────────────────────────────────────────────────────
+# Warm off-white, soft warm glow at centre
+dark   = hex_to_linear(245, 238, 225)   # #f5eeе1  warm off-white edge
+bright = hex_to_linear(255, 252, 245)   # #fffcf5  near-white warm centre
+
+blob = radial(CX, CY, sigma=200)
+t = np.clip(blob * 0.6, 0, 1)
+rgb = blend(dark, bright, t)
+save('BG_latte.png', rgb, mask)
+
+# ── BG_alba ───────────────────────────────────────────────────────────────────
+# Warm light with soft peach/amber glow from top-centre fading to cream
+dark   = hex_to_linear(240, 220, 195)   # #f0dcc3  warm cream edge
+bright = hex_to_linear(255, 235, 200)   # #ffebb8  soft peach centre-top
+
+blob  = radial(CX, CY - 80, sigma=220)
+blob2 = radial(CX, CY - 50, sigma=90) * 0.35
+t = np.clip(blob * 0.75 + blob2, 0, 1)
+rgb = blend(dark, bright, t)
+save('BG_alba.png', rgb, mask)
+
+# ── BG_acqua ──────────────────────────────────────────────────────────────────
+# Very light blue, soft radial glow at centre
+dark   = hex_to_linear(200, 228, 240)   # #c8e4f0  light blue edge
+bright = hex_to_linear(230, 245, 252)   # #e6f5fc  almost-white blue centre
+
+blob  = radial(CX, CY, sigma=190)
+blob2 = radial(CX, CY, sigma=80) * 0.3
+t = np.clip(blob * 0.7 + blob2, 0, 1)
+rgb = blend(dark, bright, t)
+save('BG_acqua.png', rgb, mask)
+
 print('Done.')
