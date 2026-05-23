@@ -68,7 +68,7 @@ const dateY = px(400);
 const dateH = (dateTextSize * 1.25);// (font size * 1.25);
 const dateW = px(480);
 
-const editableWidgetsIds = [110,111,112];
+const editableWidgetsIds = [110,111,112,113];
 const editableWidgetsHW = px(92);
 
 const animDuration = 1000;
@@ -131,6 +131,7 @@ let animIdMinuteB = null;
 let editGroup1 = null;
 let editGroup2 = null;
 let editGroup3 = null;
+let editGroup4 = null;
 
 let colorGroupHour   = null;
 let colorGroupMinute = null;
@@ -389,6 +390,31 @@ WatchFace({
     })
     let item3 = editGroup3.getProperty(prop.CURRENT_TYPE);
     try { EditTypesUtil.drawWidget(item3, editableWidgetsIds[2]) } catch(e) { logger.log('widget 3 error: ' + e) }
+
+    /* 4 - TOP CENTER EDITABLE GROUP */
+    editGroup4 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
+      edit_id: editableWidgetsIds[3],
+      x: px(194), y: px(5),
+      w: editableWidgetsHW, h: editableWidgetsHW,
+      select_image: 'mask/select.png',
+      un_select_image: 'mask/select.png',
+      default_type: BLANK_TYPE,
+      optional_types: widgetOptionalArray,
+      count: widgetOptionalArray.length,
+      tips_BG: 'mask/tips.png',
+      tips_x: -px((124-92)/2),
+      tips_y: px(92+4),
+      tips_width: px(124),
+      select_list: {
+        title_font_size: 34,
+        title_align_h: align.CENTER_H,
+        list_item_vspace: 8,
+        list_tips_text_font_size: 32,
+        list_tips_text_align_h: align.LEFT,
+      }
+    })
+    let item4 = editGroup4.getProperty(prop.CURRENT_TYPE);
+    try { EditTypesUtil.drawWidget(item4, editableWidgetsIds[3]) } catch(e) { logger.log('widget 4 error: ' + e) }
 
     createWidget(widget.WATCHFACE_EDIT_MASK, {
       x: 0, y: 0, w: px(480), h: px(480),
