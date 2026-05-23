@@ -50,8 +50,8 @@ const uviArray     = Array.from({ length: 5 },  (_, i) => `${UVIPath}${i + 1}.pn
 const windDirArray = Array.from({ length: 8 },  (_, i) => `wind/wind_${i}.png`)
 
 // ─── Slot geometry ────────────────────────────────────────────────────────────
-const SLOT_X = { 110: 42, 111: 194, 112: 346, 113: 194 }
-const SLOT_Y = { 110: 290, 111: 290, 112: 290, 113:   5 }
+const SLOT_X = { 110: 50, 111: 146, 112: 242, 113: 194, 114: 338 }
+const SLOT_Y = { 110: 290, 111: 290, 112: 290, 113:   5, 114: 290 }
 
 // ─── Widget definitions ───────────────────────────────────────────────────────
 // r:        renderer
@@ -132,8 +132,8 @@ export const widgetOptionalArray = [
 // ─── Renderer ─────────────────────────────────────────────────────────────────
 export default class EditTypesUtil {
 
-  static drawWidget(editType, slotId) {
-    const slotBaseX = SLOT_X[slotId]
+  static drawWidget(editType, slotId, overrideX = null) {
+    const slotBaseX = overrideX !== null ? overrideX : SLOT_X[slotId]
     const slotBaseY = SLOT_Y[slotId]
     if (slotBaseX === undefined || slotBaseY === undefined) return
     const def = WIDGET_DEFS[editType]

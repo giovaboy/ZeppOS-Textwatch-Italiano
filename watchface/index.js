@@ -68,7 +68,7 @@ const dateY = px(400);
 const dateH = (dateTextSize * 1.25);// (font size * 1.25);
 const dateW = px(480);
 
-const editableWidgetsIds = [110,111,112,113];
+const editableWidgetsIds = [110,111,112,113,114];
 const editableWidgetsHW = px(92);
 
 const animDuration = 1000;
@@ -132,6 +132,7 @@ let editGroup1 = null;
 let editGroup2 = null;
 let editGroup3 = null;
 let editGroup4 = null;
+let editGroup5 = null;
 
 let colorGroupHour   = null;
 let colorGroupMinute = null;
@@ -316,7 +317,7 @@ WatchFace({
     /* 1 - HEART EDITABLE GROUP */
     editGroup1 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
       edit_id: editableWidgetsIds[0],
-      x: px(42), y: px(290),
+      x: px(50), y: px(290),
       w: editableWidgetsHW, h: editableWidgetsHW,
       select_image: 'mask/select.png',
       un_select_image:  'mask/select.png',
@@ -337,12 +338,11 @@ WatchFace({
       }
     })
     let item1 = editGroup1.getProperty(prop.CURRENT_TYPE);
-    try { EditTypesUtil.drawWidget(item1, editableWidgetsIds[0]) } catch(e) { logger.log('widget 1 error: ' + e) }
 
     /* 2 - STEP EDITABLE GROUP */
     editGroup2 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
       edit_id: editableWidgetsIds[1],
-      x: px(194), y: px(290),
+      x: px(146), y: px(290),
       w: editableWidgetsHW, h: editableWidgetsHW,
       select_image: 'mask/select.png',
       un_select_image:  'mask/select.png',
@@ -363,12 +363,11 @@ WatchFace({
       }
     })
     let item2 = editGroup2.getProperty(prop.CURRENT_TYPE);
-    try { EditTypesUtil.drawWidget(item2, editableWidgetsIds[1]) } catch(e) { logger.log('widget 2 error: ' + e) }
 
     /* 3 - DISTANCE EDITABLE GROUP */
     editGroup3 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
       edit_id: editableWidgetsIds[2],
-      x: px(346), y: px(290),
+      x: px(242), y: px(290),
       w: editableWidgetsHW, h: editableWidgetsHW,
       select_image: 'mask/select.png',
       un_select_image:  'mask/select.png',
@@ -389,9 +388,47 @@ WatchFace({
       }
     })
     let item3 = editGroup3.getProperty(prop.CURRENT_TYPE);
-    try { EditTypesUtil.drawWidget(item3, editableWidgetsIds[2]) } catch(e) { logger.log('widget 3 error: ' + e) }
 
-    /* 4 - TOP CENTER EDITABLE GROUP */
+    /* 4 - 4TH BOTTOM ROW EDITABLE GROUP */
+    editGroup5 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
+      edit_id: editableWidgetsIds[4],
+      x: px(338), y: px(290),
+      w: editableWidgetsHW, h: editableWidgetsHW,
+      select_image: 'mask/select.png',
+      un_select_image:  'mask/select.png',
+      default_type: BLANK_TYPE,
+      optional_types: widgetOptionalArray,
+      count: widgetOptionalArray.length,
+      tips_BG: 'mask/tips.png',
+      tips_x: - px((124-92)/2),
+      tips_y: - px(36+4),
+      tips_width: px(124),
+      select_list: {
+        title_font_size: 34,
+        title_align_h: align.CENTER_H,
+        list_item_vspace: 8,
+        list_tips_text_font_size: 32,
+        list_tips_text_align_h: align.LEFT,
+      }
+    })
+    let item5 = editGroup5.getProperty(prop.CURRENT_TYPE);
+
+    // Dynamic equidistant positioning for non-empty bottom slots
+    const _bottomX = (count) => Array.from({ length: count }, (_, i) =>
+      Math.round(480 * (i + 1) / (count + 1) - 46)
+    )
+    const bottomSlots = [
+      { type: item1, id: editableWidgetsIds[0] },
+      { type: item2, id: editableWidgetsIds[1] },
+      { type: item3, id: editableWidgetsIds[2] },
+      { type: item5, id: editableWidgetsIds[4] },
+    ].filter(s => s.type !== BLANK_TYPE)
+    const xPositions = _bottomX(bottomSlots.length)
+    bottomSlots.forEach((s, i) => {
+      try { EditTypesUtil.drawWidget(s.type, s.id, xPositions[i]) } catch(e) { logger.log('widget bottom error: ' + e) }
+    })
+
+    /* 5 - TOP CENTER EDITABLE GROUP */
     editGroup4 = createWidget(widget.WATCHFACE_EDIT_GROUP, {
       edit_id: editableWidgetsIds[3],
       x: px(194), y: px(5),
@@ -539,6 +576,8 @@ WatchFace({
     deleteWidget(editGroup1);
     deleteWidget(editGroup2);
     deleteWidget(editGroup3);
+    deleteWidget(editGroup4);
+    deleteWidget(editGroup5);
 
     deleteWidget(colorGroupHour);
     deleteWidget(colorGroupMinute);
@@ -557,6 +596,8 @@ WatchFace({
     editGroup1 = null;
     editGroup2 = null;
     editGroup3 = null;
+    editGroup4 = null;
+    editGroup5 = null;
 
     colorGroupHour   = null;
     colorGroupMinute = null;
