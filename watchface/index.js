@@ -459,12 +459,6 @@ WatchFace({
       show_level: show_level.ONLY_EDIT
     })
 
-    createWidget(widget.WATCHFACE_EDIT_FG_MASK, {
-      x: 0, y: 0, w: px(480), h: px(480),
-      src: 'mask/mask70_y290.png',
-      show_level: show_level.ONLY_EDIT
-    })
-
 
     createWidget(widget.WIDGET_DELEGATE, {
       resume_call: function () {
