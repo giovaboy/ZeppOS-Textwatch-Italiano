@@ -293,7 +293,12 @@ WatchFace({
 
     updateDateWidget();
 
-    dateTextWidget.addEventListener(event.CLICK_DOWN, (info) => {
+    // area click: tutta la data + spazio fino al bordo inferiore
+    createWidget(widget.FILL_RECT, {
+      x: dateX, y: dateY, w: dateW, h: px(480) - dateY,
+      color: 0x000000, alpha: 0,
+      show_level: show_level.ONLY_NORMAL,
+    }).addEventListener(event.CLICK_DOWN, () => {
       launchApp({ appId: SYSTEM_APP_CALENDAR, native: true })
     });
 
