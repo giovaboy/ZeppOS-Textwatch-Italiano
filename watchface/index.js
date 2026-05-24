@@ -6,7 +6,7 @@ import { launchApp, SYSTEM_APP_CALENDAR } from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { backgrounds } from './backgrounds.js'
-import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE, SMART_TIMER_TYPE } from './editTypesUtil.js'
+import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE, SMART_TIMER_TYPE, setWidgetTextColor } from './editTypesUtil.js'
 import { getLanguage } from '@zos/settings'
 import {
   hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray,
@@ -162,6 +162,11 @@ WatchFace({
       tips_x: px(178), tips_y: px(20),
       tips_bg: 'mask/tips.png'
     });
+
+    const _lightBgIds = new Set(backgrounds.filter(b => b.light).map(b => b.id))
+    const _currentBgId = () => { try { return editBgWidget.getProperty(prop.CURRENT_BG_ID) ?? 0 } catch(_) { return 0 } }
+    const _applyWidgetTextColor = () => setWidgetTextColor(_lightBgIds.has(_currentBgId()) ? 0x1a1a1a : 0xffffff)
+    _applyWidgetTextColor()
 
     // ── Color zone selectors ──────────────────────────────────────────────────
     function _makeColorGroup(editId, x, y, w, h, optArray, selectImg, tipsBelow = false) {

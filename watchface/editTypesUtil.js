@@ -1,6 +1,6 @@
 import { createWidget, deleteWidget, widget, align, show_level, data_type, edit_type, prop } from '@zos/ui'
 import { Sleep, Stand, BodyTemperature, Pai, Weather, Time } from '@zos/sensor'
-import { px } from '@zos/utils'
+import { px, log } from '@zos/utils'
 
 // ─── Sensor cache (module-level, shared across all slots) ─────────────────────
 const _sc = {}
@@ -52,6 +52,10 @@ const windDirArray = Array.from({ length: 8 },  (_, i) => `wind/wind_${i}.png`)
 // ─── Slot geometry ────────────────────────────────────────────────────────────
 const SLOT_X = { 110: 50, 111: 146, 112: 242, 113: 194, 114: 338 }
 const SLOT_Y = { 110: 290, 111: 290, 112: 290, 113:   5, 114: 290 }
+
+// ─── Widget text color (set before drawWidget based on background brightness) ──
+let _wTC = 0xffffff
+export function setWidgetTextColor(color) { _wTC = color }
 
 // Custom type for blank/empty slot
 export const BLANK_TYPE       = 0x186b0
@@ -182,7 +186,7 @@ export default class EditTypesUtil {
     function drawIconText(getValue) {
       const tw = createWidget(widget.TEXT, {
         x: numX, y: numY, w: bgw, h: numH,
-        text: getValue(), text_size: px(26), color: 0xffffff,
+        text: getValue(), text_size: px(26), color: _wTC,
         align_h: align.CENTER_H, align_v: align.CENTER_V,
         show_level: show_level.ONLY_NORMAL,
       })
@@ -212,7 +216,7 @@ export default class EditTypesUtil {
           createWidget(widget.TEXT_FONT, {
             x: numX, y: numY, w: bgw, h: numH,
             type: def.dt, unit_type: def.unit ? 1 : 0,
-            text_size: px(26), color: 0xffffff,
+            text_size: px(26), color: _wTC,
             align_h: align.CENTER_H, align_v: align.CENTER_V,
             show_level: show_level.ONLY_NORMAL,
           })
@@ -234,7 +238,7 @@ export default class EditTypesUtil {
           createWidget(widget.TEXT_FONT, {
             x: numX, y: numY - px(6), w: bgw, h: numH,
             type: def.dt, padding: def.padding || false, unit_type: def.unit ? 1 : 0,
-            text_size: px(26), color: 0xffffff,
+            text_size: px(26), color: _wTC,
             align_h: align.CENTER_H, align_v: align.CENTER_V,
             show_level: show_level.ONLY_NORMAL,
           })
@@ -242,7 +246,7 @@ export default class EditTypesUtil {
           const getVal = _makeReader(def)
           const tw = createWidget(widget.TEXT, {
             x: numX, y: numY - px(6), w: bgw, h: numH,
-            text: getVal(), text_size: px(26), color: 0xffffff,
+            text: getVal(), text_size: px(26), color: _wTC,
             align_h: align.CENTER_H, align_v: align.CENTER_V,
             show_level: show_level.ONLY_NORMAL,
           })
@@ -272,13 +276,20 @@ export default class EditTypesUtil {
         const pTimer = mk_probe(data_type.COUNT_DOWN)
         const pAlarm = mk_probe(data_type.ALARM_CLOCK)
 
+        const logger = log.getLogger('smart-timer')
         const _activeInfo = () => {
-          const vs = String(pStop?.getProperty(prop.TEXT)  ?? '').trim()
-          const vt = String(pTimer?.getProperty(prop.TEXT) ?? '').trim()
-          const va = String(pAlarm?.getProperty(prop.TEXT) ?? '').trim()
-          if (vs && !INACTIVE.has(vs)) return { dt: data_type.STOP_WATCH,  icon:'stopwatch', jt: data_type.STOP_WATCH  }
-          if (vt && !INACTIVE.has(vt)) return { dt: data_type.COUNT_DOWN,  icon:'stopwatch', jt: data_type.COUNT_DOWN  }
-          if (va && !INACTIVE.has(va)) return { dt: data_type.ALARM_CLOCK, icon:'alarm',     jt: data_type.ALARM_CLOCK }
+          const rawStop  = pStop?.getProperty(prop.TEXT)
+          const rawTimer = pTimer?.getProperty(prop.TEXT)
+          const rawAlarm = pAlarm?.getProperty(prop.TEXT)
+          logger.log(`probe raw — stop:${JSON.stringify(rawStop)} timer:${JSON.stringify(rawTimer)} alarm:${JSON.stringify(rawAlarm)}`)
+          const vs = String(rawStop  ?? '').trim()
+          const vt = String(rawTimer ?? '').trim()
+          const va = String(rawAlarm ?? '').trim()
+          logger.log(`probe str — stop:"${vs}" timer:"${vt}" alarm:"${va}"`)
+          if (vs && !INACTIVE.has(vs)) { logger.log('active: STOP_WATCH');  return { dt: data_type.STOP_WATCH,  icon:'stopwatch', jt: data_type.STOP_WATCH  } }
+          if (vt && !INACTIVE.has(vt)) { logger.log('active: COUNT_DOWN');  return { dt: data_type.COUNT_DOWN,  icon:'stopwatch', jt: data_type.COUNT_DOWN  } }
+          if (va && !INACTIVE.has(va)) { logger.log('active: ALARM_CLOCK'); return { dt: data_type.ALARM_CLOCK, icon:'alarm',     jt: data_type.ALARM_CLOCK } }
+          logger.log('active: none')
           return null
         }
 
@@ -300,7 +311,7 @@ export default class EditTypesUtil {
           })
           _textW = createWidget(widget.TEXT_FONT, {
             x: numX, y: numY - px(6), w: bgw, h: numH,
-            type: info.dt, text_size: px(26), color: 0xffffff,
+            type: info.dt, text_size: px(26), color: _wTC,
             align_h: align.CENTER_H, align_v: align.CENTER_V,
             show_level: show_level.ONLY_NORMAL,
           })
@@ -328,7 +339,7 @@ export default class EditTypesUtil {
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
           type: def.dt, unit_type: def.unit ? 1 : 0,
-          text_size: px(26), color: 0xffffff,
+          text_size: px(26), color: _wTC,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -365,7 +376,7 @@ export default class EditTypesUtil {
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
           type: data_type.WIND,
-          text_size: px(26), color: 0xffffff,
+          text_size: px(26), color: _wTC,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -390,7 +401,7 @@ export default class EditTypesUtil {
         })
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
-          type: def.dt, text_size: px(26), color: 0xffffff,
+          type: def.dt, text_size: px(26), color: _wTC,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -414,7 +425,7 @@ export default class EditTypesUtil {
         })
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY, w: bgw, h: numH,
-          type: def.dt, text_size: px(26), color: 0xffffff,
+          type: def.dt, text_size: px(26), color: _wTC,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -440,7 +451,7 @@ export default class EditTypesUtil {
         createWidget(widget.TEXT_FONT, {
           x: numX, y: numY - px(6), w: bgw, h: numH,
           type: data_type.WEATHER_CURRENT, unit_type: 1,
-          text_size: px(26), color: 0xffffff,
+          text_size: px(26), color: _wTC,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -486,7 +497,7 @@ export default class EditTypesUtil {
         // testo totale PAI — creato dopo le barre per stare sopra (z-order)
         const paiTextW = createWidget(widget.TEXT, {
           x: sx, y: sy + px(4), w: bgw, h: px(30),
-          text: '--', text_size: px(26), color: 0xffffff,
+          text: '--', text_size: px(26), color: _wTC,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
@@ -553,7 +564,7 @@ export default class EditTypesUtil {
 
         const sunTextW = createWidget(widget.TEXT, {
           x: sx, y: cy + px(8), w: bgw, h: px(22),
-          text: '--:--', text_size: px(26), color: 0xffffff,
+          text: '--:--', text_size: px(26), color: _wTC,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
