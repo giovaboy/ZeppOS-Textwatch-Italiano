@@ -53,6 +53,11 @@ const windDirArray = Array.from({ length: 8 },  (_, i) => `wind/wind_${i}.png`)
 const SLOT_X = { 110: 50, 111: 146, 112: 242, 113: 194, 114: 338 }
 const SLOT_Y = { 110: 290, 111: 290, 112: 290, 113:   5, 114: 290 }
 
+// Custom type for blank/empty slot
+export const BLANK_TYPE       = 0x186b0
+// Custom type for smart timer widget (stopwatch > countdown > alarm, empty if none active)
+export const SMART_TIMER_TYPE = 0x186b1
+
 // ─── Widget definitions ───────────────────────────────────────────────────────
 // r:        renderer
 // dt:       data_type per TEXT_FONT / ARC_PROGRESS / IMG_POINTER / IMG_LEVEL
@@ -99,11 +104,6 @@ const WIDGET_DEFS = {
   [edit_type.PAI_WEEKLY]:         { r:'paiWeekly',                                                                                    jumpType: data_type.PAI_WEEKLY },
   [edit_type.SUN]:                { r:'sun',                                                                                          jumpType: data_type.SUN_CURRENT },
 }
-
-// Custom type for blank/empty slot
-export const BLANK_TYPE       = 0x186b0
-// Custom type for smart timer widget (stopwatch > countdown > alarm, empty if none active)
-export const SMART_TIMER_TYPE = 0x186b1
 
 // ─── Optional widget list (menu di modifica) ──────────────────────────────────
 export const widgetOptionalArray = [
