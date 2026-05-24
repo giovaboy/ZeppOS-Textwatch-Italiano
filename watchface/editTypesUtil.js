@@ -1,4 +1,4 @@
-import { createWidget, widget, align, show_level, data_type, edit_type, prop } from '@zos/ui'
+import { createWidget, deleteWidget, widget, align, show_level, data_type, edit_type, prop } from '@zos/ui'
 import { Sleep, Stand, BodyTemperature, Pai, Weather, Time } from '@zos/sensor'
 import { px } from '@zos/utils'
 
@@ -88,6 +88,8 @@ const WIDGET_DEFS = {
   [edit_type.SPO2]:               { r:'pointer',  dt: data_type.SPO2,               icon:'spo2',      bg:'spo2',                      jumpType: data_type.SPO2,               unit:'percent', invalid:true },
   [edit_type.WIND]:               { r:'wind',                                        icon:'wind',      bg:'wind',                      jumpType: data_type.WIND,               invalid:true },
   [edit_type.TEMPERATURE]:        { r:'pointerT', dt: data_type.WEATHER_CURRENT,    icon:'T',         bg:'t',                         jumpType: data_type.BODY_TEMP,          bodyTemp:true },
+  // ── smart timer ───────────────────────────────────────────────────────────
+  [SMART_TIMER_TYPE]:               { r:'smartTimer' },
   // ── speciali ──────────────────────────────────────────────────────────────
   [edit_type.HEART]:              { r:'heart',    dt: data_type.HEART,              icon:'heart',                                     jumpType: data_type.HEART,              sysText:true },
   [edit_type.UVI]:                { r:'uvi',      dt: data_type.UVI,                icon:'UVI',                                       jumpType: data_type.UVI,                invalid:true },
@@ -99,13 +101,17 @@ const WIDGET_DEFS = {
 }
 
 // Custom type for blank/empty slot
-export const BLANK_TYPE = 0x186b0
+export const BLANK_TYPE       = 0x186b0
+// Custom type for smart timer widget (stopwatch > countdown > alarm, empty if none active)
+export const SMART_TIMER_TYPE = 0x186b1
 
 // ─── Optional widget list (menu di modifica) ──────────────────────────────────
 export const widgetOptionalArray = [
-  { type: BLANK_TYPE,              preview: 'bg/color/prev_blank.png', title_en: 'Empty', title_sc: 'Vuoto', title_tc: 'Vuoto' },
-  { type: edit_type.ALARM_CLOCK,   preview: previewPath + 'step.png'     },
-  { type: edit_type.COUNT_DOWN,    preview: previewPath + 'step.png'     },
+  { type: BLANK_TYPE,              preview: 'bg/color/prev_blank.png',         title_en: 'Empty',        title_sc: 'Vuoto',     title_tc: 'Vuoto'     },
+  { type: SMART_TIMER_TYPE,        preview: previewPath + 'smart_timer.png',   title_en: 'Smart Timer',  title_sc: 'Timer Auto', title_tc: 'Timer Auto' },
+  { type: edit_type.STOP_WATCH,    preview: previewPath + 'stopwatch.png',     title_en: 'Stopwatch',    title_sc: 'Cronometro', title_tc: 'Cronometro' },
+  { type: edit_type.COUNT_DOWN,    preview: previewPath + 'countdown.png',     title_en: 'Countdown',    title_sc: 'Countdown',  title_tc: 'Countdown'  },
+  { type: edit_type.ALARM_CLOCK,   preview: previewPath + 'alarm.png',         title_en: 'Alarm',        title_sc: 'Sveglia',    title_tc: 'Sveglia'    },
   { type: edit_type.STEP,          preview: previewPath + 'step.png'     },
   { type: edit_type.CAL,           preview: previewPath + 'kcal.png'     },
   { type: edit_type.BATTERY,       preview: previewPath + 'bat.png'      },
@@ -249,6 +255,64 @@ export default class EditTypesUtil {
           show_level: show_level.ONLY_NORMAL,
         })
         addJump()
+        break
+      }
+
+      case 'smartTimer': {
+        // Probe TEXT_FONT widgets off-screen: the system writes the current value into them.
+        // We read it back via getProperty(prop.TEXT) to detect which (if any) is active.
+        // NOTE: getProperty on system-managed TEXT_FONT needs device verification.
+        const INACTIVE = new Set(['--:--', '--:--:--', '00:00', '00:00:00', '0:00', '0:00:00', ''])
+        const mk_probe = (dtype) => createWidget(widget.TEXT_FONT, {
+          x: px(-200), y: px(-200), w: px(100), h: px(30),
+          type: dtype, text_size: px(16), color: 0x000000,
+          show_level: show_level.ONLY_NORMAL,
+        })
+        const pStop  = mk_probe(data_type.STOP_WATCH)
+        const pTimer = mk_probe(data_type.COUNT_DOWN)
+        const pAlarm = mk_probe(data_type.ALARM_CLOCK)
+
+        const _activeInfo = () => {
+          const vs = String(pStop?.getProperty(prop.TEXT)  ?? '').trim()
+          const vt = String(pTimer?.getProperty(prop.TEXT) ?? '').trim()
+          const va = String(pAlarm?.getProperty(prop.TEXT) ?? '').trim()
+          if (vs && !INACTIVE.has(vs)) return { dt: data_type.STOP_WATCH,  icon:'stopwatch', jt: data_type.STOP_WATCH  }
+          if (vt && !INACTIVE.has(vt)) return { dt: data_type.COUNT_DOWN,  icon:'stopwatch', jt: data_type.COUNT_DOWN  }
+          if (va && !INACTIVE.has(va)) return { dt: data_type.ALARM_CLOCK, icon:'alarm',     jt: data_type.ALARM_CLOCK }
+          return null
+        }
+
+        let _bgW = null, _iconW = null, _textW = null, _clickW = null
+        const _del = (w) => { try { if (w) deleteWidget(w) } catch(_) {} }
+
+        const _build = () => {
+          _del(_bgW); _del(_iconW); _del(_textW); _del(_clickW)
+          _bgW = _iconW = _textW = _clickW = null
+          const info = _activeInfo()
+          if (!info) return // nothing active → slot stays blank
+          _bgW   = createWidget(widget.IMG, {
+            x: bgx, y: bgy, w: bgw, h: bgw, src: iconBg + 'dis.png',
+            show_level: show_level.ONLY_NORMAL,
+          })
+          _iconW = createWidget(widget.IMG, {
+            x: iconX, y: iconY - px(5), src: XicPath + info.icon + '.png',
+            show_level: show_level.ONLY_NORMAL,
+          })
+          _textW = createWidget(widget.TEXT_FONT, {
+            x: numX, y: numY - px(6), w: bgw, h: numH,
+            type: info.dt, text_size: px(26), color: 0xffffff,
+            align_h: align.CENTER_H, align_v: align.CENTER_V,
+            show_level: show_level.ONLY_NORMAL,
+          })
+          _clickW = createWidget(widget.IMG_CLICK, {
+            x: bgx, y: bgy, w: bgw, h: bgw,
+            type: info.jt,
+            show_level: show_level.ONLY_NORMAL,
+          })
+        }
+
+        _build()
+        createWidget(widget.WIDGET_DELEGATE, { resume_call: _build })
         break
       }
 
