@@ -2,10 +2,6 @@
 // ZeppOS reserves 0x186a0–UINT32_MAX for developer custom types.
 const BASE = 0x186a0
 
-// Sentinel used as default_type for color groups (= no override active).
-// Not present in ALL_COLORS so getColorFromType returns null → theme color is used.
-export const NO_OVERRIDE_TYPE = BASE + 0
-
 // ── Named color constants ─────────────────────────────────────────────────────
 // Use these in backgrounds.js for readable references: COLOR.WARM_GOLD, COLOR.CORAL, …
 export const COLOR = {
@@ -258,28 +254,25 @@ export const ALL_COLORS = [
 ]
 
 // Returns the hex color for a given type ID.
-// Returns null for NO_OVERRIDE_TYPE or any unknown type (= no override, use theme color).
+// Returns null for unknown type → caller falls back to DEFAULT_TEXT_COLOR.
 export function getColorFromType(typeId) {
   const entry = ALL_COLORS.find(c => c.type === typeId)
   return entry ? entry.color : null
 }
 
-function _makeOptionalArray(sentinel, entries) {
-  return [
-    { type: NO_OVERRIDE_TYPE, preview: sentinel, title_en: 'Theme', title_sc: 'Tema', title_tc: 'Tema' },
-    ...ALL_COLORS.map(c => ({ type: c.type, preview: entries(c.id), title_en: c.name, title_sc: c.name, title_tc: c.name }))
-  ]
+function _makeOptionalArray(entries) {
+  return ALL_COLORS.map(c => ({ type: c.type, preview: entries(c.id), title_en: c.name, title_sc: c.name, title_tc: c.name }))
 }
 
 // Italiano — preview shows "undici" / "e venti" / "lunedì 01 gennaio"
-export const hourColorOptionalArray   = _makeOptionalArray('bg/color/hour_prev_0.png',   id => `bg/color/hour_prev_${id}.png`)
-export const minuteColorOptionalArray = _makeOptionalArray('bg/color/minute_prev_0.png', id => `bg/color/minute_prev_${id}.png`)
-export const dateColorOptionalArray   = _makeOptionalArray('bg/color/date_prev_0.png',   id => `bg/color/date_prev_${id}.png`)
+export const hourColorOptionalArray   = _makeOptionalArray(id => `bg/color/hour_prev_${id}.png`)
+export const minuteColorOptionalArray = _makeOptionalArray(id => `bg/color/minute_prev_${id}.png`)
+export const dateColorOptionalArray   = _makeOptionalArray(id => `bg/color/date_prev_${id}.png`)
 
 // English — preview shows "eleven" / "and twenty" / "monday 01 january"
-export const hourColorOptionalArrayEn   = _makeOptionalArray('bg/color/hour_prev_en_0.png',   id => `bg/color/hour_prev_en_${id}.png`)
-export const minuteColorOptionalArrayEn = _makeOptionalArray('bg/color/minute_prev_en_0.png', id => `bg/color/minute_prev_en_${id}.png`)
-export const dateColorOptionalArrayEn   = _makeOptionalArray('bg/color/date_prev_en_0.png',   id => `bg/color/date_prev_en_${id}.png`)
+export const hourColorOptionalArrayEn   = _makeOptionalArray(id => `bg/color/hour_prev_en_${id}.png`)
+export const minuteColorOptionalArrayEn = _makeOptionalArray(id => `bg/color/minute_prev_en_${id}.png`)
+export const dateColorOptionalArrayEn   = _makeOptionalArray(id => `bg/color/date_prev_en_${id}.png`)
 
 // edit_id values for the 3 color selector groups (must not clash with 101/110/111/112)
 export const COLOR_EDIT_ID = {

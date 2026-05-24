@@ -11,7 +11,7 @@ import { getLanguage } from '@zos/settings'
 import {
   hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray,
   hourColorOptionalArrayEn, minuteColorOptionalArrayEn, dateColorOptionalArrayEn,
-  getColorFromType, COLOR_EDIT_ID, NO_OVERRIDE_TYPE,
+  getColorFromType, COLOR_EDIT_ID, COLOR,
 } from './colorSelector.js'
 
 try {
@@ -170,7 +170,7 @@ WatchFace({
         x, y, w, h,
         select_image:    selectImg,
         un_select_image: selectImg,
-        default_type: NO_OVERRIDE_TYPE,
+        default_type: COLOR.WHITE,
         optional_types: optArray,
         count: optArray.length,
         tips_BG:    'mask/tips.png',
@@ -200,7 +200,6 @@ WatchFace({
 
     function _colorForZone(groupWidget) {
       const sel = groupWidget.getProperty(prop.CURRENT_TYPE)
-      if (sel === NO_OVERRIDE_TYPE || sel === undefined) return DEFAULT_TEXT_COLOR
       return getColorFromType(sel) ?? DEFAULT_TEXT_COLOR
     }
 
