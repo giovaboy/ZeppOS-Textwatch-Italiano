@@ -6,7 +6,7 @@ import { launchApp, SYSTEM_APP_CALENDAR } from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { backgrounds } from './backgrounds.js'
-import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE, SMART_TIMER_TYPE, setWidgetTextColor } from './editTypesUtil.js'
+import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE, setWidgetTextColor } from './editTypesUtil.js'
 import { getLanguage } from '@zos/settings'
 import {
   hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray,
@@ -418,9 +418,12 @@ WatchFace({
     let item5 = editGroup5.getProperty(prop.CURRENT_TYPE);
 
     // Dynamic equidistant positioning for non-empty bottom slots
-    const _bottomX = (count) => Array.from({ length: count }, (_, i) =>
-      Math.round(480 * (i + 1) / (count + 1) - 46)
-    )
+    const _bottomX = (count) => ({
+      1: [194],
+      2: [114, 274],
+      3: [42, 194, 346],
+      4: [50, 146, 242, 338],
+    })[count] ?? []
     const bottomSlots = [
       { type: item1, id: editableWidgetsIds[0] },
       { type: item2, id: editableWidgetsIds[1] },
