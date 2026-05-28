@@ -59,6 +59,8 @@ export function setWidgetTextColor(color) { _wTC = color }
 
 // Custom type for blank/empty slot
 export const BLANK_TYPE = 0x186b0
+// Custom type for biocharge (no edit_type.BIO_CHARGE exists in ZeppOS API)
+export const BIOCHARGE_TYPE = 0x186b1
 
 // ─── Widget definitions ───────────────────────────────────────────────────────
 // r:        renderer
@@ -103,11 +105,14 @@ const WIDGET_DEFS = {
   // ── nuovi ─────────────────────────────────────────────────────────────────
   [edit_type.PAI_WEEKLY]:         { r:'paiWeekly',                                                                                    jumpType: data_type.PAI_WEEKLY },
   [edit_type.SUN]:                { r:'sun',                                                                                          jumpType: data_type.SUN_CURRENT },
+  // biocharge: nessun edit_type nativo, type custom BIOCHARGE_TYPE
+  [BIOCHARGE_TYPE]:               { r:'arc',      dt: data_type.BIO_CHARGE,         icon:'recovery',  bg:'recovery',  color:0xffaa00, jumpType: data_type.BIO_CHARGE,         sysText:true },
 }
 
 // ─── Optional widget list (menu di modifica) ──────────────────────────────────
 export const widgetOptionalArray = [
   { type: BLANK_TYPE,           preview: 'bg/color/prev_blank.png',     title_en: 'Empty',     title_sc: 'Vuoto',      title_tc: 'Vuoto'      },
+  { type: BIOCHARGE_TYPE,           preview: previewPath + 'recovery.png',      title_en: 'BioCharge',    title_sc: 'BioCarica',  title_tc: 'BioCarica'  },
   { type: edit_type.STOP_WATCH,    preview: previewPath + 'stopwatch.png',     title_en: 'Stopwatch',    title_sc: 'Cronometro', title_tc: 'Cronometro' },
   { type: edit_type.COUNT_DOWN,    preview: previewPath + 'countdown.png',     title_en: 'Countdown',    title_sc: 'Countdown',  title_tc: 'Countdown'  },
   { type: edit_type.ALARM_CLOCK,   preview: previewPath + 'alarm.png',         title_en: 'Alarm',        title_sc: 'Sveglia',    title_tc: 'Sveglia'    },

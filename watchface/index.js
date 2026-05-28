@@ -6,7 +6,7 @@ import { launchApp, SYSTEM_APP_CALENDAR } from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { backgrounds } from './backgrounds.js'
-import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE, setWidgetTextColor } from './editTypesUtil.js'
+import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE, BIOCHARGE_TYPE, setWidgetTextColor } from './editTypesUtil.js'
 import { getLanguage } from '@zos/settings'
 import {
   hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray,
@@ -299,12 +299,12 @@ WatchFace({
 
     updateDateWidget();
 
-    // area click: tutta la data + spazio fino al bordo inferiore
+    // area click: solo il testo data (non estesa al bordo, per non bloccare lo swipe di sistema)
     createWidget(widget.FILL_RECT, {
-      x: dateX, y: dateY, w: dateW, h: px(480) - dateY,
+      x: dateX, y: dateY, w: dateW, h: dateH,
       color: 0x000000, alpha: 0,
       show_level: show_level.ONLY_NORMAL,
-    }).addEventListener(event.CLICK_DOWN, () => {
+    }).addEventListener(event.CLICK_UP, () => {
       launchApp({ appId: SYSTEM_APP_CALENDAR, native: true })
     });
 
