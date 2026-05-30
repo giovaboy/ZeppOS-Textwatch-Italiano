@@ -39,6 +39,7 @@ Usato in `WATCHFACE_EDIT_GROUP` (`optional_types`) e come chiave di `WIDGET_DEFS
 | `edit_type.UVI` | Indice UV |
 | `edit_type.MOON` | Fase lunare |
 | `edit_type.WEATHER` | Meteo attuale (icona + temperatura) |
+| `edit_type.BIO_CHARGE` | Energia corporea (BioCarica) — confermato su dispositivo |
 | `edit_type.SUN` | Alba/tramonto (arco + orario) |
 | `edit_type.DATE` | Data — non in edit zone, widget fisso |
 | `edit_type.WEEK` | Giorno della settimana — non in edit zone |
@@ -113,7 +114,7 @@ Confermato funzionante per: `BATTERY`, `SPO2`, `HUMIDITY`, `WEATHER_CURRENT`.
 | `data_type.BATTERY` | Batteria % | ✓ | ✓ |
 | `data_type.SLEEP` | Sonno | ✓ (renderer manuale) | ✓ |
 | `data_type.FLOOR` | Piani saliti | ✓ | — |
-| `data_type.BIO_CHARGE` | Energia corporea | ✓ | — |
+| `data_type.BIO_CHARGE` | Energia corporea (BioCarica) | ✓ | ✓ |
 
 ### Meteo
 
