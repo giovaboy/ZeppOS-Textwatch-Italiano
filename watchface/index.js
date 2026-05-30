@@ -299,9 +299,9 @@ WatchFace({
 
     updateDateWidget();
 
-    // area click: solo il testo data (non estesa al bordo, per non bloccare lo swipe di sistema)
+    // area click: solo il testo data estesa al bordo
     createWidget(widget.FILL_RECT, {
-      x: dateX, y: dateY, w: dateW, h: dateH,
+      x: dateX, y: dateY, w: dateW, h: px(480) - dateY,
       color: 0x000000, alpha: 0,
       show_level: show_level.ONLY_NORMAL,
     }).addEventListener(event.CLICK_UP, () => {

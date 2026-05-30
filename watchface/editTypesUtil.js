@@ -60,7 +60,7 @@ export function setWidgetTextColor(color) { _wTC = color }
 // Custom type for blank/empty slot
 export const BLANK_TYPE = 0x186b0
 // Custom type for biocharge (no edit_type.BIO_CHARGE exists in ZeppOS API)
-export const BIOCHARGE_TYPE = 0x186b1
+export const BIOCHARGE_TYPE = edit_type.BIOCHARGE;//0x186b1
 
 // ─── Widget definitions ───────────────────────────────────────────────────────
 // r:        renderer
