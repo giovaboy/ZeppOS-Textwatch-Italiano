@@ -59,8 +59,6 @@ export function setWidgetTextColor(color) { _wTC = color }
 
 // Custom type for blank/empty slot
 export const BLANK_TYPE = 0x186b0
-// Custom type for biocharge (no edit_type.BIO_CHARGE exists in ZeppOS API)
-export const BIOCHARGE_TYPE = edit_type.BIO_CHARGE;//0x186b1
 
 // ─── Widget definitions ───────────────────────────────────────────────────────
 // r:        renderer
@@ -77,6 +75,7 @@ const WIDGET_DEFS = {
   [edit_type.CAL]:                { r:'arc',      dt: data_type.CAL,                icon:'kcal',      bg:'cal',       color:0xdf4f26, jumpType: data_type.CAL,                sysText:true },
   [edit_type.PAI]:                { r:'arc',      dt: data_type.PAI_WEEKLY,         icon:'Pai',       bg:'pai',       color:0xd612c0, jumpType: data_type.PAI_WEEKLY,         sysText:true },
   [edit_type.BATTERY]:            { r:'arc',      dt: data_type.BATTERY,            icon:'bat',       bg:'bat',       color:0x06c18a, jumpType: data_type.BATTERY,            sysText:true, unit:true },
+  [edit_type.BIO_CHARGE]:         { r:'arc',      dt: data_type.BIO_CHARGE,         icon:'recovery',  bg:'recovery',  color:0xffaa00, jumpType: data_type.BIO_CHARGE,         sysText:true },
   [edit_type.STAND]:              { r:'arc',      dt: data_type.STAND,              icon:'stand',     bg:'step',      color:0x06a5ff, jumpType: data_type.STAND,              sysText:true },
   [edit_type.RECOVERY_TIME]:      { r:'arc',      dt: data_type.RECOVERY_TIME,      icon:'recovery',  bg:'recovery',  color:0x06a5ff, jumpType: data_type.RECOVERY_TIME,      sysText:true },
   [edit_type.VO2MAX]:             { r:'arc',      dt: data_type.VO2MAX,             icon:'vo2',       bg:'vo2',       color:0x06a5ff, jumpType: data_type.VO2MAX,             sysText:true },
@@ -105,14 +104,12 @@ const WIDGET_DEFS = {
   // ── nuovi ─────────────────────────────────────────────────────────────────
   [edit_type.PAI_WEEKLY]:         { r:'paiWeekly',                                                                                    jumpType: data_type.PAI_WEEKLY },
   [edit_type.SUN]:                { r:'sun',                                                                                          jumpType: data_type.SUN_CURRENT },
-  // biocharge: nessun edit_type nativo, type custom BIOCHARGE_TYPE
-  [BIOCHARGE_TYPE]:               { r:'arc',      dt: data_type.BIO_CHARGE,         icon:'recovery',  bg:'recovery',  color:0xffaa00, jumpType: data_type.BIO_CHARGE,         sysText:true },
 }
 
 // ─── Optional widget list (menu di modifica) ──────────────────────────────────
 export const widgetOptionalArray = [
   { type: BLANK_TYPE,           preview: 'bg/color/prev_blank.png',     title_en: 'Empty',     title_sc: 'Vuoto',      title_tc: 'Vuoto'      },
-  { type: BIOCHARGE_TYPE,           preview: previewPath + 'recovery.png',      title_en: 'BioCharge',    title_sc: 'BioCarica',  title_tc: 'BioCarica'  },
+  { type: edit_type.BIO_CHARGE,    preview: previewPath + 'biocharge.png',     title_en: 'BioCharge',    title_sc: 'BioCarica',  title_tc: 'BioCarica'  },
   { type: edit_type.STOP_WATCH,    preview: previewPath + 'stopwatch.png',     title_en: 'Stopwatch',    title_sc: 'Cronometro', title_tc: 'Cronometro' },
   { type: edit_type.COUNT_DOWN,    preview: previewPath + 'countdown.png',     title_en: 'Countdown',    title_sc: 'Countdown',  title_tc: 'Countdown'  },
   { type: edit_type.ALARM_CLOCK,   preview: previewPath + 'alarm.png',         title_en: 'Alarm',        title_sc: 'Sveglia',    title_tc: 'Sveglia'    },
@@ -499,7 +496,7 @@ export default class EditTypesUtil {
 
         const sunTextW = createWidget(widget.TEXT, {
           x: sx, y: cy + px(8), w: bgw, h: px(22),
-          text: '--:--', text_size: px(26), color: _wTC,
+          text: '--:--', text_size: px(22), color: _wTC,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })

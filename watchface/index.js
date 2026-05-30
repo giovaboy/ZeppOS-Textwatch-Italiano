@@ -6,7 +6,7 @@ import { launchApp, SYSTEM_APP_CALENDAR } from '@zos/router'
 import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { backgrounds } from './backgrounds.js'
-import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE, BIOCHARGE_TYPE, setWidgetTextColor } from './editTypesUtil.js'
+import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE, setWidgetTextColor } from './editTypesUtil.js'
 import { getLanguage } from '@zos/settings'
 import {
   hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray,
