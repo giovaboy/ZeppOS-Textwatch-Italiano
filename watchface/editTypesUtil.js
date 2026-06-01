@@ -496,7 +496,7 @@ export default class EditTypesUtil {
 
         const sunTextW = createWidget(widget.TEXT, {
           x: sx, y: cy + px(8), w: bgw, h: px(22),
-          text: '--:--', text_size: px(22), color: _wTC,
+          text: '--:--', text_size: px(20), color: _wTC,
           align_h: align.CENTER_H, align_v: align.CENTER_V,
           show_level: show_level.ONLY_NORMAL,
         })
