@@ -21,7 +21,9 @@
       "Bash(command -v npx)",
       "Bash(/usr/lib/code-server/lib/node -e ':*)",
       "Bash(curl -s https://raw.githubusercontent.com/giovaboy/amazfit-watchfaces/main/src/watchfaces/modular/utils/constants.js)",
-      "Bash(python3 -c ':*)"
+      "Bash(python3 -c ':*)",
+      "Bash(find /tmp /home/giovanni -name \"*.png\" -newer /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/default-target.r/xicon/bio_charge.png 2>/dev/null | grep -v \"ZeppOS-Textwatch\" | head -10)",
+      "Read(//tmp/**)"
     ]
   }
 }

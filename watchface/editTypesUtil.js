@@ -75,7 +75,7 @@ const WIDGET_DEFS = {
   [edit_type.CAL]:                { r:'arc',      dt: data_type.CAL,                icon:'kcal',      bg:'cal',       color:0xdf4f26, jumpType: data_type.CAL,                sysText:true },
   [edit_type.PAI]:                { r:'arc',      dt: data_type.PAI_WEEKLY,         icon:'Pai',       bg:'pai',       color:0xd612c0, jumpType: data_type.PAI_WEEKLY,         sysText:true },
   [edit_type.BATTERY]:            { r:'arc',      dt: data_type.BATTERY,            icon:'bat',       bg:'bat',       color:0x06c18a, jumpType: data_type.BATTERY,            sysText:true, unit:true },
-  [edit_type.BIO_CHARGE]:         { r:'arc',      dt: data_type.BIO_CHARGE,         icon:'bio_charge', bg:'recovery', color:0x60a6ee, jumpType: data_type.BIO_CHARGE,         sysText:true },
+  [edit_type.BIO_CHARGE]:         { r:'pointer',  dt: data_type.BIO_CHARGE,         icon:'bio_charge', bg:'bio_charge',                jumpType: data_type.BIO_CHARGE,                         invalid:true },
   [edit_type.STAND]:              { r:'arc',      dt: data_type.STAND,              icon:'stand',     bg:'step',      color:0x06a5ff, jumpType: data_type.STAND,              sysText:true },
   [edit_type.RECOVERY_TIME]:      { r:'arc',      dt: data_type.RECOVERY_TIME,      icon:'recovery',  bg:'recovery',  color:0x06a5ff, jumpType: data_type.RECOVERY_TIME,      sysText:true },
   [edit_type.VO2MAX]:             { r:'arc',      dt: data_type.VO2MAX,             icon:'vo2',       bg:'vo2',       color:0x06a5ff, jumpType: data_type.VO2MAX,             sysText:true },
