@@ -3,7 +3,6 @@ import { getScene, SCENE_AOD } from '@zos/app'
 import { px, log } from '@zos/utils'
 import { Time } from '@zos/sensor'
 import { launchApp, SYSTEM_APP_CALENDAR } from '@zos/router'
-import { LocalStorage } from '@zos/storage'
 import NumberToText from './numberToText.js'
 import { backgrounds } from './backgrounds.js'
 import EditTypesUtil, { widgetOptionalArray, BLANK_TYPE, setWidgetTextColor } from './editTypesUtil.js'
@@ -31,7 +30,6 @@ try {
 
 const DEBUG = false;
 const logger = log.getLogger("textwatch-italiano");
-const localStorage = new LocalStorage()
 
 const timeSensor = new Time()
 

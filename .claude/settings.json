@@ -23,7 +23,15 @@
       "Bash(curl -s https://raw.githubusercontent.com/giovaboy/amazfit-watchfaces/main/src/watchfaces/modular/utils/constants.js)",
       "Bash(python3 -c ':*)",
       "Bash(find /tmp /home/giovanni -name \"*.png\" -newer /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/assets/default-target.r/xicon/bio_charge.png 2>/dev/null | grep -v \"ZeppOS-Textwatch\" | head -10)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(xargs -n1 basename)",
+      "Bash(grep -c 'def\\\\.__TRACKED_VAR__\\\\|__TRACKED_VAR__:' watchface/editTypesUtil.js)",
+      "Bash(grep -c '\\\\b__TRACKED_VAR__\\\\b' watchface/editTypesUtil.js)",
+      "Bash(grep -c 'def\\\\.__TRACKED_VAR__\\\\b' watchface/editTypesUtil.js)",
+      "Bash(cd /home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano *)"
+    ],
+    "additionalDirectories": [
+      "/home/giovanni/projects/zeppos/ZeppOS-Textwatch-Italiano/watchface"
     ]
   }
 }

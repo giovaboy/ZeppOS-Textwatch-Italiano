@@ -36,14 +36,6 @@ const IT_MONTHS = {
   5: 'maggio',   6: 'giugno',   7: 'luglio',   8: 'agosto',
   9: 'settembre',10: 'ottobre', 11: 'novembre',12: 'dicembre',
 }
-const IT_MINUTES_TO = {
-  0:  'adesso',
-  1:  'tra un minuto',
-  15: "tra un quarto d'ora",
-  45: "tra tre quarti d'ora",
-  60: "tra un'ora",
-}
-
 // Elisioni fonetiche: x1 "trentuno", x8 "ventotto", tutti < 26 diretti
 function _itNumToWords(n) {
   const mod = n % 10
@@ -69,14 +61,6 @@ const EN_MONTHS = {
   5: 'may',      6: 'june',     7: 'july',      8: 'august',
   9: 'september',10: 'october', 11: 'november',12: 'december',
 }
-const EN_MINUTES_TO = {
-  0:  'now',
-  1:  'in a minute',
-  15: 'in a quarter hour',
-  45: 'in three quarters',
-  60: 'in an hour',
-}
-
 function _enNumToWords(n) {
   if (n < 20) return EN_ONES[n]
   const tens = EN_TENS[Math.floor(n / 10)]
@@ -106,14 +90,6 @@ const ES_MONTHS = {
   5: 'mayo',     6: 'junio',     7: 'julio',       8: 'agosto',
   9: 'septiembre', 10: 'octubre', 11: 'noviembre', 12: 'diciembre',
 }
-const ES_MINUTES_TO = {
-  0:  'ahora',
-  1:  'en un minuto',
-  15: 'en un cuarto de hora',
-  45: 'en tres cuartos',
-  60: 'en una hora',
-}
-
 function _esNumToWords(n) {
   if (n <= 29) return ES_MAP[n]
   const tens = ES_MAP[Math.floor(n / 10) * 10]
@@ -143,14 +119,6 @@ const RU_MONTHS = {
   5: 'мая',      6: 'июня',     7: 'июля',       8: 'августа',
   9: 'сентября', 10: 'октября', 11: 'ноября',   12: 'декабря',
 }
-const RU_MINUTES_TO = {
-  0:  'сейчас',
-  1:  'через минуту',
-  15: 'через четверть часа',
-  45: 'через три четверти',
-  60: 'через час',
-}
-
 function _ruNumToWords(n) {
   if (n < 20) return RU_ONES[n]
   const tens = RU_TENS[Math.floor(n / 10)]
@@ -209,41 +177,6 @@ export default class NumberToText {
         if (m === 30) return 'thirty'
         if (m === 45) return 'forty-five'
         return _enNumToWords(m)
-    }
-  }
-
-  static getMinutesTo(m) {
-    switch (_lang) {
-      case 10: // Italian
-        if (m in IT_MINUTES_TO) return IT_MINUTES_TO[m]
-        return 'tra ' + _itNumToWords(m) + ' minuti'
-      case 3:  // Spanish
-        if (m in ES_MINUTES_TO) return ES_MINUTES_TO[m]
-        return 'en ' + _esNumToWords(m) + ' minutos'
-      case 4:  // Russian
-        if (m in RU_MINUTES_TO) return RU_MINUTES_TO[m]
-        return 'через ' + _ruNumToWords(m) + ' минут'
-      default: // English
-        if (m in EN_MINUTES_TO) return EN_MINUTES_TO[m]
-        return 'in ' + _enNumToWords(m) + ' minutes'
-    }
-  }
-
-  static getDayOfWeek(d) {
-    switch (_lang) {
-      case 10: return IT_DAYS[d]
-      case 3:  return ES_DAYS[d]
-      case 4:  return RU_DAYS[d]
-      default: return EN_DAYS[d]
-    }
-  }
-
-  static getMonth(m) {
-    switch (_lang) {
-      case 10: return IT_MONTHS[m]
-      case 3:  return ES_MONTHS[m]
-      case 4:  return RU_MONTHS[m]
-      default: return EN_MONTHS[m]
     }
   }
 
