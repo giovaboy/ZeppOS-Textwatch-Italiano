@@ -78,7 +78,7 @@ const WIDGET_DEFS = {
   [edit_type.BIO_CHARGE]:         { r:'pointer',  dt: data_type.BIO_CHARGE,         icon:'bio_charge', bg:'bio_charge',                jumpType: data_type.BIO_CHARGE,                         invalid:true },
   [edit_type.STAND]:              { r:'arc',      dt: data_type.STAND,              icon:'stand',     bg:'step',      color:0x06a5ff, jumpType: data_type.STAND,              sysText:true },
   [edit_type.RECOVERY_TIME]:      { r:'arc',      dt: data_type.RECOVERY_TIME,      icon:'recovery',  bg:'recovery',  color:0x06a5ff, jumpType: data_type.RECOVERY_TIME,      sysText:true },
-  [edit_type.VO2MAX]:             { r:'arc',      dt: data_type.VO2MAX,             icon:'vo2',       bg:'vo2',       color:0x06a5ff, jumpType: data_type.VO2MAX,             sysText:true },
+  [edit_type.VO2MAX]:             { r:'pointer',  dt: data_type.VO2MAX,             icon:'vo2',       bg:'vo2',                       jumpType: data_type.VO2MAX,             invalid:true },
   // ── sfondo + numero + icona ───────────────────────────────────────────────
   [edit_type.DISTANCE]:           { r:'numeric',  dt: data_type.DISTANCE,           icon:'dis',       bg:'dis',                       jumpType: data_type.DISTANCE,           sysText:true },
   [edit_type.SLEEP]:              { r:'numeric',  dt: data_type.SLEEP,              icon:'sleep',     bg:'sleep',                     jumpType: data_type.SLEEP,              dot:'point', invalid:true },
@@ -91,7 +91,6 @@ const WIDGET_DEFS = {
   [edit_type.ALARM_CLOCK]:        { r:'numeric',  dt: data_type.ALARM_CLOCK,        icon:'alarm',     bg:'dis',                       jumpType: data_type.ALARM_CLOCK,        sysText:true, padding:true },
   [edit_type.COUNT_DOWN]:         { r:'numeric',  dt: data_type.COUNT_DOWN,         icon:'stopwatch', bg:'dis',                       jumpType: data_type.COUNT_DOWN,         sysText:true },
   [edit_type.TRAINING_LOAD]:      { r:'numeric',  dt: data_type.TRAINING_LOAD,      icon:'recovery',  bg:'recovery',                  jumpType: data_type.TRAINING_LOAD,      sysText:true },
-  [edit_type.MONTH_RUN_DISTANCE]: { r:'numeric',  dt: data_type.MONTH_RUN_DISTANCE, icon:'run',       bg:'recovery',                  jumpType: data_type.MONTH_RUN_DISTANCE, sysText:true },
   // ── puntatore rotante ─────────────────────────────────────────────────────
   [edit_type.SPO2]:               { r:'pointer',  dt: data_type.SPO2,               icon:'spo2',      bg:'spo2',                      jumpType: data_type.SPO2,               unit:'percent', invalid:true },
   [edit_type.WIND]:               { r:'wind',                                        icon:'wind',      bg:'wind',                      jumpType: data_type.WIND,               invalid:true },
@@ -132,7 +131,6 @@ export const widgetOptionalArray = [
   { type: edit_type.VO2MAX,        preview: previewPath + 'vo2.png'      },
   { type: edit_type.RECOVERY_TIME, preview: previewPath + 'recovery.png' },
   { type: edit_type.TRAINING_LOAD, preview: previewPath + 'training_load.png' },
-  { type: edit_type.MONTH_RUN_DISTANCE, preview: previewPath + 'month_run.png' },
   { type: edit_type.ALTIMETER,     preview: previewPath + 'Kpa.png'      },
   { type: edit_type.ALTITUDE,      preview: previewPath + 'Kpa.png'      },
   { type: edit_type.MOON,          preview: previewPath + 'moon.png'     },
