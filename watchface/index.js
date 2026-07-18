@@ -33,13 +33,17 @@ const logger = log.getLogger("textwatch-italiano");
 
 const timeSensor = new Time()
 
+// Barlow non copre il cirillico: per il russo (lang 4) si usa Inter (subset latino+cirillico)
+const _isRu = (() => { try { return getLanguage() === 4 } catch (_) { return false } })()
+
 const dateTextSize = px(28);
-const minuteTextSize = px(64);
+// In russo la stringa peggiore ("и пятьдесят восемь") a 64px sfora il widget: a 52px pareggia l'ingombro dell'italiano
+const minuteTextSize = _isRu ? px(52) : px(64);
 const hourTextSize = px(64);
 
 const HaH = (hourTextSize * 1.25);
 const HbH = HaH;
-const MaH = (minuteTextSize * 1.25);
+const MaH = HaH; // box fisso: il testo ru più piccolo resta centrato dove si aspettano overlay e layout
 const MbH = MaH;
 
 //balance = 480*480
@@ -81,9 +85,6 @@ const minuteAODColor = 0xffffff;
 let dateColor;
 let hourColor;
 let minuteColor;
-
-// Barlow non copre il cirillico: per il russo (lang 4) si usa Inter (subset latino+cirillico)
-const _isRu = (() => { try { return getLanguage() === 4 } catch (_) { return false } })()
 
 const dummyCharsetMinute = _isRu ? ' авдеиклмнопрстцчшыья' : 'acdegimnopqrstuv';
 const dummyCharsetHour = _isRu ? 'авдеилмнопрстцчшыья' : 'acdegimnopqrstuvz';
