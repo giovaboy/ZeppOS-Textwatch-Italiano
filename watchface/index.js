@@ -82,17 +82,20 @@ let dateColor;
 let hourColor;
 let minuteColor;
 
-const dummyCharsetMinute = 'acdegimnopqrstuv';
-const dummyCharsetHour = 'acdegimnopqrstuvz';
-const dummyCharsetDate = 'abcdefgilmnoprstuvzì0123456789';
+// Barlow non copre il cirillico: per il russo (lang 4) si usa Inter (subset latino+cirillico)
+const _isRu = (() => { try { return getLanguage() === 4 } catch (_) { return false } })()
 
-const hourNormalFont = 'fonts/Barlow-Medium.ttf';
-const minuteNormalFont = 'fonts/Barlow-Regular.ttf';
+const dummyCharsetMinute = _isRu ? ' авдеиклмнопрстцчшыья' : 'acdegimnopqrstuv';
+const dummyCharsetHour = _isRu ? 'авдеилмнопрстцчшыья' : 'acdegimnopqrstuvz';
+const dummyCharsetDate = _isRu ? 'абвгдеиклмнопрстуфцчьюя,0123456789' : 'abcdefgilmnoprstuvzì0123456789';
 
-const dateFont = 'fonts/Barlow-RegularDate.ttf';
+const hourNormalFont = _isRu ? 'fonts/Inter-Medium.ttf' : 'fonts/Barlow-Medium.ttf';
+const minuteNormalFont = _isRu ? 'fonts/Inter-Regular.ttf' : 'fonts/Barlow-Regular.ttf';
 
-const hourAODFont = 'fonts/Barlow-Light.ttf';
-const minuteAODFont = 'fonts/Barlow-Thin.ttf';
+const dateFont = _isRu ? 'fonts/Inter-Regular.ttf' : 'fonts/Barlow-RegularDate.ttf';
+
+const hourAODFont = _isRu ? 'fonts/Inter-Light.ttf' : 'fonts/Barlow-Light.ttf';
+const minuteAODFont = _isRu ? 'fonts/Inter-Thin.ttf' : 'fonts/Barlow-Thin.ttf';
 
 const anim_step_in = {
   anim_prop: prop.X,
