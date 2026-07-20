@@ -37,8 +37,8 @@ const timeSensor = new Time()
 const _isRu = (() => { try { return getLanguage() === 4 } catch (_) { return false } })()
 
 const dateTextSize = px(28);
-// In russo la stringa peggiore ("и пятьдесят восемь") a 64px sfora il widget: a 52px pareggia l'ingombro dell'italiano
-const minuteTextSize = _isRu ? px(52) : px(64);
+// In russo la stringa peggiore ("и пятьдесят восемь") a 64px sfora il widget; a 56px il margine è minimo (~6px)
+const minuteTextSize = _isRu ? px(56) : px(64);
 const hourTextSize = px(64);
 
 const HaH = (hourTextSize * 1.25);
