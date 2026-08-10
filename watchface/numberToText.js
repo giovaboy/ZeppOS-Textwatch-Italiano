@@ -2,7 +2,7 @@ import { getLanguage } from '@zos/settings'
 
 // ─── Language detection (at load time) ────────────────────────────────────────
 // getLanguage() returns a numeric code — see https://docs.zepp.com/docs/reference/related-resources/language-list/
-// 2=en, 3=es, 4=ru, 10=it  (default: English)
+// 2=en, 3=es, 4=ru, 6=fr, 10=it  (default: English)
 const _lang = (() => { try { return getLanguage() } catch (_) { return 2 } })()
 
 // ─── Italian data ─────────────────────────────────────────────────────────────
@@ -97,6 +97,33 @@ function _esNumToWords(n) {
   return ones ? tens + ' y ' + ES_MAP[ones] : tens
 }
 
+// ─── French data ──────────────────────────────────────────────────────────────
+
+const FR_ONES = [
+  '', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf',
+  'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize',
+  'dix-sept', 'dix-huit', 'dix-neuf',
+]
+const FR_TENS = ['', '', 'vingt', 'trente', 'quarante', 'cinquante']
+const FR_DAYS = {
+  1: 'lundi',    2: 'mardi',  3: 'mercredi', 4: 'jeudi',
+  5: 'vendredi', 6: 'samedi', 7: 'dimanche',
+}
+const FR_MONTHS = {
+  1: 'janvier',  2: 'février',  3: 'mars',      4: 'avril',
+  5: 'mai',      6: 'juin',     7: 'juillet',   8: 'août',
+  9: 'septembre',10: 'octobre', 11: 'novembre', 12: 'décembre',
+}
+// x1 non si lega con il trattino ("vingt et un", non "vingt-un")
+function _frNumToWords(n) {
+  if (n < 20) return FR_ONES[n]
+  const tens = FR_TENS[Math.floor(n / 10)]
+  const ones = n % 10
+  if (ones === 0) return tens
+  if (ones === 1) return tens + ' et un'
+  return tens + '-' + FR_ONES[ones]
+}
+
 // ─── Russian data ─────────────────────────────────────────────────────────────
 
 const RU_ONES = [
@@ -145,6 +172,11 @@ export default class NumberToText {
         return ES_MAP[h12]
       case 4:  // Russian
         return RU_HOURS[h12]
+      case 6:  // French
+        if (h === 0)             return 'minuit'
+        if (h === 12)            return 'midi'
+        if (h === 1 || h === 13) return 'une'
+        return FR_ONES[h12]
       default: // English
         if (h === 0)  return 'midnight'
         if (h === 12) return 'noon'
@@ -171,6 +203,12 @@ export default class NumberToText {
         if (m === 30) return 'и полчаса'
         if (m === 45) return 'и три четверти'
         return 'и ' + _ruNumToWords(m)
+      case 6:  // French
+        if (m === 0)  return 'précises'
+        if (m === 15) return 'et quart'
+        if (m === 30) return 'et demie'
+        if (m === 45) return 'et trois quarts'
+        return 'et ' + _frNumToWords(m)
       default: // English
         if (m === 0)  return "o'clock"
         if (m === 15) return 'fifteen'
@@ -185,6 +223,7 @@ export default class NumberToText {
       case 10: return `${IT_DAYS[dayOfWeek]} ${date} ${IT_MONTHS[month]}`
       case 3:  return `${ES_DAYS[dayOfWeek]}, ${date} de ${ES_MONTHS[month]}`
       case 4:  return `${RU_DAYS[dayOfWeek]}, ${date} ${RU_MONTHS[month]}`
+      case 6:  return `${FR_DAYS[dayOfWeek]} ${date} ${FR_MONTHS[month]}`
       default: return `${EN_DAYS[dayOfWeek]}, ${EN_MONTHS[month]} ${date}`
     }
   }

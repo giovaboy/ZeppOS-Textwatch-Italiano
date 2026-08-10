@@ -4,16 +4,19 @@ A ZeppOS watchface that tells the time as written words, in your language.
 
 <img src='assets/default-target.r/preview.png' width='300'>
 
-Born as an Italian-only text watch, it now speaks **Italian, English, Spanish and Russian** — the language is picked automatically from the watch system language (English is the fallback).
+Born as an Italian-only text watch, it now speaks **Italian, English, Spanish, French and Russian** — the language is picked automatically from the watch system language (English is the fallback, including for languages not yet supported, like Turkish).
 
 | Language | Example (14:57) |
 |----------|-----------------|
 | 🇮🇹 Italiano | `due` / `e cinquantasette` |
 | 🇬🇧 English  | `two` / `fifty-seven` |
 | 🇪🇸 Español  | `dos` / `y cincuenta y siete` |
+| 🇫🇷 Français | `deux` / `et cinquante-sept` |
 | 🇷🇺 Русский  | `два` / `и пятьдесят семь` |
 
-Each language gets proper idiomatic forms, not literal translations: `mezzogiorno`/`noon`/`mediodía`/`полдень`, quarter hours (`e un quarto`, `y media`, `и четверть`…), Italian phonetic elisions (`ventotto`, `trentuno`), Russian genitive months in dates.
+Each language gets proper idiomatic forms, not literal translations: `mezzogiorno`/`noon`/`mediodía`/`midi`/`полдень`, quarter hours (`e un quarto`, `y media`, `et quart`, `и четверть`…), Italian phonetic elisions (`ventotto`, `trentuno`), French's non-hyphenated "et un" (`vingt et un`, not `vingt-un`), Russian genitive months in dates.
+
+Russian text renders in [Inter](https://github.com/rsms/inter) instead of the watch's default Barlow font, which has no Cyrillic glyphs — bundled as a Latin+Cyrillic subset to keep the package small.
 
 ## Features
 
@@ -21,7 +24,7 @@ Each language gets proper idiomatic forms, not literal translations: `mezzogiorn
 - **Localized date** — e.g. `venerdì 26 gennaio`, tap it to open the calendar
 - **Always-on display** — dedicated thin-font layout
 - **11 backgrounds** — 6 dark + 5 light, selectable in the watchface editor; widget text automatically switches to dark on light backgrounds
-- **Per-zone colors** — hour, minute and date colors are independently customizable, with live localized previews in the editor
+- **Per-zone colors** — hour, minute and date colors are independently customizable, with live localized previews in the editor, rendered at the same font size shown on the watch face
 - **5 widget slots** — 4 on the bottom row + 1 top-center, each configurable from ~28 data widgets (or left empty); non-empty bottom slots re-space themselves automatically
 - **Tap-to-open** — every widget opens its system app (heart rate, weather, alarm…)
 
@@ -48,10 +51,13 @@ zeus build    # produce the installable package
 ```
 watchface/
   index.js          # layout, animations, AOD, editor groups
-  numberToText.js   # number → words engine (it / en / es / ru)
+  numberToText.js   # number → words engine (it / en / es / fr / ru)
   colorSelector.js  # per-zone color pickers with localized previews
   editTypesUtil.js  # the ~28 data widgets renderers
   backgrounds.js    # background catalog (dark / light)
 tools/              # Python generators for backgrounds and editor previews
+  gen_color_previews.py  # renders the per-language, per-color preview PNGs
+                          # from ALL_COLORS in colorSelector.js
 assets/             # per-target images and fonts
+  default-target.r/bg/color/{it,en,es,fr,ru}/  # localized color-picker previews
 ```

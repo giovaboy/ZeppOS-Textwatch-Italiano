@@ -10,6 +10,9 @@ import { getLanguage } from '@zos/settings'
 import {
   hourColorOptionalArray, minuteColorOptionalArray, dateColorOptionalArray,
   hourColorOptionalArrayEn, minuteColorOptionalArrayEn, dateColorOptionalArrayEn,
+  hourColorOptionalArrayEs, minuteColorOptionalArrayEs, dateColorOptionalArrayEs,
+  hourColorOptionalArrayRu, minuteColorOptionalArrayRu, dateColorOptionalArrayRu,
+  hourColorOptionalArrayFr, minuteColorOptionalArrayFr, dateColorOptionalArrayFr,
   getColorFromType, COLOR_EDIT_ID, COLOR,
 } from './colorSelector.js'
 
@@ -35,10 +38,12 @@ const timeSensor = new Time()
 
 // Barlow non copre il cirillico: per il russo (lang 4) si usa Inter (subset latino+cirillico)
 const _isRu = (() => { try { return getLanguage() === 4 } catch (_) { return false } })()
+const _isFr = (() => { try { return getLanguage() === 6 } catch (_) { return false } })()
 
 const dateTextSize = px(28);
 // In russo la stringa peggiore ("и пятьдесят восемь") a 64px sfora il widget; a 56px il margine è minimo (~6px)
-const minuteTextSize = _isRu ? px(56) : px(64);
+// In francese "et cinquante-quatre" sfora leggermente a 64px; 60px lascia ~18px di margine
+const minuteTextSize = _isRu ? px(56) : _isFr ? px(60) : px(64);
 const hourTextSize = px(64);
 
 const HaH = (hourTextSize * 1.25);
@@ -188,11 +193,22 @@ WatchFace({
       return { grp }
     }
 
-    // Scegli array preview in base alla lingua del dispositivo
-    const _isEn = (() => { try { return getLanguage() === 2 } catch(_) { return false } })()
-    const _hourArr   = _isEn ? hourColorOptionalArrayEn   : hourColorOptionalArray
-    const _minuteArr = _isEn ? minuteColorOptionalArrayEn : minuteColorOptionalArray
-    const _dateArr   = _isEn ? dateColorOptionalArrayEn   : dateColorOptionalArray
+    // Scegli array preview in base alla lingua del dispositivo.
+    // Esistono asset IT, EN, ES, RU e FR: italiano, spagnolo, russo e francese sono
+    // espliciti, ogni altra lingua (turco, non mappate, ecc.) ricade sull'inglese.
+    const _deviceLang = (() => { try { return getLanguage() } catch(_) { return 2 } })()
+    const _previewLangArrays = _deviceLang === 10
+      ? { hour: hourColorOptionalArray,   minute: minuteColorOptionalArray,   date: dateColorOptionalArray }
+      : _deviceLang === 3
+      ? { hour: hourColorOptionalArrayEs, minute: minuteColorOptionalArrayEs, date: dateColorOptionalArrayEs }
+      : _deviceLang === 4
+      ? { hour: hourColorOptionalArrayRu, minute: minuteColorOptionalArrayRu, date: dateColorOptionalArrayRu }
+      : _deviceLang === 6
+      ? { hour: hourColorOptionalArrayFr, minute: minuteColorOptionalArrayFr, date: dateColorOptionalArrayFr }
+      : { hour: hourColorOptionalArrayEn, minute: minuteColorOptionalArrayEn, date: dateColorOptionalArrayEn }
+    const _hourArr   = _previewLangArrays.hour
+    const _minuteArr = _previewLangArrays.minute
+    const _dateArr   = _previewLangArrays.date
 
     // Ore: rettangolo 400×80, centrato orizzontalmente, sovrapposto al testo ore (y=110, h=80)
     const csHour   = _makeColorGroup(COLOR_EDIT_ID.HOUR,   px(40),  px(110), px(400), px(80),  _hourArr,   'mask/select_rect.png')

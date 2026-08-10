@@ -265,14 +265,29 @@ function _makeOptionalArray(entries) {
 }
 
 // Italiano — preview shows "undici" / "e venti" / "lunedì 01 gennaio"
-export const hourColorOptionalArray   = _makeOptionalArray(id => `bg/color/hour_prev_${id}.png`)
-export const minuteColorOptionalArray = _makeOptionalArray(id => `bg/color/minute_prev_${id}.png`)
-export const dateColorOptionalArray   = _makeOptionalArray(id => `bg/color/date_prev_${id}.png`)
+export const hourColorOptionalArray   = _makeOptionalArray(id => `bg/color/it/hour_prev_it_${id}.png`)
+export const minuteColorOptionalArray = _makeOptionalArray(id => `bg/color/it/minute_prev_it_${id}.png`)
+export const dateColorOptionalArray   = _makeOptionalArray(id => `bg/color/it/date_prev_it_${id}.png`)
 
 // English — preview shows "eleven" / "and twenty" / "monday 01 january"
-export const hourColorOptionalArrayEn   = _makeOptionalArray(id => `bg/color/hour_prev_en_${id}.png`)
-export const minuteColorOptionalArrayEn = _makeOptionalArray(id => `bg/color/minute_prev_en_${id}.png`)
-export const dateColorOptionalArrayEn   = _makeOptionalArray(id => `bg/color/date_prev_en_${id}.png`)
+export const hourColorOptionalArrayEn   = _makeOptionalArray(id => `bg/color/en/hour_prev_en_${id}.png`)
+export const minuteColorOptionalArrayEn = _makeOptionalArray(id => `bg/color/en/minute_prev_en_${id}.png`)
+export const dateColorOptionalArrayEn   = _makeOptionalArray(id => `bg/color/en/date_prev_en_${id}.png`)
+
+// Spanish — preview shows "once" / "y veinte" / "lunes, 01 de enero"
+export const hourColorOptionalArrayEs   = _makeOptionalArray(id => `bg/color/es/hour_prev_es_${id}.png`)
+export const minuteColorOptionalArrayEs = _makeOptionalArray(id => `bg/color/es/minute_prev_es_${id}.png`)
+export const dateColorOptionalArrayEs   = _makeOptionalArray(id => `bg/color/es/date_prev_es_${id}.png`)
+
+// Russian — preview shows "одиннадцать" / "и двадцать" / "понедельник, 1 января"
+export const hourColorOptionalArrayRu   = _makeOptionalArray(id => `bg/color/ru/hour_prev_ru_${id}.png`)
+export const minuteColorOptionalArrayRu = _makeOptionalArray(id => `bg/color/ru/minute_prev_ru_${id}.png`)
+export const dateColorOptionalArrayRu   = _makeOptionalArray(id => `bg/color/ru/date_prev_ru_${id}.png`)
+
+// French — preview shows "onze" / "et vingt" / "lundi 1 janvier"
+export const hourColorOptionalArrayFr   = _makeOptionalArray(id => `bg/color/fr/hour_prev_fr_${id}.png`)
+export const minuteColorOptionalArrayFr = _makeOptionalArray(id => `bg/color/fr/minute_prev_fr_${id}.png`)
+export const dateColorOptionalArrayFr   = _makeOptionalArray(id => `bg/color/fr/date_prev_fr_${id}.png`)
 
 // edit_id values for the 3 color selector groups (must not clash with 101/110/111/112)
 export const COLOR_EDIT_ID = {
